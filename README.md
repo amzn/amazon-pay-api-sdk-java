@@ -18,7 +18,7 @@ Please note the Amazon Pay V2 SDK can only be used for V2-specific API calls
 (e.g., Alexa Delivery Trackers, In-Store API, API V2, etc.)
 
 Please contact your Amazon Pay Account Manager before using the In-Store API calls in a Production environment to obtain a copy of the In-Store Integration Guide.
-These methods are available in the InStoreClient
+These methods are available in the InstoreClient
 
 Four quick steps are needed to make an API call:
 
@@ -27,9 +27,9 @@ Step 1. Construct a AmazonPayClient (using the previously defined PayConfigurati
         ```java
         AmazonPayClient client = new AmazonPayClient(payConfiguration);
                  // -or-
-        WebStoreClient webstoreClient = new WebStoreClient(payCcnfiguration);
+        WebstoreClient webstoreClient = new WebstoreClient(payConfiguration);
                  // -or-
-        InStoreClient instoreClient = new InStoreClient(payCcnfiguration);
+        InstoreClient instoreClient = new InstoreClient(payConfiguration);
   		 ```
 
  Step 2. Generate the payload.
@@ -101,7 +101,7 @@ try {
     payConfiguration = new PayConfiguration()
                    .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                    .setRegion(Region.YOUR_REGION_CODE)
-                   .setPrivateKey(new String(Files.readAllBytes(Paths.get("YOUR_PRIVATE_KEY_FILE_NAME"))));
+                   .setPrivateKey(new String(Files.readAllBytes(Paths.get("private.pem"))));
 }catch (AmazonPayClientException e) {
      e.printStackTrace();
 }
@@ -112,7 +112,7 @@ try {
     payConfiguration = new PayConfiguration()
                 .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                 .setRegion(Region.YOUR_REGION_CODE)
-                .setPrivateKey("YOUR_PRIVATE_KEY_OBJECT");
+                .setPrivateKey("private.pem");
 }catch (AmazonPayClientException e) {
      e.printStackTrace();
 }
@@ -257,9 +257,9 @@ String chargePermissionId = scanResponse.getString("chargePermissionId");
 
 ```java
 JSONObject payload = new JSONObject();
-JSONObject webCheckoutDetails = new JSONObject();
-webCheckoutDetails.put("checkoutReviewReturnUrl", "https://localhost/store/checkout_review");
-payload.put("webCheckoutDetails", webCheckoutDetails);
+JSONObject webCheckoutDetail = new JSONObject();
+webCheckoutDetail.put("checkoutReviewReturnUrl", "https://localhost/store/checkout_review");
+payload.put("webCheckoutDetail", webCheckoutDetail);
 payload.put("storeId", "amzn1.application-oa2-client.4c46698afa4d4b23b645d05762fc78fa");
 AmazonPayResponse response = new AmazonPayResponse();;
 String checkoutSessionId = null;
@@ -294,18 +294,18 @@ try {
 
 AmazonPayResponse response = new AmazonPayResponse();
 JSONObject payload = new JSONObject();
-JSONObject updateWebCheckoutDetails = new JSONObject();
-updateWebCheckoutDetails.put("checkoutResultReturnUrl", "https://localhost/store/checkout_return");
-payload.put("webCheckoutDetails", updateWebCheckoutDetails);
+JSONObject updateWebCheckoutDetail = new JSONObject();
+updateWebCheckoutDetail.put("checkoutResultReturnUrl", "https://localhost/store/checkout_return");
+payload.put("webCheckoutDetail", updateWebCheckoutDetail);
 
-JSONObject paymentDetails = new JSONObject();
-paymentDetails.put("paymentIntent" , "Authorize");
-paymentDetails.put("canHandlePendingAuthorization", false);
+JSONObject paymentDetail = new JSONObject();
+paymentDetail.put("paymentIntent" , "Authorize");
+paymentDetail.put("canHandlePendingAuthorization", false);
 JSONObject chargeAmount = new JSONObject();
 chargeAmount.put("amount", "12.34");
 chargeAmount.put("currencyCode", "USD");
-paymentDetails.put("chargeAmount", chargeAmount);
-payload.put("paymentDetails", paymentDetails);
+paymentDetail.put("chargeAmount", chargeAmount);
+payload.put("paymentDetail", paymentDetail);
 
 JSONObject merchantMetadata = new JSONObject();
 merchantMetadata.put("merchantReferenceId", "2019-0001");
@@ -361,6 +361,7 @@ try {
 
 ```java
 
+AmazonPayResponse response = new AmazonPayResponse();
 JSONObject payload = new JSONObject();
 payload.put("closureReason", "Specify the reason here");
 payload.put("cancelPendingCharges", "false");
@@ -426,6 +427,7 @@ chargeId = response.getResponse().getString("chargeId");
 
 AmazonPayResponse response = new AmazonPayResponse();
 
+JSONObject payload = new JSONObject();
 JSONObject captureAmount = new JSONObject();
 captureAmount.put("amount", "1.23");
 captureAmount.put("currencyCode", "USD");
