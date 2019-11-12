@@ -109,6 +109,15 @@
         <url>https://github.com/amzn/amazon-pay-sdk-v2-java.git</url>
     </scm>
 
+    <developers>
+    <developer>
+      <name>AmazonPay</name>
+      <email>amazon-pay-sdk@amazon.com</email>
+      <organization>Amazon</organization>
+      <organizationUrl>https://pay.amazon.com/</organizationUrl>
+    </developer>
+  </developers>
+
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
