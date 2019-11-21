@@ -109,7 +109,7 @@
         <url>https://github.com/amzn/amazon-pay-sdk-v2-java.git</url>
     </scm>
 
-    <developers>
+<developers>
     <developer>
       <name>AmazonPay</name>
       <email>amazon-pay-sdk@amazon.com</email>
@@ -208,7 +208,7 @@
                         <configuration>
                             <serverId>ossrh</serverId>
                             <nexusUrl>https://aws.oss.sonatype.org</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
                 </plugins>

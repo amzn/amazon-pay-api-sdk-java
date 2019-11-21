@@ -1,3 +1,5 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/software.amazon.pay/amazon-pay-sdk-v2-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/software.amazon.pay/amazon-pay-sdk-v2-java)
+
 ### Amazon Pay Java V2 SDK
 
 ### Requirements
@@ -82,7 +84,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 ```
 
- You will need your public key id and the file path to your private key
+You will need your public key id and the file path to your private key
+Environment.SANDBOX (for Sandbox Mode)
+Environment.LIVE (for Production Mode)
 
 ```java
 PayConfiguration payConfiguration = null;
@@ -90,7 +94,8 @@ try {
     payConfiguration = new PayConfiguration()
                 .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                 .setRegion(Region.YOUR_REGION_CODE)
-                .setPrivateKey("YOUR_PRIVATE_KEY_STRING");
+                .setPrivateKey("YOUR_PRIVATE_KEY_STRING")
+                .setEnvironment(Environment.SANDBOX);
 }catch (AmazonPayClientException e) {
     e.printStackTrace();
 }
@@ -101,7 +106,8 @@ try {
     payConfiguration = new PayConfiguration()
                    .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                    .setRegion(Region.YOUR_REGION_CODE)
-                   .setPrivateKey(new String(Files.readAllBytes(Paths.get("private.pem"))));
+                   .setPrivateKey(new String(Files.readAllBytes(Paths.get("private.pem"))))
+                   .setEnvironment(Environment.SANDBOX);
 }catch (AmazonPayClientException e) {
      e.printStackTrace();
 }
@@ -112,7 +118,8 @@ try {
     payConfiguration = new PayConfiguration()
                 .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                 .setRegion(Region.YOUR_REGION_CODE)
-                .setPrivateKey("private.pem");
+                .setPrivateKey("private.pem")
+                .setEnvironment(Environment.SANDBOX);
 }catch (AmazonPayClientException e) {
      e.printStackTrace();
 }
@@ -402,11 +409,11 @@ chargeAmount.put("currencyCode", "USD");
 payload.put("chargePermissionId", "S01-3152594-4330637");
 payload.put("chargeAmount", chargeAmount);
 payload.put("captureNow", false);
+// if payload.put("captureNow", true);
+// then provide
+// payload.put("softDescriptor", "My Soft Descriptor");
 payload.put("canHandlePendingAuthorization", true);
 
-JSONObject providerMetadata = new JSONObject();
-providerMetadata.put("providerReferenceId", "abcdef12345-6789");
-payload.put("providerMetadata", providerMetadata);
 String chargeId = null;
 
 Map<String, String> header = new HashMap<String, String>();
@@ -432,7 +439,7 @@ JSONObject captureAmount = new JSONObject();
 captureAmount.put("amount", "1.23");
 captureAmount.put("currencyCode", "USD");
 payload.put("captureAmount", captureAmount);
-payload.put("softDescriptor", "My Soft Descript");
+payload.put("softDescriptor", "My Soft Descriptor");
 
 Map<String, String> header = new HashMap<String, String>();
 header.put("x-amz-pay-idempotency-key", "23GGJHGB668370");
