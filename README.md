@@ -20,6 +20,26 @@ Please note the Amazon Pay V2 SDK can only be used for V2-specific API calls
 (e.g., Alexa Delivery Trackers, In-Store API, API V2, etc.)
 
 Please contact your Amazon Pay Account Manager before using the In-Store API calls in a Production environment to obtain a copy of the In-Store Integration Guide.
+
+Public and Private Keys
+MWS access keys, MWS secret keys, and MWS authorization tokens from previous MWS or Amazon Pay V1 integrations cannot be used with this SDK.
+
+You will need to generate your own public/private key pair to make API calls with this SDK.
+In Windows 10 this can be done with ssh-keygen commands:
+
+    ssh-keygen -t rsa -b 2048 -f private.pem
+    ssh-keygen -f private.pem -e -m PKCS8 > public.pub
+
+In Linux or macOS this can be done using openssl commands:
+
+    openssl genrsa -out private.txt 2048
+    openssl rsa -in private.txt -pubout > public.txt
+
+The first command above generates a private key and the second line uses the private key to generate a public key.
+
+To associate the key with your account, send an email to amazon-pay-delivery-notifications@amazon.com that includes (1) your public key and (2) your Merchant ID. Do not send your private key to Amazon (or anyone else) under any circumstance!
+
+In your Seller Central account, within 1-2 business days, the account administrator will receive a message that includes the public_key_id you will need to use the SDK.
 These methods are available in the InstoreClient
 
 Four quick steps are needed to make an API call:
@@ -259,6 +279,8 @@ try {
 String chargePermissionId = scanResponse.getString("chargePermissionId");
 
 ```
+
+These methods are available in Webstore Client.
 
 ### Making a createCheckoutSession request
 
@@ -525,7 +547,6 @@ deliveryDetails.put("trackingNumber", "0430955041235");
 deliveryDetails.put("carrierCode", "FEDEX");
 deliveryDetailsArray.add(deliveryDetails);
 payload.put("amazonOrderReferenceId", "P01-8845762-6072995");
-payload.put("externalOrderId", "merchantGivenId");
 payload.put("deliveryDetails", deliveryDetailsArray);
 
 try {
@@ -535,9 +556,3 @@ try {
 }
 
 ```
-
-
-
-
-
-
