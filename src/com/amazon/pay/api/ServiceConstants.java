@@ -26,7 +26,7 @@ public class ServiceConstants {
     public static final Map<Region, String> endpointMappings;
     public static final Map<String, Integer> serviceErrors;
 
-    public static final String APPLICATION_LIBRARY_VERSION = "4.3.0";
+    public static final String APPLICATION_LIBRARY_VERSION = "4.3.1";
     public static final String GITHUB_SDK_NAME = "amazon-pay-sdk-v2-java";
     public static final String AMAZON_PAY_API_VERSION = "v1";
 
@@ -67,6 +67,7 @@ public class ServiceConstants {
         Map<String, Integer> serviceErrorsMap = new HashMap<>();
         serviceErrorsMap.put("Internal Server Error", HttpURLConnection.HTTP_INTERNAL_ERROR);
         serviceErrorsMap.put("Service Unavailable", HttpURLConnection.HTTP_UNAVAILABLE);
+        serviceErrorsMap.put("Too Many Requests", 429);
         serviceErrors = Collections.unmodifiableMap(serviceErrorsMap);
     }
 
