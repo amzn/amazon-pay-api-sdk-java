@@ -5,7 +5,7 @@
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
  *
- *  http://aws.amazon.com/apache2.0
+ * http://aws.amazon.com/apache2.0
  *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -15,7 +15,7 @@
 package com.amazon.pay.api;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
-import com.amazon.pay.api.PayConfiguration;
+import net.sf.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,20 +25,18 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.json.JSONObject;
-
 public class AmazonPayClient {
-    final private PayConfiguration payConfiguration;
-    final private RequestSigner requestSigner;
-    final private Map<String, List<String>> queryParametersMap = new HashMap<>();
+    final protected PayConfiguration payConfiguration;
+    final protected RequestSigner requestSigner;
+    final protected Map<String, List<String>> queryParametersMap = new HashMap<>();
 
     public AmazonPayClient(final PayConfiguration payConfiguration) throws AmazonPayClientException {
         this.payConfiguration = payConfiguration;
@@ -48,6 +46,7 @@ public class AmazonPayClient {
 
     /**
      * The Delivery Tracker operation is used to track the delivery status
+     *
      * @param payload
      * @param header
      * @return The response from the deliveryTracker service API, as
@@ -60,7 +59,32 @@ public class AmazonPayClient {
     }
 
     /**
+     * The get Authorization Token operation is used to obtain retrieve a delegated authorization token
+     *  used in order to make API calls on behalf of a merchant.
+     *  This token is needed to make delegated calls.
+     * @implNote Important: getAuthorizationToken() requires a Client configured to use the live environment.
+     * @param  mwsAuthToken
+     * @param  merchantId
+     * @param  header
+     * @return The response from the getAuthorizationToken service API, as returned by Amazon Pay.
+     * @see AmazonPayClient
+     * @see PayConfiguration
+     * @see com.amazon.pay.api.types.Environment
+     */
+    public AmazonPayResponse getAuthorizationToken(final String mwsAuthToken, final String merchantId, final Map<String, String> header) throws AmazonPayClientException {
+        final URI authorizationTokenURI = Util.getServiceURI(payConfiguration, ServiceConstants.AUTHORIZATION_TOKEN);
+        final URI getAuthorizationTokenURI = authorizationTokenURI.resolve(authorizationTokenURI.getPath() + "/" + mwsAuthToken + "?merchantId=" + merchantId);
+        queryParametersMap.clear();
+        ArrayList<String> auxList = new ArrayList<String>();
+        auxList.add(merchantId);
+        queryParametersMap.put("merchantId", auxList);
+        return callAPI(getAuthorizationTokenURI, "GET", queryParametersMap, "", header);
+    }
+
+
+    /**
      * The Delivery Tracker operation is used to track the delivery status
+     *
      * @param payload
      * @return The response from the deliveryTracker service API, as
      * returned by Amazon Pay.
@@ -72,11 +96,12 @@ public class AmazonPayClient {
 
     /**
      * API to process the request and return the
-     * @param uri The uri that needs to be executed
-     * @param httpMethodName the HTTP request method(GET,PUT,POST etc) to be used
+     *
+     * @param uri             The uri that needs to be executed
+     * @param httpMethodName  the HTTP request method(GET,PUT,POST etc) to be used
      * @param queryParameters the query parameters map
-     * @param request the payload to be sent with the request
-     * @param header the header of the solution provider
+     * @param request         the payload to be sent with the request
+     * @param header          the header of the solution provider
      * @return response of type AmazonPayResponse
      * @throws AmazonPayClientException
      */
@@ -84,18 +109,20 @@ public class AmazonPayClient {
                                      final String httpMethodName,
                                      final Map<String, List<String>> queryParameters,
                                      final String request,
-                                     final Map<String,String> header) throws AmazonPayClientException {
+                                     final Map<String, String> header) throws AmazonPayClientException {
         Map<String, String> postSignedHeaders;
+
         postSignedHeaders = requestSigner.signRequest(uri, httpMethodName, queryParameters, request, header);
         return processRequest(uri, postSignedHeaders, request, httpMethodName);
     }
 
     /**
      * Helper method to send the request and also retry in case the request is throttled
-     * @param uri the uri to be executed
+     *
+     * @param uri               the uri to be executed
      * @param postSignedHeaders the signed headers
-     * @param payload the payload to be sent with the request
-     * @param httpMethodName the HTTP request method(GET,PUT,POST etc) to be used
+     * @param payload           the payload to be sent with the request
+     * @param httpMethodName    the HTTP request method(GET,PUT,POST etc) to be used
      * @return the AmazonPayResponse
      * @throws AmazonPayClientException
      */
@@ -131,8 +158,7 @@ public class AmazonPayClient {
             responseObject.setRetries(retry);
             responseObject.setStatus(statusCode);
             responseObject.setDuration(System.currentTimeMillis() - millisBefore);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             throw new AmazonPayClientException(e.getMessage(), e);
         }
 
@@ -145,14 +171,15 @@ public class AmazonPayClient {
         responseObject.setRawResponse(rawResponseObject);
         responseObject.setRequestId(response.get(ServiceConstants.REQUEST_ID));
 
-        return  responseObject;
+        return responseObject;
     }
 
     /**
      * Helper method to post the request
-     * @param uri the uri to be executed
-     * @param headers the signed headers
-     * @param payload the payload ot be sent with the request
+     *
+     * @param uri            the uri to be executed
+     * @param headers        the signed headers
+     * @param payload        the payload ot be sent with the request
      * @param httpMethodName the HTTP request method(GET,PUT,POST etc) to be used
      * @return the response and response code
      * @throws AmazonPayClientException
@@ -167,7 +194,7 @@ public class AmazonPayClient {
         String requestId = null;
         int responseCode = 0;
         try {
-            conn = (HttpURLConnection)uri.toURL().openConnection();
+            conn = (HttpURLConnection) uri.toURL().openConnection();
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 conn.setRequestProperty(entry.getKey(), entry.getValue());
             }
@@ -175,42 +202,36 @@ public class AmazonPayClient {
             conn.setDoInput(true);
             if (payload == null || payload.isEmpty()) {
                 conn.setDoOutput(false);
-            }
-            else {
+            } else {
                 conn.setDoOutput(true);
                 try (OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream())) {
                     out.write(payload);
                     out.flush();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     throw new AmazonPayClientException(e.getMessage(), e);
                 }
             }
             responseCode = conn.getResponseCode();
             requestId = conn.getHeaderField("X-Amz-Pay-Request-Id");
-             String inputLine;
+            String inputLine;
             if (responseCode < HttpURLConnection.HTTP_BAD_REQUEST) {
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), Util.DEFAULT_ENCODING))) {
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine).append("\n");
                     }
-                }
-                 catch (IOException e) {
+                } catch (IOException e) {
                     throw new AmazonPayClientException(e.getMessage(), e);
                 }
-            }
-            else {
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
+            } else {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getErrorStream(), Util.DEFAULT_ENCODING))) {
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine).append("\n");
                     }
-                }
-                 catch (IOException e) {
+                } catch (IOException e) {
                     throw new AmazonPayClientException(e.getMessage(), e);
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new AmazonPayClientException(e.getMessage(), e);
         }
         result.add(String.valueOf(responseCode));
@@ -221,6 +242,7 @@ public class AmazonPayClient {
 
     /**
      * The allowPatch operation is used to call PATCH requests.
+     *
      * @throws IllegalStateException
      */
     private static void allowPatch() {

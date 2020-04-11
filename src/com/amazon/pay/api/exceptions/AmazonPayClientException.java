@@ -9,10 +9,10 @@ public class AmazonPayClientException extends Exception implements Serializable 
     /**
      * Constructs AmazonPayClientException with given message and underlying exception
      *
-     * @param message An error message describing the error
+     * @param message   An error message describing the error
      * @param exception Original underlying exception
      */
-    public AmazonPayClientException(String message , Exception exception) {
+    public AmazonPayClientException(String message, Exception exception) {
         super(message, exception);
     }
 

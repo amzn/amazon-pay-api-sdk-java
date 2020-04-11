@@ -5,7 +5,7 @@
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
  *
- *  http://aws.amazon.com/apache2.0
+ * http://aws.amazon.com/apache2.0
  *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -15,7 +15,6 @@
 package com.amazon.pay.api;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
-import com.amazon.pay.api.PayConfiguration;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
@@ -118,12 +117,12 @@ public class SignatureHelper {
      * @throws SignatureException signature exception
      */
     public String generateSignature(final String stringToSign, final PrivateKey privateKey) throws NoSuchAlgorithmException,
-                NoSuchProviderException, InvalidAlgorithmParameterException,
-                InvalidKeyException, SignatureException {
+            NoSuchProviderException, InvalidAlgorithmParameterException,
+            InvalidKeyException, SignatureException {
         final Signature signature = Signature.getInstance(ServiceConstants.SIGNATURE_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
         final MGF1ParameterSpec mgf1ParameterSpec = new MGF1ParameterSpec(ServiceConstants.HASH_ALGORITHM);
         final PSSParameterSpec pssParameterSpec = new PSSParameterSpec(ServiceConstants.HASH_ALGORITHM,
-                ServiceConstants.MASK_GENERATION_FUNCTION, mgf1ParameterSpec , SALT_LENGTH, TRAILER_FIELD);
+                ServiceConstants.MASK_GENERATION_FUNCTION, mgf1ParameterSpec, SALT_LENGTH, TRAILER_FIELD);
         signature.setParameter(pssParameterSpec);
         signature.initSign(privateKey);
         signature.update(stringToSign.getBytes());
@@ -136,7 +135,7 @@ public class SignatureHelper {
      * @param uri the uri to be executed
      * @return a map of mandatory headers
      */
-    public Map<String, List<String>> createPreSignedHeaders(final URI uri, final Map<String,String> header) throws AmazonPayClientException {
+    public Map<String, List<String>> createPreSignedHeaders(final URI uri, final Map<String, String> header) throws AmazonPayClientException {
         final Map<String, List<String>> headers = new HashMap<>();
 
         //List of Headers added by Amazon Pay
@@ -182,8 +181,7 @@ public class SignatureHelper {
                 final List<String> alreadyPresentHeaderValue = new ArrayList<>();
                 alreadyPresentHeaderValue.add(entry.getValue());
                 headers.put(entry.getKey(), alreadyPresentHeaderValue);
-            }
-            else {
+            } else {
                 final List<String> newHeaderValue = new ArrayList<>();
                 newHeaderValue.add(entry.getValue());
                 headers.put(entry.getKey(), newHeaderValue);
@@ -230,7 +228,7 @@ public class SignatureHelper {
             List<String> values = requestHeaders.get(header);
             StringBuilder headerValue = new StringBuilder();
             for (String value : values) {
-                if (headerValue!= null) {
+                if (headerValue != null) {
                     if (headerValue.length() > 0) {
                         headerValue.append(",");
                     }
@@ -279,7 +277,7 @@ public class SignatureHelper {
 
         final StringBuilder result = new StringBuilder();
         for (Map.Entry<String, List<String>> entry : sorted.entrySet()) {
-            for(String value : entry.getValue()) {
+            for (String value : entry.getValue()) {
                 if (result.length() > 0) {
                     result.append("&");
                 }

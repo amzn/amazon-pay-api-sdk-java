@@ -1,6 +1,6 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/software.amazon.pay/amazon-pay-sdk-v2-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/software.amazon.pay/amazon-pay-sdk-v2-java)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/software.amazon.pay/amazon-pay-api-sdk-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/software.amazon.pay/amazon-pay-api-sdk-java)
 
-### Amazon Pay Java V2 SDK
+### Amazon Pay Java SDK
 
 ### Requirements
 
@@ -14,15 +14,12 @@
 * [Apache Commons Beanutils](https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils/1.9.2)
 * [EZMorph](http://www.java2s.com/Code/Jar/e/Downloadezmorph105jar.htm)
 
-Amazon Pay V2 Integration
-
-Please note the Amazon Pay V2 SDK can only be used for V2-specific API calls
-(e.g., Alexa Delivery Trackers, In-Store API, API V2, etc.)
+Amazon Pay Integration
 
 Please contact your Amazon Pay Account Manager before using the In-Store API calls in a Production environment to obtain a copy of the In-Store Integration Guide.
 
 Public and Private Keys
-MWS access keys, MWS secret keys, and MWS authorization tokens from previous MWS or Amazon Pay V1 integrations cannot be used with this SDK.
+MWS access keys, MWS secret keys, and MWS authorization tokens from previous MWS-based integrations cannot be used with this SDK.
 
 You will need to generate your own public/private key pair to make API calls with this SDK.
 In Windows 10 this can be done with ssh-keygen commands:
@@ -553,6 +550,36 @@ try {
      response = client.deliveryTracker(payload);
 } catch (AmazonPayClientException e) {
     e.printStackTrace();
+}
+
+```
+
+## Authorization Tokens API
+Please note that your solution provider account must have a pre-existing relationship (valid and active API V1-style MWS authorization token) with the merchant account in order to use this function.
+
+```java
+
+AmazonPayClient client;
+PayConfiguration payConfiguration;
+AmazonPayResponse response;
+String mwsAuthToken = /* the third part mws auth token */;
+String merchantId = /* the third party merchant id */; 
+String privateKey = /* your private key */;
+String publicKeyId = /* your public key id */;
+try {
+    payConfiguration = new PayConfiguration();
+    payConfiguration.setRegion(Region.EU). // select your region
+            setEnvironment(Environment.LIVE). // must be live
+            setPrivateKey(privateKey).
+            setPublicKeyId(publicKeyId);
+
+    client = new AmazonPayClient(payConfiguration);
+    response = client.getAuthorizationToken(mwsAuthToken, merchantId, null);
+    // If OK response.getStatus() shall be 200
+    // If OK response.getResponse() provides the mwsAuthToken
+} catch (Exception e) {
+    // System.out.println(e.getMessage());
+    /* handle Exception here */
 }
 
 ```

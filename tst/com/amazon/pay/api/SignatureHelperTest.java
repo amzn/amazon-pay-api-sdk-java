@@ -5,7 +5,7 @@
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
  *
- *  http://aws.amazon.com/apache2.0
+ * http://aws.amazon.com/apache2.0
  *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -14,13 +14,11 @@
  */
 package com.amazon.pay.api;
 
-import com.amazon.pay.api.PayConfiguration;
 import com.amazon.pay.api.types.Region;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -60,7 +58,7 @@ public class SignatureHelperTest {
         PowerMockito.when(spy, method(SignatureHelper.class, "hashThenHexEncode")).withArguments(canonicalRequest).thenReturn("95b0d65e9efb9f0b9e8c2f3b77");
 
         String stringToSign = spy.createStringToSign(canonicalRequest);
-        String expectedString = "AMZN-PAY-RSASSA-PSS" + "\n" +  "95b0d65e9efb9f0b9e8c2f3b77";
+        String expectedString = "AMZN-PAY-RSASSA-PSS" + "\n" + "95b0d65e9efb9f0b9e8c2f3b77";
 
         Assert.assertEquals(stringToSign, expectedString);
     }
@@ -77,7 +75,7 @@ public class SignatureHelperTest {
         String expectedHeadersString = "accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-region";
 
         String actualHeadersString = spy.getSignedHeadersString(preSignedHeaders);
-        Assert.assertEquals(expectedHeadersString,actualHeadersString);
+        Assert.assertEquals(expectedHeadersString, actualHeadersString);
     }
 
     @Test
@@ -126,7 +124,7 @@ public class SignatureHelperTest {
         hostHeaderValue.add(uri.getHost());
         headers.put("x-amz-pay-host", hostHeaderValue);
 
-        if(header.isEmpty() || header==null)
+        if (header.isEmpty() || header == null)
             return headers;
 
         for (Map.Entry<String, String> entry : header.entrySet()) {

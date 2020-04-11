@@ -5,7 +5,7 @@
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
  *
- *  http://aws.amazon.com/apache2.0
+ * http://aws.amazon.com/apache2.0
  *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -15,11 +15,10 @@
 package com.amazon.pay.api;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
-import com.amazon.pay.api.PayConfiguration;
 import com.amazon.pay.api.types.Environment;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -30,15 +29,15 @@ import java.net.URLEncoder;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.Security;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.SimpleTimeZone;
 import java.util.Map;
+import java.util.SimpleTimeZone;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,13 +47,14 @@ public class Util {
     public static final String JAVA_VERSION = System.getProperty("java.version");
     public static final String OS_NAME = System.getProperty("os.name");
     public static final String OS_VERSION = System.getProperty("os.version");
-    private static final String DEFAULT_ENCODING = "UTF-8";
+    public static final String DEFAULT_ENCODING = "UTF-8";
 
     /**
      * Regex which matches any of the sequences that we need to fix up after
      * URLEncoder.encode().
      */
     private static final Pattern ENCODED_CHARACTERS_PATTERN;
+
     static {
         StringBuilder pattern = new StringBuilder();
 
@@ -165,7 +165,7 @@ public class Util {
         try {
             final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             privateKey = keyFactory.generatePrivate(spec);
-        } catch (NoSuchAlgorithmException|InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new AmazonPayClientException(e.getMessage(), e);
         }
 
@@ -203,7 +203,7 @@ public class Util {
         URI uri;
         try {
             uri = new URI(ServiceConstants.endpointMappings.get(payConfiguration.getRegion())
-                        + getServiceVersionName(payConfiguration.getEnvironment(), action));
+                    + getServiceVersionName(payConfiguration.getEnvironment(), action));
         } catch (URISyntaxException e) {
             throw new AmazonPayClientException(e.getMessage(), e);
         }
@@ -224,7 +224,7 @@ public class Util {
         } else {
             serviceVersionName = "/" + "live" + "/" + action;
         }
-        return  serviceVersionName;
+        return serviceVersionName;
     }
 
     /**

@@ -5,7 +5,7 @@
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
  *
- *  http://aws.amazon.com/apache2.0
+ * http://aws.amazon.com/apache2.0
  *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -15,25 +15,16 @@
 package com.amazon.pay.api;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
-import com.amazon.pay.api.PayConfiguration;
 import net.sf.json.JSONObject;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
 public class WebstoreClient extends AmazonPayClient {
-    final private PayConfiguration payConfiguration;
-    final private RequestSigner requestSigner;
-    final private Map<String, List<String>> queryParametersMap = new HashMap<>();
 
     public WebstoreClient(final PayConfiguration payConfiguration) throws AmazonPayClientException {
         super(payConfiguration);
-        this.payConfiguration = payConfiguration;
-        requestSigner = new RequestSigner(payConfiguration);
     }
 
     /**
@@ -55,6 +46,7 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The CreateCheckoutSession operation is used to create a CheckoutSession for a buyer
      * and pass the Id as part of button click.
+     *
      * @param payload
      * @return The response from the CreateCheckoutSession service API, as
      * returned by Amazon Pay.
@@ -79,6 +71,7 @@ public class WebstoreClient extends AmazonPayClient {
         final URI getCheckoutSessionURI = checkoutSessionURI.resolve(checkoutSessionURI.getPath() + "/" + checkoutSessionId);
         return callAPI(getCheckoutSessionURI, "GET", queryParametersMap, "", header);
     }
+
     /**
      * The GetCheckoutSession operation is used to get checkout session details that contain
      * all session associated details.
@@ -94,6 +87,7 @@ public class WebstoreClient extends AmazonPayClient {
 
     /**
      * The UpdateCheckoutSession operation is used to update payment details for a session.
+     *
      * @param checkoutSessionId
      * @param payload
      * @param header
@@ -109,6 +103,7 @@ public class WebstoreClient extends AmazonPayClient {
 
     /**
      * The UpdateCheckoutSession operation is used to update payment details for a session.
+     *
      * @param checkoutSessionId
      * @param payload
      * @return The response from the UpdateCheckoutSession service API, as
@@ -148,6 +143,7 @@ public class WebstoreClient extends AmazonPayClient {
 
     /**
      * The UpdateChargePermission operation is used to update the metadata of the ChargePermission.
+     *
      * @param chargePermissionsId
      * @param payload
      * @param header
@@ -163,6 +159,7 @@ public class WebstoreClient extends AmazonPayClient {
 
     /**
      * The UpdateChargePermission operation is used to update the metadata of the ChargePermission.
+     *
      * @param chargePermissionsId
      * @param payload
      * @return The response from the UpdateChargePermission service API, as
@@ -176,6 +173,7 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The CloseChargePermission operation Moves the Charge Permission to a Closed state.
      * No future charges can be made and pending charges will be canceled if you set cancelPendingCharges to true.
+     *
      * @param chargePermissionsId
      * @param payload
      * @param header
@@ -192,6 +190,7 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The CloseChargePermission operation Moves the Charge Permission to a Closed state.
      * No future charges can be made and pending charges will be canceled if you set cancelPendingCharges to true.
+     *
      * @param chargePermissionsId
      * @param payload
      * @return The response from the CloseChargePermission service API, as
@@ -205,6 +204,7 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The CreateCharge operation is used to create a charges for a buyer
      * and pass the Id as part of button click.
+     *
      * @param payload
      * @param header
      * @return The response from the CreateCharge service API, as
@@ -220,6 +220,7 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The CreateCharge operation is used to create a charges for a buyer
      * and pass the Id as part of button click.
+     *
      * @param payload
      * @return The response from the CreateCharge service API, as
      * returned by Amazon Pay.
@@ -231,6 +232,7 @@ public class WebstoreClient extends AmazonPayClient {
 
     /**
      * The getCharge operation is used to get charges details that contain
+     *
      * @param chargeId
      * @param header
      * @return The response from the getCharge service API, as
@@ -245,6 +247,7 @@ public class WebstoreClient extends AmazonPayClient {
 
     /**
      * The getCharge operation is used to get charges details that contain
+     *
      * @param chargeId
      * @return The response from the getCharge service API, as
      * returned by Amazon Pay.
@@ -257,6 +260,7 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The CaptureCharge operation is used to create a charges for a buyer
      * and pass the Id as part of button click.
+     *
      * @param chargeId
      * @param payload
      * @param header
@@ -274,6 +278,7 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The CaptureCharge operation is used to create a charges for a buyer
      * and pass the Id as part of button click.
+     *
      * @param chargeId
      * @param payload
      * @return The response from the CaptureCharge service API, as
@@ -286,6 +291,7 @@ public class WebstoreClient extends AmazonPayClient {
 
     /**
      * The cancelCharge operation is used to cancel Charges.
+     *
      * @param chargeId
      * @param payload
      * @param header
@@ -301,6 +307,7 @@ public class WebstoreClient extends AmazonPayClient {
 
     /**
      * The cancelCharge operation is used to cancel Charges.
+     *
      * @param chargeId
      * @param payload
      * @return The response from the cancelCharge service API, as
@@ -314,6 +321,7 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The CreateRefund operation is used to create a refund for a buyer
      * and pass the Id as part of button click.
+     *
      * @param payload
      * @param header
      * @return The response from the CreateRefunds service API, as
@@ -329,6 +337,7 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The CreateRefund operation is used to create a refund for a buyer
      * and pass the Id as part of button click.
+     *
      * @param payload
      * @return The response from the CreateRefunds service API, as
      * returned by Amazon Pay.
@@ -340,6 +349,7 @@ public class WebstoreClient extends AmazonPayClient {
 
     /**
      * The getRefund operation is used to get refund details that contain
+     *
      * @param refundId
      * @param header
      * @return The response from the getRefund service API, as
@@ -354,6 +364,7 @@ public class WebstoreClient extends AmazonPayClient {
 
     /**
      * The getRefund operation is used to get refund details that contain
+     *
      * @param refundId
      * @return The response from the getRefund service API, as
      * returned by Amazon Pay.

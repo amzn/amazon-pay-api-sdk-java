@@ -3,14 +3,50 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>software.amazon.pay</groupId>
-    <artifactId>amazon-pay-sdk-v2-java</artifactId>
+    <artifactId>amazon-pay-api-sdk-java</artifactId>
     <packaging>jar</packaging>
-    <version>4.3.1</version>
+    <version>1.0.0</version>
     <dependencies>
         <dependency>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.7</version>
+            <version>1.6.8</version>
+            <type>maven-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <type>maven-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.2.1</version>
+            <type>maven-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.6</version>
+            <type>maven-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-site-plugin</artifactId>
+            <version>3.9.0</version>
+            <type>maven-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
+            <version>3.0.0</version>
+            <type>maven-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.2.0</version>
             <type>maven-plugin</type>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.sf.json-lib/json-lib -->
@@ -26,12 +62,6 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.64</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.1</version>
-            <type>maven-plugin</type>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/junit/junit -->
         <dependency>
             <groupId>junit</groupId>
@@ -42,26 +72,16 @@
         <!-- https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito -->
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.6.3</version>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <version>2.0.7</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.powermock/powermock-module-junit4 -->
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
-            <version>1.6.3</version>
+            <version>2.0.7</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-site-plugin</artifactId>
-            <version>3.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-project-info-reports-plugin</artifactId>
-            <version>3.0.0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils-core -->
         <dependency>
@@ -69,12 +89,6 @@
             <artifactId>commons-beanutils-core</artifactId>
             <version>1.8.3</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
-        </dependency>
-
     </dependencies>
     <distributionManagement>
         <snapshotRepository>
@@ -92,9 +106,9 @@
         <testSourceDirectory>tst</testSourceDirectory>
     </build>
 
-    <name>Amazon Pay V2 Java SDK</name>
-    <description>This is the JAVA SDK for Amazon Pay V2 Integration.</description>
-    <url>https://github.com/amzn/amazon-pay-sdk-v2-java</url>
+    <name>Amazon Pay Java SDK</name>
+    <description>This is the JAVA SDK for Amazon Pay Integration.</description>
+    <url>https://github.com/amzn/amazon-pay-api-sdk-java</url>
 
     <licenses>
         <license>
@@ -104,19 +118,19 @@
     </licenses>
 
     <scm>
-        <connection>scm:git://github.com/amzn/amazon-pay-sdk-v2-java.git</connection>
-        <developerConnection>scm:git:ssh://github.com/amzn/amazon-pay-sdk-v2-java.git</developerConnection>
-        <url>https://github.com/amzn/amazon-pay-sdk-v2-java.git</url>
+        <connection>scm:git://github.com/amzn/amazon-pay-api-sdk-java.git</connection>
+        <developerConnection>scm:git:ssh://github.com/amzn/amazon-pay-api-sdk-java.git</developerConnection>
+        <url>https://github.com/amzn/amazon-pay-api-sdk-java.git</url>
     </scm>
 
-<developers>
-    <developer>
-      <name>AmazonPay</name>
-      <email>amazon-pay-sdk@amazon.com</email>
-      <organization>Amazon</organization>
-      <organizationUrl>https://pay.amazon.com/</organizationUrl>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <name>AmazonPay</name>
+            <email>amazon-pay-sdk@amazon.com</email>
+            <organization>Amazon</organization>
+            <organizationUrl>https://pay.amazon.com/</organizationUrl>
+        </developer>
+    </developers>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -132,7 +146,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.6.0</version>
+                        <version>3.8.1</version>
                         <configuration>
                             <compilerVersion>1.8</compilerVersion>
                             <source>1.8</source>
@@ -143,7 +157,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>3.2.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -157,7 +171,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
+                        <version>3.2.0</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -174,14 +188,16 @@
                             <execution>
                                 <id>deploy</id>
                                 <phase>deploy</phase>
-                                <goals><goal>deploy</goal></goals>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-site-plugin</artifactId>
-                        <version>3.7.1</version>
+                        <version>3.9.0</version>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -203,7 +219,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.7</version>
+                        <version>1.6.8</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>

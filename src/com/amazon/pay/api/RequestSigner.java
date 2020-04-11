@@ -5,7 +5,7 @@
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
  *
- *  http://aws.amazon.com/apache2.0
+ * http://aws.amazon.com/apache2.0
  *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -15,7 +15,6 @@
 package com.amazon.pay.api;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
-import com.amazon.pay.api.PayConfiguration;
 
 import java.net.URI;
 import java.security.InvalidAlgorithmParameterException;
@@ -54,7 +53,7 @@ public class RequestSigner {
                                            final String httpMethodName,
                                            final Map<String, List<String>> queryParameters,
                                            final String requestPayload,
-                                           final Map<String,String> header) throws AmazonPayClientException {
+                                           final Map<String, String> header) throws AmazonPayClientException {
         final String publicKeyId = payConfiguration.getPublicKeyId();
         final Map<String, List<String>> preSignedHeaders = signatureHelper.createPreSignedHeaders(uri, header);
         final String userAgent = buildUserAgentHeader();
@@ -66,10 +65,10 @@ public class RequestSigner {
             signature = signatureHelper.generateSignature(stringToSign, privateKey);
 
         } catch (NoSuchAlgorithmException
-                |NoSuchProviderException
-                |InvalidAlgorithmParameterException
-                |InvalidKeyException
-                |SignatureException e) {
+                | NoSuchProviderException
+                | InvalidAlgorithmParameterException
+                | InvalidKeyException
+                | SignatureException e) {
             throw new AmazonPayClientException(e.getMessage(), e);
         }
 
@@ -113,8 +112,8 @@ public class RequestSigner {
      * @throws AmazonPayClientException
      */
     private String buildAuthorizationHeader(String publicKeyId,
-                                                   Map<String, List<String>> preSignedHeaders,
-                                                   String signature) throws AmazonPayClientException {
+                                            Map<String, List<String>> preSignedHeaders,
+                                            String signature) throws AmazonPayClientException {
 
         // The parameters being null should never happen at this point, because that
         // case should be caught by other exceptions upstream.
@@ -124,9 +123,9 @@ public class RequestSigner {
         }
 
         final StringBuilder authorizationBuilder = new StringBuilder(ServiceConstants.AMAZON_SIGNATURE_ALGORITHM)
-                    .append(" PublicKeyId=").append(publicKeyId).append(", ").append("SignedHeaders=")
-                    .append(signatureHelper.getSignedHeadersString(preSignedHeaders))
-                    .append(", Signature=").append(signature);
+                .append(" PublicKeyId=").append(publicKeyId).append(", ").append("SignedHeaders=")
+                .append(signatureHelper.getSignedHeadersString(preSignedHeaders))
+                .append(", Signature=").append(signature);
 
         return authorizationBuilder.toString();
     }

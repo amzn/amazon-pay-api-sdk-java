@@ -1,7 +1,6 @@
 package com.amazon.pay.api;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
-import com.amazon.pay.api.PayConfiguration;
 import com.amazon.pay.api.types.Region;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -45,7 +44,7 @@ public class CreateStringToSignTest {
             String payload = testCase.getString("payload");
             Map<String, List<String>> preSignedHeaders = mockedPreSignedHeaders(uri);
 
-            String actualCanonicalRequest = signatureHelper.createCanonicalRequest(uri, method, queryParams,payload, preSignedHeaders);
+            String actualCanonicalRequest = signatureHelper.createCanonicalRequest(uri, method, queryParams, payload, preSignedHeaders);
             String expectedCanonicalRequest = testCase.getString("canonicalRequest");
 
 

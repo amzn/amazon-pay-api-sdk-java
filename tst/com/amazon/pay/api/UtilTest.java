@@ -5,7 +5,7 @@
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
  *
- *  http://aws.amazon.com/apache2.0
+ * http://aws.amazon.com/apache2.0
  *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -14,16 +14,14 @@
  */
 package com.amazon.pay.api;
 
-import com.amazon.pay.api.Util;
-import com.amazon.pay.api.PayConfiguration;
 import com.amazon.pay.api.types.Environment;
 import com.amazon.pay.api.types.Region;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URI;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class UtilTest {
     @Test
@@ -32,7 +30,7 @@ public class UtilTest {
         Assert.assertEquals(expectedUrl, "/live/in-store/v1/refund");
 
         String expectedUrl1 = Util.urlEncode("/live/in-store/v1/refund", false);
-        Assert.assertEquals(expectedUrl1,"%2Flive%2Fin-store%2Fv1%2Frefund");
+        Assert.assertEquals(expectedUrl1, "%2Flive%2Fin-store%2Fv1%2Frefund");
     }
 
     @Test

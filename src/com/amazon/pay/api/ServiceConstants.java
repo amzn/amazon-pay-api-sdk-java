@@ -26,8 +26,8 @@ public class ServiceConstants {
     public static final Map<Region, String> endpointMappings;
     public static final Map<String, Integer> serviceErrors;
 
-    public static final String APPLICATION_LIBRARY_VERSION = "4.3.1";
-    public static final String GITHUB_SDK_NAME = "amazon-pay-sdk-v2-java";
+    public static final String APPLICATION_LIBRARY_VERSION = "1.0.0";
+    public static final String GITHUB_SDK_NAME = "amazon-pay-api-sdk-java";
     public static final String AMAZON_PAY_API_VERSION = "v1";
 
     public static final String AMAZON_SIGNATURE_ALGORITHM = "AMZN-PAY-RSASSA-PSS";
@@ -40,16 +40,18 @@ public class ServiceConstants {
     public static final String PUBLIC_KEY_ID = "Public key id";
     public static final String REDACTED = "Redacted";
 
-    public static final String DELIVERY_TRACKERS = "v1/deliveryTrackers";
+    public static final String DELIVERY_TRACKERS = AMAZON_PAY_API_VERSION + "/deliveryTrackers";
 
-    public static final String MERCHANT_SCAN = "in-store/v1/merchantScan";
-    public static final String REFUND = "in-store/v1/refund";
-    public static final String CHARGE = "in-store/v1/charge";
+    public static final String MERCHANT_SCAN = "in-store/" + AMAZON_PAY_API_VERSION + "/merchantScan";
+    public static final String REFUND = "in-store/" + AMAZON_PAY_API_VERSION + "/refund";
+    public static final String CHARGE = "in-store/" + AMAZON_PAY_API_VERSION + "/charge";
 
-    public static final String CHECKOUT = "v1/checkoutSessions";
-    public static final String CHARGE_PERMISSIONS = "v1/chargePermissions";
-    public static final String CHARGES = "v1/charges";
-    public static final String REFUNDS = "v1/refunds";
+    public static final String CHECKOUT = AMAZON_PAY_API_VERSION + "/checkoutSessions";
+    public static final String CHARGE_PERMISSIONS = AMAZON_PAY_API_VERSION + "/chargePermissions";
+    public static final String CHARGES = AMAZON_PAY_API_VERSION + "/charges";
+    public static final String REFUNDS = AMAZON_PAY_API_VERSION + "/refunds";
+
+    public static final String AUTHORIZATION_TOKEN = AMAZON_PAY_API_VERSION + "/authorizationTokens";
 
     public static final int RESPONSE_STATUS_CODE = 0;
     public static final int RESPONSE_STRING = 1;
@@ -70,5 +72,4 @@ public class ServiceConstants {
         serviceErrorsMap.put("Too Many Requests", 429);
         serviceErrors = Collections.unmodifiableMap(serviceErrorsMap);
     }
-
 }

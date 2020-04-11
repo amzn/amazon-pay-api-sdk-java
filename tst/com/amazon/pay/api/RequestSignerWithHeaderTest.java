@@ -5,7 +5,7 @@
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
  *
- *  http://aws.amazon.com/apache2.0
+ * http://aws.amazon.com/apache2.0
  *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -15,7 +15,6 @@
 package com.amazon.pay.api;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
-import com.amazon.pay.api.PayConfiguration;
 import com.amazon.pay.api.types.Region;
 import org.junit.Assert;
 import org.junit.Before;
@@ -116,7 +115,7 @@ public class RequestSignerWithHeaderTest {
         hostHeaderValue.add(uri.getHost());
         headers.put("x-amz-pay-host", hostHeaderValue);
 
-        for (Map.Entry<String,String> entry : header.entrySet()) {
+        for (Map.Entry<String, String> entry : header.entrySet()) {
             final List<String> authHeaderValue = new ArrayList<>();
             authHeaderValue.add(entry.getValue());
             headers.put(entry.getKey(), authHeaderValue);
@@ -130,14 +129,14 @@ public class RequestSignerWithHeaderTest {
         Mockito.when(signatureHelper.createPreSignedHeaders(Mockito.anyObject(), Mockito.anyMap())).thenReturn(headers);
 
         postSignedWithHeadersMap = new HashMap<>();
-        postSignedWithHeadersMap.put("accept","application/json");
-        postSignedWithHeadersMap.put("content-type" ,"application/json");
-        postSignedWithHeadersMap.put("x-amz-pay-host" ,"pay-api.amazon.com");
-        postSignedWithHeadersMap.put("x-amz-pay-date" ,dateHeaderValue.get(0));
-        postSignedWithHeadersMap.put("x-amz-pay-region" , "NA");
-        postSignedWithHeadersMap.put("authorization" , authorizationHeader);
+        postSignedWithHeadersMap.put("accept", "application/json");
+        postSignedWithHeadersMap.put("content-type", "application/json");
+        postSignedWithHeadersMap.put("x-amz-pay-host", "pay-api.amazon.com");
+        postSignedWithHeadersMap.put("x-amz-pay-date", dateHeaderValue.get(0));
+        postSignedWithHeadersMap.put("x-amz-pay-region", "NA");
+        postSignedWithHeadersMap.put("authorization", authorizationHeader);
         postSignedWithHeadersMap.put("x-amz-pay-idempotency-key", "23GGJHGB668344");
-        postSignedWithHeadersMap.put("user-agent" ,"amazon-pay-sdk-v2-java/" + ServiceConstants.APPLICATION_LIBRARY_VERSION + "(Java/1.8.0_172; Linux/4.9.93-0.1.ac.178.67.327.metal1.x86_64)");
+        postSignedWithHeadersMap.put("user-agent", "amazon-pay-api-sdk-java/" + ServiceConstants.APPLICATION_LIBRARY_VERSION + "(Java/1.8.0_172; Linux/4.9.93-0.1.ac.178.67.327.metal1.x86_64)");
     }
 
     @Test
@@ -148,7 +147,7 @@ public class RequestSignerWithHeaderTest {
         Assert.assertEquals(postSignedWithHeadersMap, actualHeaders);
 
         payConfiguration.setUserAgentRedaction(true);
-        postSignedWithHeadersMap.put("user-agent" ,"amazon-pay-sdk-v2-java/" + ServiceConstants.APPLICATION_LIBRARY_VERSION + "(Java/Redacted; Redacted/Redacted)");
+        postSignedWithHeadersMap.put("user-agent", "amazon-pay-api-sdk-java/" + ServiceConstants.APPLICATION_LIBRARY_VERSION + "(Java/Redacted; Redacted/Redacted)");
         actualHeaders = requestSigner.signRequest(uri, "POST", parameters, payload, header);
         Assert.assertEquals(postSignedWithHeadersMap, actualHeaders);
     }
