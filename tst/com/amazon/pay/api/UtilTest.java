@@ -26,11 +26,11 @@ import java.util.Map;
 public class UtilTest {
     @Test
     public void urlEncode() throws Exception {
-        String expectedUrl = Util.urlEncode("/live/in-store/v1/refund", true);
-        Assert.assertEquals(expectedUrl, "/live/in-store/v1/refund");
+        String expectedUrl = Util.urlEncode("/live/v2/in-store/refund", true);
+        Assert.assertEquals(expectedUrl, "/live/v2/in-store/refund");
 
-        String expectedUrl1 = Util.urlEncode("/live/in-store/v1/refund", false);
-        Assert.assertEquals(expectedUrl1, "%2Flive%2Fin-store%2Fv1%2Frefund");
+        String expectedUrl1 = Util.urlEncode("/live/v2/in-store/refund", false);
+        Assert.assertEquals(expectedUrl1, "%2Flive%2Fv2%2Fin-store%2Frefund");
     }
 
     @Test
@@ -80,14 +80,14 @@ public class UtilTest {
                 .setRegion(Region.EU)
                 .setEnvironment(Environment.SANDBOX);
 
-        URI expectedURL = new URI("https://pay-api.amazon.eu/sandbox/in-store/v1/merchantScan");
-        URI actualURL = Util.getServiceURI(payConfiguration1, ServiceConstants.MERCHANT_SCAN);
+        URI expectedURL = new URI("https://pay-api.amazon.eu/sandbox/v2/in-store/merchantScan");
+        URI actualURL = Util.getServiceURI(payConfiguration1, ServiceConstants.INSTORE_MERCHANT_SCAN);
         Assert.assertEquals(expectedURL, actualURL);
 
         PayConfiguration payConfiguration2 = new PayConfiguration()
                 .setRegion(Region.EU);
-        expectedURL = new URI("https://pay-api.amazon.eu/live/in-store/v1/refund");
-        actualURL = Util.getServiceURI(payConfiguration2, ServiceConstants.REFUND);
+        expectedURL = new URI("https://pay-api.amazon.eu/live/v2/in-store/refund");
+        actualURL = Util.getServiceURI(payConfiguration2, ServiceConstants.INSTORE_REFUND);
         Assert.assertEquals(expectedURL, actualURL);
 
     }

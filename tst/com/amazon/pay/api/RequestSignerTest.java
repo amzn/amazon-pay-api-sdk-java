@@ -66,10 +66,10 @@ public class RequestSignerTest {
     private void setUpMockValues() throws Exception {
         authToken = "eyJhbGciOiJIbWFjU0hBMjU2IiwidHlwIjoiSldUIn0=";
         header = new HashMap<String, String>();
-        uri = new URI("https://pay-api.amazon.eu/sandbox/in-store/v1/refund");
+        uri = new URI("https://pay-api.amazon.eu/sandbox/v2/in-store/refund");
         payload = "payload";
         canonicalRequest = "POST\n" +
-                "/sandbox/in-store/v1/refund\n" +
+                "/sandbox/v2/in-store/refund\n" +
                 "\n" +
                 "accept:application/json\n" +
                 "content-type:application/json\n" +

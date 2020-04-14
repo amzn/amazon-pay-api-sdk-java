@@ -6,13 +6,6 @@
 
 * Amazon Pay - [Register here](https://pay.amazon.com/signup)
 * Java 1.8 or higher
-* [Json-lib](http://www.java2s.com/Code/Jar/j/Downloadjsonlib222jdk15jar.htm)
-* [BouncyCastle](https://www.bouncycastle.org/download/bcprov-jdk15on-159.jar)
-* [Apache Commons Lang](https://mvnrepository.com/artifact/commons-lang/commons-lang/2.6)
-* [Apache Commons Logging](https://mvnrepository.com/artifact/commons-logging/commons-logging/1.1.1)
-* [Apache Commons Collections](https://mvnrepository.com/artifact/commons-collections/commons-collections/3.2.1)
-* [Apache Commons Beanutils](https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils/1.9.2)
-* [EZMorph](http://www.java2s.com/Code/Jar/e/Downloadezmorph105jar.htm)
 
 Amazon Pay Integration
 
@@ -342,6 +335,28 @@ payload.put("merchantMetadata", merchantMetadata);
 
 try {
      response = webstoreClient.updateCheckoutSession(checkoutSessionId, payload);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+
+```
+
+### Making a completeCheckoutSession request
+
+```java
+
+AmazonPayResponse response = new AmazonPayResponse();
+JSONObject payload = new JSONObject();
+
+JSONObject paymentDetail = new JSONObject();
+JSONObject chargeAmount = new JSONObject();
+chargeAmount.put("amount", "12.34");
+chargeAmount.put("currencyCode", "USD");
+paymentDetail.put("chargeAmount", chargeAmount);
+payload.put("paymentDetail", paymentDetail);
+
+try {
+     response = webstoreClient.completeCheckoutSession(checkoutSessionId, payload);
 } catch (AmazonPayClientException e) {
     e.printStackTrace();
 }

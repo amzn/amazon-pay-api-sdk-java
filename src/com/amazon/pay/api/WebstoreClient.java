@@ -38,7 +38,7 @@ public class WebstoreClient extends AmazonPayClient {
      * @throws AmazonPayClientException
      */
     public AmazonPayResponse createCheckoutSession(final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
-        final URI createCheckoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT);
+        final URI createCheckoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
         final Map<String, String> headerMap = Util.updateHeader(header);
         return callAPI(createCheckoutSessionURI, "POST", queryParametersMap, payload.toString(), headerMap);
     }
@@ -67,7 +67,7 @@ public class WebstoreClient extends AmazonPayClient {
      * @throws AmazonPayClientException
      */
     public AmazonPayResponse getCheckoutSession(final String checkoutSessionId, final Map<String, String> header) throws AmazonPayClientException {
-        final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT);
+        final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
         final URI getCheckoutSessionURI = checkoutSessionURI.resolve(checkoutSessionURI.getPath() + "/" + checkoutSessionId);
         return callAPI(getCheckoutSessionURI, "GET", queryParametersMap, "", header);
     }
@@ -96,7 +96,7 @@ public class WebstoreClient extends AmazonPayClient {
      * @throws AmazonPayClientException
      */
     public AmazonPayResponse updateCheckoutSession(final String checkoutSessionId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
-        final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT);
+        final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
         final URI updateCheckoutSessionURI = checkoutSessionURI.resolve(checkoutSessionURI.getPath() + "/" + checkoutSessionId);
         return callAPI(updateCheckoutSessionURI, "PATCH", queryParametersMap, payload.toString(), header);
     }
@@ -112,6 +112,35 @@ public class WebstoreClient extends AmazonPayClient {
      */
     public AmazonPayResponse updateCheckoutSession(final String checkoutSessionId, final JSONObject payload) throws AmazonPayClientException {
         return updateCheckoutSession(checkoutSessionId, payload, null);
+    }
+
+    /**
+     * The CompleteCheckoutSession operation is used to confirm completion of a checkout session
+     *
+     * @param checkoutSessionId
+     * @param payload
+     * @param header
+     * @return The response from the CompleteCheckoutSession service API, as
+     * returned by Amazon Pay.
+     * @throws AmazonPayClientException
+     */
+    public AmazonPayResponse completeCheckoutSession(final String checkoutSessionId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+        final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
+        final URI completeCheckoutSessionURI = checkoutSessionURI.resolve(checkoutSessionURI.getPath() + "/" + checkoutSessionId + "/" + "complete");
+        return callAPI(completeCheckoutSessionURI, "POST", queryParametersMap, payload.toString(), header);
+    }
+
+    /**
+     * The CompleteCheckoutSession operation is used to confirm completion of a checkout session.
+     *
+     * @param checkoutSessionId
+     * @param payload
+     * @return The response from the CompleteCheckoutSession service API, as
+     * returned by Amazon Pay.
+     * @throws AmazonPayClientException
+     */
+    public AmazonPayResponse completeCheckoutSession(final String checkoutSessionId, final JSONObject payload) throws AmazonPayClientException {
+        return completeCheckoutSession(checkoutSessionId, payload, null);
     }
 
     /**

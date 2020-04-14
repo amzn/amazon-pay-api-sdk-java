@@ -34,7 +34,7 @@ public class InstoreClient extends AmazonPayClient {
      * @throws AmazonPayClientException
      */
     public AmazonPayResponse merchantScan(final JSONObject scanRequest, final Map<String, String> header) throws AmazonPayClientException {
-        final URI scanURI = Util.getServiceURI(payConfiguration, ServiceConstants.MERCHANT_SCAN);
+        final URI scanURI = Util.getServiceURI(payConfiguration, ServiceConstants.INSTORE_MERCHANT_SCAN);
         return callAPI(scanURI, "POST", queryParametersMap, scanRequest.toString(), header);
     }
 
@@ -56,7 +56,7 @@ public class InstoreClient extends AmazonPayClient {
      * @throws AmazonPayClientException
      */
     public AmazonPayResponse charge(final JSONObject chargeRequest, final Map<String, String> header) throws AmazonPayClientException {
-        final URI chargeURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHARGE);
+        final URI chargeURI = Util.getServiceURI(payConfiguration, ServiceConstants.INSTORE_CHARGE);
         return callAPI(chargeURI, "POST", queryParametersMap, chargeRequest.toString(), header);
     }
 
@@ -78,7 +78,7 @@ public class InstoreClient extends AmazonPayClient {
      * @throws AmazonPayClientException
      */
     public AmazonPayResponse refund(final JSONObject refundRequest, final Map<String, String> header) throws AmazonPayClientException {
-        final URI refundURI = Util.getServiceURI(payConfiguration, ServiceConstants.REFUND);
+        final URI refundURI = Util.getServiceURI(payConfiguration, ServiceConstants.INSTORE_REFUND);
         return callAPI(refundURI, "POST", queryParametersMap, refundRequest.toString(), header);
     }
 

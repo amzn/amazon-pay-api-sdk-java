@@ -26,9 +26,9 @@ public class ServiceConstants {
     public static final Map<Region, String> endpointMappings;
     public static final Map<String, Integer> serviceErrors;
 
-    public static final String APPLICATION_LIBRARY_VERSION = "1.0.0";
+    public static final String APPLICATION_LIBRARY_VERSION = "2.0.0";
     public static final String GITHUB_SDK_NAME = "amazon-pay-api-sdk-java";
-    public static final String AMAZON_PAY_API_VERSION = "v1";
+    public static final String AMAZON_PAY_API_VERSION = "v2";
 
     public static final String AMAZON_SIGNATURE_ALGORITHM = "AMZN-PAY-RSASSA-PSS";
     public static final String HASH_ALGORITHM = "SHA-256";
@@ -42,11 +42,11 @@ public class ServiceConstants {
 
     public static final String DELIVERY_TRACKERS = AMAZON_PAY_API_VERSION + "/deliveryTrackers";
 
-    public static final String MERCHANT_SCAN = "in-store/" + AMAZON_PAY_API_VERSION + "/merchantScan";
-    public static final String REFUND = "in-store/" + AMAZON_PAY_API_VERSION + "/refund";
-    public static final String CHARGE = "in-store/" + AMAZON_PAY_API_VERSION + "/charge";
+    public static final String INSTORE_MERCHANT_SCAN = AMAZON_PAY_API_VERSION + "/in-store/merchantScan";
+    public static final String INSTORE_REFUND = AMAZON_PAY_API_VERSION + "/in-store/refund";
+    public static final String INSTORE_CHARGE = AMAZON_PAY_API_VERSION + "/in-store/charge";
 
-    public static final String CHECKOUT = AMAZON_PAY_API_VERSION + "/checkoutSessions";
+    public static final String CHECKOUT_SESSIONS = AMAZON_PAY_API_VERSION + "/checkoutSessions";
     public static final String CHARGE_PERMISSIONS = AMAZON_PAY_API_VERSION + "/chargePermissions";
     public static final String CHARGES = AMAZON_PAY_API_VERSION + "/charges";
     public static final String REFUNDS = AMAZON_PAY_API_VERSION + "/refunds";

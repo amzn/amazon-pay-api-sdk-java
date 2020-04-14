@@ -47,14 +47,14 @@ public class SignatureHelperTest {
     public void setUp() throws Exception {
         payConfiguration.setRegion(Region.EU).setPublicKeyId("");
         spy = spy(new SignatureHelper(payConfiguration));
-        uri = new URI("https://pay-api.amazon.eu/live/in-store/v1/refund");
+        uri = new URI("https://pay-api.amazon.eu/live/v2/in-store/refund");
         header = new HashMap<String, String>();
         preSignedHeaders = mockedPreSignedHeaders(uri, header);
     }
 
     @Test
     public void createStringToSign() throws Exception {
-        String canonicalRequest = "POST\n/live/in-store/v1/refund\naccept:application/json\ncontent-type:application/json\naccept;content-type\n95b0d65e9efb9f0b9e8c2f3b7744628c765477";
+        String canonicalRequest = "POST\n/live/v2/in-store/refund\naccept:application/json\ncontent-type:application/json\naccept;content-type\n95b0d65e9efb9f0b9e8c2f3b7744628c765477";
         PowerMockito.when(spy, method(SignatureHelper.class, "hashThenHexEncode")).withArguments(canonicalRequest).thenReturn("95b0d65e9efb9f0b9e8c2f3b77");
 
         String stringToSign = spy.createStringToSign(canonicalRequest);

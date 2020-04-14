@@ -14,9 +14,10 @@
  */
 package com.amazon.pay.api;
 
-import java.net.URI;
-
 import net.sf.json.JSONObject;
+
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.Map;
 
 public class AmazonPayResponse {
@@ -175,10 +176,6 @@ public class AmazonPayResponse {
      * @return Returns boolean response
      */
     public boolean isSuccess() {
-        if (status == 200 || status == 201) {
-            return true;
-        }
-        return false;
+        return status == HttpURLConnection.HTTP_OK || status == HttpURLConnection.HTTP_CREATED || status == HttpURLConnection.HTTP_ACCEPTED;
     }
-
 }

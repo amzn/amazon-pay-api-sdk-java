@@ -70,10 +70,10 @@ public class RequestSignerWithHeaderTest {
         header = new HashMap<String, String>();
         header.put("x-amz-pay-idempotency-key", "23GGJHGB668344");
 
-        uri = new URI("https://pay-api.amazon.com/sandbox/v1/refunds");
+        uri = new URI("https://pay-api.amazon.com/sandbox/v2/refunds");
         payload = "payload";
         canonicalRequest = "POST\n" +
-                "/sandbox/v1/refunds\n" +
+                "/sandbox/v2/refunds\n" +
                 "\n" +
                 "accept:application/json\n" +
                 "content-type:application/json\n" +

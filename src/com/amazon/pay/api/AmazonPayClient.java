@@ -217,7 +217,7 @@ public class AmazonPayClient {
             if (responseCode < HttpURLConnection.HTTP_BAD_REQUEST) {
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), Util.DEFAULT_ENCODING))) {
                     while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine).append("\n");
+                        response.append(inputLine).append(System.lineSeparator());
                     }
                 } catch (IOException e) {
                     throw new AmazonPayClientException(e.getMessage(), e);
@@ -225,7 +225,7 @@ public class AmazonPayClient {
             } else {
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getErrorStream(), Util.DEFAULT_ENCODING))) {
                     while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine).append("\n");
+                        response.append(inputLine).append(System.lineSeparator());
                     }
                 } catch (IOException e) {
                     throw new AmazonPayClientException(e.getMessage(), e);
