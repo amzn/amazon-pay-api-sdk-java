@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -178,4 +178,23 @@ public class AmazonPayResponse {
     public boolean isSuccess() {
         return status == HttpURLConnection.HTTP_OK || status == HttpURLConnection.HTTP_CREATED || status == HttpURLConnection.HTTP_ACCEPTED;
     }
+
+    /**
+     * @return Provide troubleshooting information to developer in easy to read form
+     */
+    @Override
+    public String toString() {
+        return "AmazonPayResponse{"
+                + "status=" + status
+                + ", success=" + isSuccess()
+                + ", requestId=" + requestId
+                + ", duration=" + duration
+                + ", retries=" + retries
+                + ", method=" + method
+                + ", url= " + url
+                + ", headers=" + headers
+                + ", rawRequest=" + rawRequest
+                + ", rawResponse=" + rawResponse + '}';
+    }
+
 }

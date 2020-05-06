@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -31,26 +31,26 @@ public class WebstoreClient extends AmazonPayClient {
      * The CreateCheckoutSession operation is used to create a CheckoutSession for a buyer
      * and pass the Id as part of button click.
      *
-     * @param payload
-     * @param header
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the CreateCheckoutSession service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse createCheckoutSession(final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI createCheckoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
         final Map<String, String> headerMap = Util.updateHeader(header);
-        return callAPI(createCheckoutSessionURI, "POST", queryParametersMap, payload.toString(), headerMap);
+        return callAPI(createCheckoutSessionURI, "POST", null, payload.toString(), headerMap);
     }
 
     /**
      * The CreateCheckoutSession operation is used to create a CheckoutSession for a buyer
      * and pass the Id as part of button click.
      *
-     * @param payload
+     * @param payload JSONObject request body
      * @return The response from the CreateCheckoutSession service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse createCheckoutSession(final JSONObject payload) throws AmazonPayClientException {
         return createCheckoutSession(payload, null);
@@ -60,26 +60,26 @@ public class WebstoreClient extends AmazonPayClient {
      * The GetCheckoutSession operation is used to get checkout session details that contain
      * all session associated details.
      *
-     * @param checkoutSessionId
-     * @param header
+     * @param checkoutSessionId Checkout Session ID provided by Checkout v2 service
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the GetCheckoutSession service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse getCheckoutSession(final String checkoutSessionId, final Map<String, String> header) throws AmazonPayClientException {
         final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
         final URI getCheckoutSessionURI = checkoutSessionURI.resolve(checkoutSessionURI.getPath() + "/" + checkoutSessionId);
-        return callAPI(getCheckoutSessionURI, "GET", queryParametersMap, "", header);
+        return callAPI(getCheckoutSessionURI, "GET", null, "", header);
     }
 
     /**
      * The GetCheckoutSession operation is used to get checkout session details that contain
      * all session associated details.
      *
-     * @param checkoutSessionId
+     * @param checkoutSessionId Checkout Session ID provided by Checkout v2 service
      * @return The response from the GetCheckoutSession service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse getCheckoutSession(final String checkoutSessionId) throws AmazonPayClientException {
         return getCheckoutSession(checkoutSessionId, null);
@@ -88,27 +88,27 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The UpdateCheckoutSession operation is used to update payment details for a session.
      *
-     * @param checkoutSessionId
-     * @param payload
-     * @param header
+     * @param checkoutSessionId Checkout Session ID provided by Checkout v2 service
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the UpdateCheckoutSession service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse updateCheckoutSession(final String checkoutSessionId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
         final URI updateCheckoutSessionURI = checkoutSessionURI.resolve(checkoutSessionURI.getPath() + "/" + checkoutSessionId);
-        return callAPI(updateCheckoutSessionURI, "PATCH", queryParametersMap, payload.toString(), header);
+        return callAPI(updateCheckoutSessionURI, "PATCH", null, payload.toString(), header);
     }
 
     /**
      * The UpdateCheckoutSession operation is used to update payment details for a session.
      *
-     * @param checkoutSessionId
-     * @param payload
+     * @param checkoutSessionId Checkout Session ID provided by Checkout v2 service
+     * @param payload JSONObject request body
      * @return The response from the UpdateCheckoutSession service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse updateCheckoutSession(final String checkoutSessionId, final JSONObject payload) throws AmazonPayClientException {
         return updateCheckoutSession(checkoutSessionId, payload, null);
@@ -117,27 +117,27 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The CompleteCheckoutSession operation is used to confirm completion of a checkout session
      *
-     * @param checkoutSessionId
-     * @param payload
-     * @param header
+     * @param checkoutSessionId Checkout Session ID provided by Checkout v2 service
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the CompleteCheckoutSession service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse completeCheckoutSession(final String checkoutSessionId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
         final URI completeCheckoutSessionURI = checkoutSessionURI.resolve(checkoutSessionURI.getPath() + "/" + checkoutSessionId + "/" + "complete");
-        return callAPI(completeCheckoutSessionURI, "POST", queryParametersMap, payload.toString(), header);
+        return callAPI(completeCheckoutSessionURI, "POST", null, payload.toString(), header);
     }
 
     /**
      * The CompleteCheckoutSession operation is used to confirm completion of a checkout session.
      *
-     * @param checkoutSessionId
-     * @param payload
+     * @param checkoutSessionId Checkout Session ID provided by Checkout v2 service
+     * @param payload JSONObject request body
      * @return The response from the CompleteCheckoutSession service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse completeCheckoutSession(final String checkoutSessionId, final JSONObject payload) throws AmazonPayClientException {
         return completeCheckoutSession(checkoutSessionId, payload, null);
@@ -146,114 +146,114 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The GetChargePermission operation is used to get the complete details of ChargePermission.
      *
-     * @param chargePermissionsId
-     * @param header
+     * @param chargePermissionId Charge Permission ID provided by Checkout v2 service
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the GetChargePermission service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
-    public AmazonPayResponse getChargePermission(final String chargePermissionsId, final Map<String, String> header) throws AmazonPayClientException {
+    public AmazonPayResponse getChargePermission(final String chargePermissionId, final Map<String, String> header) throws AmazonPayClientException {
         final URI chargePermissionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHARGE_PERMISSIONS);
-        final URI getChargePermissionURI = chargePermissionURI.resolve(chargePermissionURI.getPath() + "/" + chargePermissionsId);
-        return callAPI(getChargePermissionURI, "GET", queryParametersMap, "", header);
+        final URI getChargePermissionURI = chargePermissionURI.resolve(chargePermissionURI.getPath() + "/" + chargePermissionId);
+        return callAPI(getChargePermissionURI, "GET", null, "", header);
     }
 
     /**
      * The GetChargePermission operation is used to get the complete details of ChargePermission.
      *
-     * @param chargePermissionsId
+     * @param chargePermissionId Charge Permission ID provided by Checkout v2 service
      * @return The response from the GetChargePermission service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
-    public AmazonPayResponse getChargePermission(final String chargePermissionsId) throws AmazonPayClientException {
-        return getChargePermission(chargePermissionsId, null);
+    public AmazonPayResponse getChargePermission(final String chargePermissionId) throws AmazonPayClientException {
+        return getChargePermission(chargePermissionId, null);
     }
 
     /**
      * The UpdateChargePermission operation is used to update the metadata of the ChargePermission.
      *
-     * @param chargePermissionsId
-     * @param payload
-     * @param header
+     * @param chargePermissionId Charge Permission ID provided by Checkout v2 service
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the UpdateChargePermission service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
-    public AmazonPayResponse updateChargePermission(final String chargePermissionsId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+    public AmazonPayResponse updateChargePermission(final String chargePermissionId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI chargePermissionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHARGE_PERMISSIONS);
-        final URI updateChargePermissionURI = chargePermissionURI.resolve(chargePermissionURI.getPath() + "/" + chargePermissionsId);
-        return callAPI(updateChargePermissionURI, "PATCH", queryParametersMap, payload.toString(), header);
+        final URI updateChargePermissionURI = chargePermissionURI.resolve(chargePermissionURI.getPath() + "/" + chargePermissionId);
+        return callAPI(updateChargePermissionURI, "PATCH", null, payload.toString(), header);
     }
 
     /**
      * The UpdateChargePermission operation is used to update the metadata of the ChargePermission.
      *
-     * @param chargePermissionsId
-     * @param payload
+     * @param chargePermissionId Charge Permission ID provided by Checkout v2 service
+     * @param payload JSONObject request body
      * @return The response from the UpdateChargePermission service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
-    public AmazonPayResponse updateChargePermission(final String chargePermissionsId, final JSONObject payload) throws AmazonPayClientException {
-        return updateChargePermission(chargePermissionsId, payload, null);
+    public AmazonPayResponse updateChargePermission(final String chargePermissionId, final JSONObject payload) throws AmazonPayClientException {
+        return updateChargePermission(chargePermissionId, payload, null);
     }
 
     /**
      * The CloseChargePermission operation Moves the Charge Permission to a Closed state.
      * No future charges can be made and pending charges will be canceled if you set cancelPendingCharges to true.
      *
-     * @param chargePermissionsId
-     * @param payload
-     * @param header
+     * @param chargePermissionId Charge Permission ID provided by Checkout v2 service
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the CloseChargePermission service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
-    public AmazonPayResponse closeChargePermission(final String chargePermissionsId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+    public AmazonPayResponse closeChargePermission(final String chargePermissionId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI chargePermissionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHARGE_PERMISSIONS);
-        final URI closeChargePermissionURI = chargePermissionURI.resolve(chargePermissionURI.getPath() + "/" + chargePermissionsId + "/" + "close");
-        return callAPI(closeChargePermissionURI, "DELETE", queryParametersMap, payload.toString(), header);
+        final URI closeChargePermissionURI = chargePermissionURI.resolve(chargePermissionURI.getPath() + "/" + chargePermissionId + "/" + "close");
+        return callAPI(closeChargePermissionURI, "DELETE", null, payload.toString(), header);
     }
 
     /**
      * The CloseChargePermission operation Moves the Charge Permission to a Closed state.
      * No future charges can be made and pending charges will be canceled if you set cancelPendingCharges to true.
      *
-     * @param chargePermissionsId
-     * @param payload
+     * @param chargePermissionId Charge Permission ID provided by Checkout v2 service
+     * @param payload JSONObject request body
      * @return The response from the CloseChargePermission service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
-    public AmazonPayResponse closeChargePermission(final String chargePermissionsId, final JSONObject payload) throws AmazonPayClientException {
-        return closeChargePermission(chargePermissionsId, payload, null);
+    public AmazonPayResponse closeChargePermission(final String chargePermissionId, final JSONObject payload) throws AmazonPayClientException {
+        return closeChargePermission(chargePermissionId, payload, null);
     }
 
     /**
      * The CreateCharge operation is used to create a charges for a buyer
      * and pass the Id as part of button click.
      *
-     * @param payload
-     * @param header
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the CreateCharge service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse createCharge(final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI createChargesURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHARGES);
         final Map<String, String> headerMap = Util.updateHeader(header);
-        return callAPI(createChargesURI, "POST", queryParametersMap, payload.toString(), headerMap);
+        return callAPI(createChargesURI, "POST", null, payload.toString(), headerMap);
     }
 
     /**
      * The CreateCharge operation is used to create a charges for a buyer
      * and pass the Id as part of button click.
      *
-     * @param payload
+     * @param payload JSONObject request body
      * @return The response from the CreateCharge service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse createCharge(final JSONObject payload) throws AmazonPayClientException {
         return createCharge(payload, null);
@@ -262,25 +262,25 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The getCharge operation is used to get charges details that contain
      *
-     * @param chargeId
-     * @param header
+     * @param chargeId Charge ID provided by Checkout v2 service
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the getCharge service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse getCharge(final String chargeId, final Map<String, String> header) throws AmazonPayClientException {
         final URI chargesURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHARGES);
         final URI getChargeURI = chargesURI.resolve(chargesURI.getPath() + "/" + chargeId);
-        return callAPI(getChargeURI, "GET", queryParametersMap, "", header);
+        return callAPI(getChargeURI, "GET", null, "", header);
     }
 
     /**
      * The getCharge operation is used to get charges details that contain
      *
-     * @param chargeId
+     * @param chargeId Charge ID provided by Checkout v2 service
      * @return The response from the getCharge service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse getCharge(final String chargeId) throws AmazonPayClientException {
         return getCharge(chargeId, null);
@@ -290,29 +290,29 @@ public class WebstoreClient extends AmazonPayClient {
      * The CaptureCharge operation is used to create a charges for a buyer
      * and pass the Id as part of button click.
      *
-     * @param chargeId
-     * @param payload
-     * @param header
+     * @param chargeId Charge ID provided by Checkout v2 service
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the CaptureCharge service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse captureCharge(final String chargeId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI chargesURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHARGES);
         final URI captureChargeURI = chargesURI.resolve(chargesURI.getPath() + "/" + chargeId + "/" + "capture");
         final Map<String, String> headerMap = Util.updateHeader(header);
-        return callAPI(captureChargeURI, "POST", queryParametersMap, payload.toString(), headerMap);
+        return callAPI(captureChargeURI, "POST", null, payload.toString(), headerMap);
     }
 
     /**
      * The CaptureCharge operation is used to create a charges for a buyer
      * and pass the Id as part of button click.
      *
-     * @param chargeId
-     * @param payload
+     * @param chargeId Charge ID provided by Checkout v2 service
+     * @param payload JSONObject request body
      * @return The response from the CaptureCharge service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse captureCharge(final String chargeId, final JSONObject payload) throws AmazonPayClientException {
         return captureCharge(chargeId, payload, null);
@@ -321,27 +321,27 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The cancelCharge operation is used to cancel Charges.
      *
-     * @param chargeId
-     * @param payload
-     * @param header
+     * @param chargeId Charge ID provided by Checkout v2 service
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the cancelCharge service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse cancelCharge(final String chargeId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI chargesURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHARGES);
         final URI cancelChargeURI = chargesURI.resolve(chargesURI.getPath() + "/" + chargeId + "/" + "cancel");
-        return callAPI(cancelChargeURI, "DELETE", queryParametersMap, payload.toString(), header);
+        return callAPI(cancelChargeURI, "DELETE", null, payload.toString(), header);
     }
 
     /**
      * The cancelCharge operation is used to cancel Charges.
      *
-     * @param chargeId
-     * @param payload
+     * @param chargeId Charge ID provided by Checkout v2 service
+     * @param payload JSONObject request body
      * @return The response from the cancelCharge service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse cancelCharge(final String chargeId, final JSONObject payload) throws AmazonPayClientException {
         return cancelCharge(chargeId, payload, null);
@@ -351,26 +351,26 @@ public class WebstoreClient extends AmazonPayClient {
      * The CreateRefund operation is used to create a refund for a buyer
      * and pass the Id as part of button click.
      *
-     * @param payload
-     * @param header
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the CreateRefunds service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse createRefund(final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI createRefundsURI = Util.getServiceURI(payConfiguration, ServiceConstants.REFUNDS);
         final Map<String, String> headerMap = Util.updateHeader(header);
-        return callAPI(createRefundsURI, "POST", queryParametersMap, payload.toString(), headerMap);
+        return callAPI(createRefundsURI, "POST", null, payload.toString(), headerMap);
     }
 
     /**
      * The CreateRefund operation is used to create a refund for a buyer
      * and pass the Id as part of button click.
      *
-     * @param payload
+     * @param payload JSONObject request body
      * @return The response from the CreateRefunds service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse createRefund(final JSONObject payload) throws AmazonPayClientException {
         return createRefund(payload, null);
@@ -379,25 +379,25 @@ public class WebstoreClient extends AmazonPayClient {
     /**
      * The getRefund operation is used to get refund details that contain
      *
-     * @param refundId
-     * @param header
+     * @param refundId Refund ID provided by Checkout v2 service
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the getRefund service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse getRefund(final String refundId, final Map<String, String> header) throws AmazonPayClientException {
         final URI refundsURI = Util.getServiceURI(payConfiguration, ServiceConstants.REFUNDS);
         final URI getRefundURI = refundsURI.resolve(refundsURI.getPath() + "/" + refundId + "/");
-        return callAPI(getRefundURI, "GET", queryParametersMap, "", header);
+        return callAPI(getRefundURI, "GET", null, "", header);
     }
 
     /**
      * The getRefund operation is used to get refund details that contain
      *
-     * @param refundId
+     * @param refundId Refund ID provided by Checkout v2 service
      * @return The response from the getRefund service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse getRefund(final String refundId) throws AmazonPayClientException {
         return getRefund(refundId, null);

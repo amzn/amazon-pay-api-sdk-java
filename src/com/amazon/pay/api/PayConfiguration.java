@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -70,6 +70,7 @@ public class PayConfiguration {
     /**
      * @param privateKey The private key string
      * @return the PayConfiguration object
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public PayConfiguration setPrivateKey(final String privateKey) throws AmazonPayClientException {
         return setPrivateKey(Util.buildPrivateKeyFromString(privateKey));
@@ -121,7 +122,7 @@ public class PayConfiguration {
      * Returns true if the merchant wants to set the Java and OS version segment in
      * the User-Agent header to 'Redacted'.
      *
-     * @return userAgentRedaction
+     * @return boolean userAgentRedaction
      */
     public boolean isUserAgentRedaction() {
         return userAgentRedaction;
@@ -134,6 +135,7 @@ public class PayConfiguration {
      * 'Redacted'.
      *
      * @param userAgentRedaction - argument that sets userAgentRedaction in PayConfiguration
+     * @return the PayConfiguration object
      */
     public PayConfiguration setUserAgentRedaction(final boolean userAgentRedaction) {
         this.userAgentRedaction = userAgentRedaction;

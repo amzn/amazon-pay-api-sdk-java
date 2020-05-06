@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ public class ServiceConstants {
     public static final Map<Region, String> endpointMappings;
     public static final Map<String, Integer> serviceErrors;
 
-    public static final String APPLICATION_LIBRARY_VERSION = "2.0.0";
+    public static final String APPLICATION_LIBRARY_VERSION = "2.1.0";
     public static final String GITHUB_SDK_NAME = "amazon-pay-api-sdk-java";
     public static final String AMAZON_PAY_API_VERSION = "v2";
 

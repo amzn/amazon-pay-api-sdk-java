@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ public class RequestSignerTest {
         postSignedHeadersMap.put("x-amz-pay-date", dateHeaderValue.get(0));
         postSignedHeadersMap.put("x-amz-pay-region", "EU");
         postSignedHeadersMap.put("authorization", authorizationHeader);
-        postSignedHeadersMap.put("user-agent", "amazon-pay-api-sdk-java/" + ServiceConstants.APPLICATION_LIBRARY_VERSION + "(Java/1.8.0_172; Linux/4.9.93-0.1.ac.178.67.327.metal1.x86_64)");
+        postSignedHeadersMap.put("user-agent", "amazon-pay-api-sdk-java/" + ServiceConstants.APPLICATION_LIBRARY_VERSION + " (Java/1.8.0_172; Linux/4.9.93-0.1.ac.178.67.327.metal1.x86_64)");
     }
 
     @Test
@@ -141,7 +141,7 @@ public class RequestSignerTest {
         Assert.assertEquals(postSignedHeadersMap, actualHeaders);
 
         payConfiguration.setUserAgentRedaction(true);
-        postSignedHeadersMap.put("user-agent", "amazon-pay-api-sdk-java/" + ServiceConstants.APPLICATION_LIBRARY_VERSION + "(Java/Redacted; Redacted/Redacted)");
+        postSignedHeadersMap.put("user-agent", "amazon-pay-api-sdk-java/" + ServiceConstants.APPLICATION_LIBRARY_VERSION + " (Java/Redacted; Redacted/Redacted)");
         actualHeaders = requestSigner.signRequest(uri, "POST", parameters, payload, header);
         Assert.assertEquals(postSignedHeadersMap, actualHeaders);
 

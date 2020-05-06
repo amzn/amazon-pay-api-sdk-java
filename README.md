@@ -1,11 +1,11 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/software.amazon.pay/amazon-pay-api-sdk-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/software.amazon.pay/amazon-pay-api-sdk-java)
+Making a merchantScan request[![Maven Central](https://maven-badges.herokuapp.com/maven-central/software.amazon.pay/amazon-pay-api-sdk-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/software.amazon.pay/amazon-pay-api-sdk-java)
 
 ### Amazon Pay Java SDK
 
 ### Requirements
 
 * Amazon Pay - [Register here](https://pay.amazon.com/signup)
-* Java 1.8 or higher
+* Java 8 or higher
 
 Amazon Pay Integration
 
@@ -27,39 +27,36 @@ In Linux or macOS this can be done using openssl commands:
 
 The first command above generates a private key and the second line uses the private key to generate a public key.
 
-To associate the key with your account, send an email to amazon-pay-delivery-notifications@amazon.com that includes (1) your public key and (2) your Merchant ID. Do not send your private key to Amazon (or anyone else) under any circumstance!
-
-In your Seller Central account, within 1-2 business days, the account administrator will receive a message that includes the public_key_id you will need to use the SDK.
-These methods are available in the InstoreClient
+To associate the key with your account, follow the instructions here to
+[Get your Public Key ID](http://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-checkout/get-set-up-for-integration.html#4-get-your-public-key-id).
 
 Four quick steps are needed to make an API call:
 
 Step 1. Construct a AmazonPayClient (using the previously defined PayConfiguration Array).
 
-        ```java
-        AmazonPayClient client = new AmazonPayClient(payConfiguration);
-                 // -or-
-        WebstoreClient webstoreClient = new WebstoreClient(payConfiguration);
-                 // -or-
-        InstoreClient instoreClient = new InstoreClient(payConfiguration);
-  		 ```
+```java
+AmazonPayClient client = new AmazonPayClient(payConfiguration);
+    // -or-
+WebstoreClient webstoreClient = new WebstoreClient(payConfiguration);
+    // -or-
+InstoreClient instoreClient = new InstoreClient(payConfiguration);
+```
 
  Step 2. Generate the payload.
 
-  		 ```java
-  		 JSONObject payload = new JSONObject();
-         payload.put("scanData", "UKhrmatMeKdlfY6b");
-         payload.put("scanReferenceId", "0b8fb271-2ae2-49a5-b35d890");
-         payload.put("merchantCOE", "DE");
-         payload.put("ledgerCurrency", "EUR");
-
-  		 ```
+```java
+JSONObject payload = new JSONObject();
+payload.put("scanData", "UKhrmatMeKdlfY6b");
+payload.put("scanReferenceId", "0b8fb271-2ae2-49a5-b35d890");
+payload.put("merchantCOE", "DE");
+payload.put("ledgerCurrency", "EUR");
+```
 
  Step 3. Execute the call.
 
-  		 ```java
-  		 AmazonPayResponse response = instoreClient.merchantScan(payload);
-  		 ```
+```java
+AmazonPayResponse response = instoreClient.merchantScan(payload);
+```
 
   Step 4. Check the result.
 
@@ -92,6 +89,7 @@ import net.sf.json.JSONObject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.UUID;
 ```
 
 You will need your public key id and the file path to your private key
@@ -106,7 +104,7 @@ try {
                 .setRegion(Region.YOUR_REGION_CODE)
                 .setPrivateKey("YOUR_PRIVATE_KEY_STRING")
                 .setEnvironment(Environment.SANDBOX);
-}catch (AmazonPayClientException e) {
+} catch (AmazonPayClientException e) {
     e.printStackTrace();
 }
 
@@ -118,25 +116,27 @@ try {
                    .setRegion(Region.YOUR_REGION_CODE)
                    .setPrivateKey(new String(Files.readAllBytes(Paths.get("private.pem"))))
                    .setEnvironment(Environment.SANDBOX);
-}catch (AmazonPayClientException e) {
+} catch (AmazonPayClientException e) {
      e.printStackTrace();
 }
 
 // You can also set your private key as a java.security.PrivateKey object
 
+PrivateKey privateKey = ...
+
 try {
     payConfiguration = new PayConfiguration()
                 .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                 .setRegion(Region.YOUR_REGION_CODE)
-                .setPrivateKey("private.pem")
+                .setPrivateKey(privateKey)
                 .setEnvironment(Environment.SANDBOX);
-}catch (AmazonPayClientException e) {
+} catch (AmazonPayClientException e) {
      e.printStackTrace();
 }
 
 ```
 
-### Making a merchantScan request
+### Making a merchantScan request (the easy way)
 
 ```java
 JSONObject scanPayload = new JSONObject();
@@ -147,12 +147,32 @@ scanPayload.put("ledgerCurrency", "EUR");
 
 AmazonPayResponse response = null;
 JSONObject scanResponse = null;
+
+try {
+    InstoreClient client = new InstoreClient(payConfiguration);
+    response = instoreClient.merchantScan(scanPayload);
+    scanResponse = response.getResponse();
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+
+String chargePermissionId = scanResponse.getString("chargePermissionId");
 ```
 
-Using the SDK only to sign the request
-(You will have to create the request, execute it and process the response)
+### Making a merchantScan request (the hard way)
+
+This demonstrates how you would use the SDK to do nothing but sign the request.  This means You will have to create the request, execute it and process the response on your own.
 
 ```java
+JSONObject scanPayload = new JSONObject();
+scanPayload.put("scanData", "UKhrmatMeKdlfY6b");
+scanPayload.put("scanReferenceId", "0b8fb271-2ae2-49a5-b35d890");
+scanPayload.put("merchantCOE", "DE");
+scanPayload.put("ledgerCurrency", "EUR");
+
+AmazonPayResponse response = null;
+JSONObject scanResponse = null;
+
 RequestSigner requestSigner = null;
 try {
     requestSigner = new RequestSigner(payConfiguration);
@@ -204,28 +224,6 @@ String chargePermissionId = JSONObject.fromObject(response.toString()).getString
 
 Using all the functionality of the SDK
 (The SDK will create the request, execute it and process the response)
-
-```java
-
-AmazonPayClient client = new AmazonPayClient(payConfiguration);
-InstoreClient instoreClient = new InstoreClient(payConfiguration);
-WebstoreClient webstoreClient = new WebstoreClient(payConfiguration);
-
-try {
-    client = new AmazonPayClient(payConfiguration);
-} catch (AmazonPayClientException e) {
-    e.printStackTrace();
-}
-try {
-    response = instoreClient.merchantScan(scanPayload);
-    scanResponse = response.getResponse();
-} catch (AmazonPayClientException e) {
-    e.printStackTrace();
-}
-
-String chargePermissionId = scanResponse.getString("chargePermissionId");
-
-```
 
 ### Making a charge request
 
@@ -280,11 +278,11 @@ JSONObject webCheckoutDetail = new JSONObject();
 webCheckoutDetail.put("checkoutReviewReturnUrl", "https://localhost/store/checkout_review");
 payload.put("webCheckoutDetail", webCheckoutDetail);
 payload.put("storeId", "amzn1.application-oa2-client.4c46698afa4d4b23b645d05762fc78fa");
-AmazonPayResponse response = new AmazonPayResponse();;
+AmazonPayResponse response = null;
 String checkoutSessionId = null;
 
 Map<String,String> header = new HashMap<String,String>();
-header.put("x-amz-pay-idempotency-key", "23GGJ2GB664378");
+header.put("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
 try {
      response = webstoreClient.createCheckoutSession(payload, header);
      checkoutSessionId = response.getResponse().getString("checkoutSessionId");
@@ -297,7 +295,7 @@ try {
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 
 try {
      response = webstoreClient.getCheckoutSession(checkoutSessionId);
@@ -311,7 +309,7 @@ try {
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 JSONObject payload = new JSONObject();
 JSONObject updateWebCheckoutDetail = new JSONObject();
 updateWebCheckoutDetail.put("checkoutResultReturnUrl", "https://localhost/store/checkout_return");
@@ -345,7 +343,7 @@ try {
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 JSONObject payload = new JSONObject();
 
 JSONObject paymentDetail = new JSONObject();
@@ -367,7 +365,7 @@ try {
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 
 try {
      response = webstoreClient.getChargePermissions(chargePermissionId);
@@ -381,7 +379,7 @@ try {
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 JSONObject payload = new JSONObject();
 JSONObject merchantMetadata = new JSONObject();
 merchantMetadata.put("merchantReferenceId", "32-41-323141");
@@ -402,7 +400,7 @@ try {
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 JSONObject payload = new JSONObject();
 payload.put("closureReason", "Specify the reason here");
 payload.put("cancelPendingCharges", "false");
@@ -419,7 +417,7 @@ try {
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 
 try {
      response = webstoreClient.getCharge(chargesId);
@@ -433,7 +431,7 @@ try {
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 
 JSONObject payload = new JSONObject();
 JSONObject chargeAmount = new JSONObject();
@@ -451,7 +449,7 @@ payload.put("canHandlePendingAuthorization", true);
 String chargeId = null;
 
 Map<String, String> header = new HashMap<String, String>();
-header.put("x-amz-pay-idempotency-key", "23GGPHGB668378");
+header.put("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
 
 try {
      response = webstoreClient.createCharge(payload, header);
@@ -466,7 +464,7 @@ chargeId = response.getResponse().getString("chargeId");
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 
 JSONObject payload = new JSONObject();
 JSONObject captureAmount = new JSONObject();
@@ -476,7 +474,7 @@ payload.put("captureAmount", captureAmount);
 payload.put("softDescriptor", "My Soft Descriptor");
 
 Map<String, String> header = new HashMap<String, String>();
-header.put("x-amz-pay-idempotency-key", "23GGJHGB668370");
+header.put("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
 
 try {
      response = webstoreClient.captureCharge(chargesId, payload, header);
@@ -490,7 +488,7 @@ try {
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 
 JSONObject payload = new JSONObject();
 payload.put("cancellationReason", "Buyer changed their mind");
@@ -507,7 +505,7 @@ try {
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 
 JSONObject payload = new JSONObject();
 JSONObject refundAmount = new JSONObject();
@@ -518,7 +516,7 @@ payload.put("refundAmount", refundAmount);
 payload.put("softDescriptor", "AMZ*soft");
 
 Map<String,String> header = new HashMap<String,String>();
-header.put("x-amz-pay-idempotency-key","23GGJHGB668344");
+header.put("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
 String refundId = null;
 
 try {
@@ -534,7 +532,7 @@ refundId = response.getResponse().getString("refundId");
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 
 try {
      response = webstoreClient.getRefund(refundId);
@@ -550,7 +548,7 @@ This method is available in the base client ("AmazonPayClient")
 
 ```java
 
-AmazonPayResponse response = new AmazonPayResponse();
+AmazonPayResponse response = null;
 
 JSONObject payload = new JSONObject();
 JSONObject deliveryDetails = new JSONObject();
@@ -598,3 +596,26 @@ try {
 }
 
 ```
+
+## Generate Button Signature (helper function)
+
+The signatures generated by this helper function are only valid for the Checkout v2 front-end buttons.  Unlike API signing, no timestamps are involved, so the result of this function can be considered a static signature that can safely be placed in your website JS source files and used repeatedly (as long as your payload does not change).
+
+```java
+    String payload = "{\"storeId\":\"amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\"webCheckoutDetails\":{\"checkoutReviewReturnUrl\":\"https://localhost/test/CheckoutReview.php\",\"checkoutResultReturnUrl\":\"https://localhost/test/CheckoutResult.php\"}}";
+    String signature = client.generateButtonSignature(payload);
+```
+
+Or, if you don't want to use a JSONObject:
+
+```java
+        JSONObject payload = new JSONObject();
+        payload.put("storeId", "amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        JSONObject webCheckoutDetails = new JSONObject();
+        webCheckoutDetails.put("checkoutReviewReturnUrl", "https://localhost/test/CheckoutReview.php");
+        webCheckoutDetails.put("checkoutResultReturnUrl", "https://localhost/test/CheckoutResult.php");
+        payload.put("webCheckoutDetails", webCheckoutDetails);
+
+        String signature = client.generateButtonSignature(payload);
+```
+

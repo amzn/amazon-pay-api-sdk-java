@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ public class Util {
      * @param value the string to be encoded
      * @param path to determine if the given value is a string or not
      * @return the url encoded string
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public static String urlEncode(String value, final boolean path) throws AmazonPayClientException {
         if (value == null) {
@@ -144,7 +144,7 @@ public class Util {
      * Builds the PrivateKey object fromt the private key string provided
      * @param privateKeyString the private key string provided
      * @return the PrivateKey object
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public static PrivateKey buildPrivateKeyFromString(final String privateKeyString) throws AmazonPayClientException {
         Security.addProvider(new BouncyCastleProvider());
@@ -176,7 +176,7 @@ public class Util {
      * To read the contents of the private key
      * @param privateKey the private key string
      * @return private key pem object
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     private static PemObject getPEMObjectFromKey(final String privateKey) throws AmazonPayClientException {
         PemObject pemObject;
@@ -197,7 +197,7 @@ public class Util {
      * @param payConfiguration the PayConfiguration object
      * @param action the action to be performed by the request
      * @return the service URI
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public static URI getServiceURI(PayConfiguration payConfiguration, String action) throws AmazonPayClientException {
         URI uri;

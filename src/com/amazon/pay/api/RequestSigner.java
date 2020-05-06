@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -46,8 +46,9 @@ public class RequestSigner {
      * @param httpMethodName the HTTP request method(GET,PUT,POST etc) to be used
      * @param queryParameters the query parameters map
      * @param requestPayload the payload to be sent with the request
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return a map of signed headers
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public Map<String, String> signRequest(final URI uri,
                                            final String httpMethodName,
@@ -90,13 +91,13 @@ public class RequestSigner {
      * @return the user agent string
      */
     private String buildUserAgentHeader() {
-        final String javaVersion = !payConfiguration.isUserAgentRedaction() ? Util.JAVA_VERSION : ServiceConstants.REDACTED;
-        final String osName = !payConfiguration.isUserAgentRedaction() ? Util.OS_NAME : ServiceConstants.REDACTED;
-        final String osVersion = !payConfiguration.isUserAgentRedaction() ? Util.OS_VERSION : ServiceConstants.REDACTED;
+        final String javaVersion = payConfiguration.isUserAgentRedaction() ? ServiceConstants.REDACTED : Util.JAVA_VERSION;
+        final String osName = payConfiguration.isUserAgentRedaction() ? ServiceConstants.REDACTED : Util.OS_NAME;
+        final String osVersion = payConfiguration.isUserAgentRedaction() ? ServiceConstants.REDACTED : Util.OS_VERSION;
 
         final StringBuilder userAgentBuilder = new StringBuilder(ServiceConstants.GITHUB_SDK_NAME).append("/")
                 .append(ServiceConstants.APPLICATION_LIBRARY_VERSION)
-                .append("(").append("Java/").append(javaVersion)
+                .append(" (").append("Java/").append(javaVersion)
                 .append("; ").append(osName)
                 .append("/").append(osVersion).append(")");
 
@@ -109,7 +110,7 @@ public class RequestSigner {
      * @param preSignedHeaders the set of pre signed headers
      * @param signature the generated signature
      * @return the authorization string
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     private String buildAuthorizationHeader(String publicKeyId,
                                             Map<String, List<String>> preSignedHeaders,

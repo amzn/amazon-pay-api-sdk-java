@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ import java.util.TreeMap;
 public class SignatureHelper {
     private final PayConfiguration payConfiguration;
     private final String LINE_SEPARATOR = "\n";
-    private final int SALT_LENGTH = 20;
-    private final int TRAILER_FIELD = 1;
+    public final static int SALT_LENGTH = 20;
+    public final static int TRAILER_FIELD = 1;
 
     public SignatureHelper(final PayConfiguration payConfiguration) {
         this.payConfiguration = payConfiguration;
@@ -133,7 +133,9 @@ public class SignatureHelper {
     /**
      * Creates the mandatory headers required in the request
      * @param uri the uri to be executed
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return a map of mandatory headers
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public Map<String, List<String>> createPreSignedHeaders(final URI uri, final Map<String, String> header) throws AmazonPayClientException {
         final Map<String, List<String>> headers = new HashMap<>();
@@ -250,7 +252,7 @@ public class SignatureHelper {
      * Generates a canonical string that consists of all the query parameters
      * @param parameters the query parameters of the request
      * @return the canonical query string
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public String getCanonicalizedQueryString(final Map<String, List<String>> parameters) throws AmazonPayClientException {
         final SortedMap<String, List<String>> sorted = new TreeMap<>();

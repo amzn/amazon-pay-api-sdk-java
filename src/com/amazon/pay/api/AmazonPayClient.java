@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -25,6 +25,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,7 +41,6 @@ import java.util.Set;
 public class AmazonPayClient {
     final protected PayConfiguration payConfiguration;
     final protected RequestSigner requestSigner;
-    final protected Map<String, List<String>> queryParametersMap = new HashMap<>();
 
     public AmazonPayClient(final PayConfiguration payConfiguration) throws AmazonPayClientException {
         this.payConfiguration = payConfiguration;
@@ -47,26 +51,28 @@ public class AmazonPayClient {
     /**
      * The Delivery Tracker operation is used to track the delivery status
      *
-     * @param payload
-     * @param header
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the deliveryTracker service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse deliveryTracker(final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI deliveryTrackerURI = Util.getServiceURI(payConfiguration, ServiceConstants.DELIVERY_TRACKERS);
-        return callAPI(deliveryTrackerURI, "POST", queryParametersMap, payload.toString(), header);
+        return callAPI(deliveryTrackerURI, "POST", null, payload.toString(), header);
     }
 
     /**
      * The get Authorization Token operation is used to obtain retrieve a delegated authorization token
      *  used in order to make API calls on behalf of a merchant.
      *  This token is needed to make delegated calls.
-     * @implNote Important: getAuthorizationToken() requires a Client configured to use the live environment.
-     * @param  mwsAuthToken
-     * @param  merchantId
-     * @param  header
+     * Important: getAuthorizationToken() requires a Client configured to use the live environment.
+     *
+     * @param  mwsAuthToken MWS Authorization Token previously shared by Merchant to the Solution Provider
+     * @param  merchantId Merchant ID that generated the MWS Authorization Token
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
      * @return The response from the getAuthorizationToken service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      * @see AmazonPayClient
      * @see PayConfiguration
      * @see com.amazon.pay.api.types.Environment
@@ -74,7 +80,7 @@ public class AmazonPayClient {
     public AmazonPayResponse getAuthorizationToken(final String mwsAuthToken, final String merchantId, final Map<String, String> header) throws AmazonPayClientException {
         final URI authorizationTokenURI = Util.getServiceURI(payConfiguration, ServiceConstants.AUTHORIZATION_TOKEN);
         final URI getAuthorizationTokenURI = authorizationTokenURI.resolve(authorizationTokenURI.getPath() + "/" + mwsAuthToken + "?merchantId=" + merchantId);
-        queryParametersMap.clear();
+        final Map<String, List<String>> queryParametersMap = new HashMap<>();
         ArrayList<String> auxList = new ArrayList<String>();
         auxList.add(merchantId);
         queryParametersMap.put("merchantId", auxList);
@@ -85,14 +91,55 @@ public class AmazonPayClient {
     /**
      * The Delivery Tracker operation is used to track the delivery status
      *
-     * @param payload
+     * @param payload JSONObject request body
      * @return The response from the deliveryTracker service API, as
      * returned by Amazon Pay.
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse deliveryTracker(final JSONObject payload) throws AmazonPayClientException {
         return deliveryTracker(payload, null);
     }
+
+
+    /**
+     * generateButtonSignature is a convenience method to assist the developer in generating static signatures
+     * that can be used by Checkout v2's amazon.Pay.renderButton method.  Unlike API call signatures, the
+     * system timestamp is not part of the signing logic, so these signatures do not expire.
+     *
+     * @param payload The payloadJSON attribute from createCheckoutSessionConfig object used by amazon.Pay.renderButton method from checkout.js
+     * @return String signature attribute value for createCheckoutSessionConfig object on your website frontend
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public String generateButtonSignature(final JSONObject payload) throws AmazonPayClientException {
+        return generateButtonSignature(payload.toString());
+    }
+
+
+    /**
+     * generateButtonSignature is a convenience method to assist the developer in generating static signatures
+     * that can be used by Checkout v2's amazon.Pay.renderButton method.  Unlike API call signatures, the
+     * system timestamp is not part of the signing logic, so these signatures do not expire.
+     *
+     * @param payload The payloadJSON attribute from createCheckoutSessionConfig object used by amazon.Pay.renderButton method from checkout.js
+     * @return String signature attribute value for createCheckoutSessionConfig object on your website frontend
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public String generateButtonSignature(final String payload) throws AmazonPayClientException {
+        String signature = null;
+        final SignatureHelper signatureHelper = new SignatureHelper(payConfiguration);
+        try {
+            final String stringToSign = signatureHelper.createStringToSign(payload);
+            signature =  signatureHelper.generateSignature(stringToSign, payConfiguration.getPrivateKey());
+        } catch (NoSuchAlgorithmException
+                | NoSuchProviderException
+                | InvalidAlgorithmParameterException
+                | InvalidKeyException
+                | SignatureException e) {
+            throw new AmazonPayClientException(e.getMessage(), e);
+        }
+        return signature;
+    }
+
 
     /**
      * API to process the request and return the
@@ -103,7 +150,7 @@ public class AmazonPayClient {
      * @param request         the payload to be sent with the request
      * @param header          the header of the solution provider
      * @return response of type AmazonPayResponse
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse callAPI(final URI uri,
                                      final String httpMethodName,
@@ -124,7 +171,7 @@ public class AmazonPayClient {
      * @param payload           the payload to be sent with the request
      * @param httpMethodName    the HTTP request method(GET,PUT,POST etc) to be used
      * @return the AmazonPayResponse
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     private AmazonPayResponse processRequest(final URI uri,
                                              final Map<String, String> postSignedHeaders,
@@ -182,7 +229,7 @@ public class AmazonPayClient {
      * @param payload        the payload ot be sent with the request
      * @param httpMethodName the HTTP request method(GET,PUT,POST etc) to be used
      * @return the response and response code
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     private List<String> sendRequest(final URI uri,
                                      final Map<String, String> headers,
