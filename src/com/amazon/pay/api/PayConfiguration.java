@@ -27,6 +27,7 @@ public class PayConfiguration {
     private Environment environment;
     private int maxRetries = 3;
     private boolean userAgentRedaction = false;
+    private String overrideServiceURL;
 
     /**
      * @return Returns region code from PayConfiguration
@@ -139,6 +140,23 @@ public class PayConfiguration {
      */
     public PayConfiguration setUserAgentRedaction(final boolean userAgentRedaction) {
         this.userAgentRedaction = userAgentRedaction;
+        return this;
+    }
+
+    /**
+     * @return overrideServiceURL Returns overridden MWS Service URL in PayConfiguration
+     */
+    public String getOverrideServiceURL() {
+        return overrideServiceURL;
+    }
+
+    /**
+     * @param overrideServiceURL Sets CV2 Service URL override in PayConfiguration
+     * This should only be used if you need to programmatically override the default service endpoint
+     * provided by the SDK's endpointMappingsMap in com.amazon.pay.types.ServiceConstants.
+     */
+    public PayConfiguration setOverrideServiceURL(String overrideServiceURL) {
+        this.overrideServiceURL = overrideServiceURL;
         return this;
     }
 

@@ -28,6 +28,33 @@ public class WebstoreClient extends AmazonPayClient {
     }
 
     /**
+     * Get Buyer details can include buyer ID, name, email address, postal code, and country code
+     * when used with the Amazon.Pay.renderButton 'SignIn' productType and corresponding signInScopes.
+     *
+     * @param buyerToken Buyer Token
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
+     * @return The response from the GetBuyer service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse getBuyer(final String buyerToken, final Map<String, String> header) throws AmazonPayClientException {
+        final URI buyerURI = Util.getServiceURI(payConfiguration, ServiceConstants.BUYER);
+        final URI getBuyerURI = buyerURI.resolve(buyerURI.getPath() + "/" + buyerToken);
+        return callAPI(getBuyerURI, "GET", null, "", header);
+    }
+
+    /**
+     * Get Buyer details can include buyer ID, name, email address, postal code, and country code
+     * when used with the Amazon.Pay.renderButton 'SignIn' productType and corresponding signInScopes.
+     *
+     * @param buyerToken Buyer Token
+     * @return The response from the GetBuyer service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse getBuyer(final String buyerToken) throws AmazonPayClientException {
+        return getBuyer(buyerToken, null);
+    }
+
+    /**
      * The CreateCheckoutSession operation is used to create a CheckoutSession for a buyer
      * and pass the Id as part of button click.
      *

@@ -1,3 +1,7 @@
+#### Version 2.2.0 - June 2020
+
+* Added getBuyer() API call
+
 #### Version 2.1.0 - May 2020
 
 * New convenience method: AmazonPayClient.generateButtonSignature() to assist the developer in generating static signatures for the createCheckoutSessionConfig.payloadJSON attribute that can be used by Checkout v2's amazon.Pay.renderButton method
