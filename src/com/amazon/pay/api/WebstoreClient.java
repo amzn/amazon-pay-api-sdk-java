@@ -37,7 +37,7 @@ public class WebstoreClient extends AmazonPayClient {
      * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public AmazonPayResponse getBuyer(final String buyerToken, final Map<String, String> header) throws AmazonPayClientException {
-        final URI buyerURI = Util.getServiceURI(payConfiguration, ServiceConstants.BUYER);
+        final URI buyerURI = Util.getServiceURI(payConfiguration, ServiceConstants.BUYERS);
         final URI getBuyerURI = buyerURI.resolve(buyerURI.getPath() + "/" + buyerToken);
         return callAPI(getBuyerURI, "GET", null, "", header);
     }
