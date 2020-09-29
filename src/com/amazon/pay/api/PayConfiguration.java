@@ -154,6 +154,7 @@ public class PayConfiguration {
      * @param overrideServiceURL Sets CV2 Service URL override in PayConfiguration
      * This should only be used if you need to programmatically override the default service endpoint
      * provided by the SDK's endpointMappingsMap in com.amazon.pay.types.ServiceConstants.
+     * @return the PayConfiguration object
      */
     public PayConfiguration setOverrideServiceURL(String overrideServiceURL) {
         this.overrideServiceURL = overrideServiceURL;

@@ -1,3 +1,10 @@
+#### Version 2.2.2 - July 2020
+
+* Fix issue causing SDK to fail for Java 12 and higher
+* Restructure README.md file
+
+* Underlying endpoint for getBuyer API changed
+
 #### Version 2.2.1 - June 2020
 
 * Underlying endpoint for getBuyer API changed
