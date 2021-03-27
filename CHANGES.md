@@ -1,3 +1,9 @@
+#### Version 2.3.0 - March 2021
+* Introduced Apache HTTPClient library for HTTPS/TCP communications which will allow SDK to work with latest versions of java
+* Fixed Security risk
+* Enabled Proxy Support
+* Note: Consumers of previous SDK versions must update data type of private key from string to char[] as of this SDK Version 2.3.0.
+
 #### Version 2.2.2 - July 2020
 
 * Fix issue causing SDK to fail for Java 12 and higher

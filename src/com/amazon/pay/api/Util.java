@@ -14,12 +14,7 @@
  */
 package com.amazon.pay.api;
 
-import com.amazon.pay.api.exceptions.AmazonPayClientException;
-import com.amazon.pay.api.types.Environment;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemReader;
-
+import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -41,6 +36,31 @@ import java.util.SimpleTimeZone;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpTrace;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
+
+import com.amazon.pay.api.exceptions.AmazonPayClientException;
+import com.amazon.pay.api.types.Environment;
 
 public class Util {
 
@@ -141,47 +161,44 @@ public class Util {
     }
 
     /**
-     * Builds the PrivateKey object fromt the private key string provided
-     * @param privateKeyString the private key string provided
+     * Builds the PrivateKey object from the private key provided
+     * @param char[] privateKey the private key provided
      * @return the PrivateKey object
      * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
-    public static PrivateKey buildPrivateKeyFromString(final String privateKeyString) throws AmazonPayClientException {
+    public static PrivateKey buildPrivateKey(final char[] privateKey) throws AmazonPayClientException {
         Security.addProvider(new BouncyCastleProvider());
-
-        if (privateKeyString == null || privateKeyString.isEmpty()) {
-            throw new AmazonPayClientException("Private key string cannot be null or empty");
+        if (privateKey == null || privateKey.length == 0) {
+             throw new AmazonPayClientException("Private key char array cannot be null or empty");
         }
-
-        PemObject pemObject = getPEMObjectFromKey(privateKeyString);
-
+        final PemObject pemObject = getPEMObjectFromKey(privateKey);
         if (pemObject == null) {
             throw new AmazonPayClientException("Private key string provided is not valid");
         }
 
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(pemObject.getContent());
 
-        PrivateKey privateKey = null;
+        PrivateKey privateKeyObject = null;
         try {
             final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            privateKey = keyFactory.generatePrivate(spec);
+            privateKeyObject = keyFactory.generatePrivate(spec);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new AmazonPayClientException(e.getMessage(), e);
         }
 
-        return privateKey;
+        return privateKeyObject;
     }
 
     /**
      * To read the contents of the private key
-     * @param privateKey the private key string
+     * @param char[] privateKey the private key provided
      * @return private key pem object
      * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
-    private static PemObject getPEMObjectFromKey(final String privateKey) throws AmazonPayClientException {
+    private static PemObject getPEMObjectFromKey(final char[] privateKey) throws AmazonPayClientException {
         PemObject pemObject;
         try {
-            final PemReader pemReader = new PemReader(new StringReader(privateKey));
+            final PemReader pemReader = new PemReader(new CharArrayReader(privateKey));
             pemObject = pemReader.readPemObject();
             pemReader.close();
 
@@ -268,5 +285,66 @@ public class Util {
         }
 
         return header;
+    }
+
+    /**
+     * Returns the HttpUriRequest object based on the given HTTP Method Name and URI specification.
+     * 
+     * @param httpMethodName the HTTP method
+     * @param uri the URI
+     * @return the Commons HttpMethodBase object
+     * @throws UnsupportedEncodingException
+     * @throws AmazonPayClientException 
+     */
+    public static HttpUriRequest getHttpUriRequest(final URI uri, final String httpMethodName, final String payload)
+            throws AmazonPayClientException, UnsupportedEncodingException {
+        switch (httpMethodName) {
+            case "GET":
+                return new HttpGet(uri);
+            case "POST":
+                final HttpPost httpPost = new HttpPost(uri);
+                httpPost.setEntity(new StringEntity(payload));
+                return httpPost;
+            case "PUT":
+                final HttpPut httpPut = new HttpPut(uri);
+                httpPut.setEntity(new StringEntity(payload));
+                return httpPut;
+            case "PATCH":
+                final HttpPatch httpPatch = new HttpPatch(uri);
+                httpPatch.setEntity(new StringEntity(payload));
+                return httpPatch;
+            case "HEAD":
+                return new HttpHead(uri);
+            case "DELETE":
+                final HttpDeleteWithBody httpDeleteWithBody = new HttpDeleteWithBody(uri);
+                httpDeleteWithBody.setEntity(new StringEntity(payload));
+                return httpDeleteWithBody;
+            case "OPTIONS":
+                return new HttpOptions(uri);
+            case "TRACE":
+                return new HttpTrace(uri);
+            default:
+                throw new AmazonPayClientException("Invalid HTTP method " + httpMethodName);
+        }
+    }
+    
+    /**
+     * Returns the CloseableHttpClient object based on the given proxy settings.
+     * 
+     * @param proxySettings the ProxySettings
+     * @return the CloseableHttpClient
+     */
+    public static CloseableHttpClient getCloseableHttpClientWithProxy(final ProxySettings proxySettings) {
+        final HttpHost proxy = new HttpHost(proxySettings.getProxyHost(),
+                proxySettings.getProxyPort());
+        final Credentials credentials = new UsernamePasswordCredentials(proxySettings.getProxyUser(),
+                String.valueOf(proxySettings.getProxyPassword()));
+        final AuthScope authScope = new AuthScope(proxySettings.getProxyHost(),
+                proxySettings.getProxyPort());
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(authScope, credentials);
+        final HttpClientBuilder httpClientBuilder = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider)
+                .setProxy(proxy);
+        return httpClientBuilder.build();
     }
 }

@@ -17,7 +17,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
     <dependency>
         <groupId>software.amazon.pay</groupId>
         <artifactId>amazon-pay-api-sdk-java</artifactId>
-        <version>2.2.2</version>
+        <version>2.3.0</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
 To use the SDK in a Gradle project, add the following line to your build.gradle file::
 
 ```
-implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.2.2'
+implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.3.0'
 ```
 
 For legacy projects, you can just grab the binary [jar file](https://github.com/amzn/amazon-pay-api-sdk-java/releases) from the GitHub Releases page.
@@ -105,7 +105,7 @@ try {
     payConfiguration = new PayConfiguration()
                 .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                 .setRegion(Region.YOUR_REGION_CODE)
-                .setPrivateKey("YOUR_PRIVATE_KEY_STRING")
+                .setPrivateKey("YOUR_PRIVATE_KEY_STRING".toCharArray())
                 .setEnvironment(Environment.SANDBOX);
 } catch (AmazonPayClientException e) {
     e.printStackTrace();
@@ -117,7 +117,7 @@ try {
     payConfiguration = new PayConfiguration()
                    .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                    .setRegion(Region.YOUR_REGION_CODE)
-                   .setPrivateKey(new String(Files.readAllBytes(Paths.get("private.pem"))))
+                   .setPrivateKey(new String(Files.readAllBytes(Paths.get("private.pem"))).toCharArray())
                    .setEnvironment(Environment.SANDBOX);
 } catch (AmazonPayClientException e) {
      e.printStackTrace();
@@ -133,6 +133,25 @@ try {
                 .setRegion(Region.YOUR_REGION_CODE)
                 .setPrivateKey(privateKey)
                 .setEnvironment(Environment.SANDBOX);
+} catch (AmazonPayClientException e) {
+     e.printStackTrace();
+}
+
+// If you have want to enable proxy support, you can set it in the payConfiguration in the following way:
+
+try {
+    ProxySettings proxySettings = new ProxySettings()
+                .setProxyHost("localhost")
+                .setProxyPort(8080)
+                .setProxyUser("user")
+                .setProxyPassword("password".toCharArray());
+    
+    payConfiguration = new PayConfiguration()
+                   .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
+                   .setRegion(Region.YOUR_REGION_CODE)
+                   .setPrivateKey("YOUR_PRIVATE_KEY_STRING".toCharArray())
+                   .setEnvironment(Environment.SANDBOX)
+                   .setProxySettings(proxySettings);
 } catch (AmazonPayClientException e) {
      e.printStackTrace();
 }

@@ -49,7 +49,7 @@ public class GenerateButtonSignatureTest {
         // Load private key and configure client
         final PayConfiguration config = new PayConfiguration()
                 .setPrivateKey(new String(Files.readAllBytes(
-                Paths.get("tst/com/amazon/pay/api/unit_test_private_key.txt"))))
+                Paths.get("tst/com/amazon/pay/api/unit_test_private_key.txt"))).toCharArray())
                 .setRegion(Region.NA)
                 .setPublicKeyId("ABCDEF0000000000000")
                 .setEnvironment(Environment.SANDBOX);

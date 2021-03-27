@@ -60,8 +60,8 @@ public class RequestSignerWithHeaderTest {
         System.setProperty("os.name", "Linux");
         PrivateKey mockKey = Mockito.mock(PrivateKey.class);
         mockStatic(Util.class);
-        Mockito.when(Util.buildPrivateKeyFromString(Mockito.anyString())).thenReturn(mockKey);
-        payConfiguration.setRegion(Region.NA).setPublicKeyId("ADGUHQIH9988").setPrivateKey("privateKey");
+        Mockito.when(Util.buildPrivateKey(Mockito.any(char[].class))).thenReturn(mockKey);
+        payConfiguration.setRegion(Region.NA).setPublicKeyId("ADGUHQIH9988").setPrivateKey(new char[] {'p','r','i','v','a','t','e','K','e','y'});
         setUpMockValues();
     }
 

@@ -14,13 +14,25 @@
  */
 package com.amazon.pay.api;
 
+import com.amazon.pay.api.PayConfiguration;
+import com.amazon.pay.api.ServiceConstants;
+import com.amazon.pay.api.Util;
+import com.amazon.pay.api.exceptions.AmazonPayClientException;
 import com.amazon.pay.api.types.Environment;
 import com.amazon.pay.api.types.Region;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UtilTest {
@@ -105,5 +117,53 @@ public class UtilTest {
         header = Util.updateHeader(null);
         Assert.assertNotNull(header);
 
+    }
+
+    @Test
+    public void testGetHttpUriRequestForValidHttpMethod() throws UnsupportedEncodingException, AmazonPayClientException, URISyntaxException {
+        final List<String> httpMethods = new ArrayList<String>() {
+            {
+                add("GET");
+                add("POST");
+                add("PUT");
+                add("PATCH");
+                add("HEAD");
+                add("DELETE");
+                add("OPTIONS");
+                add("TRACE");
+            }
+        };
+        for (String httpMethodName : httpMethods) {
+            HttpUriRequest httpUriRequest = Util.getHttpUriRequest(new URI(StringUtils.EMPTY), httpMethodName,
+                    StringUtils.EMPTY);
+            Assert.assertEquals(httpMethodName, httpUriRequest.getMethod());
+        }
+    }
+
+    @Test(expected = AmazonPayClientException.class)
+    public void testGetHttpUriRequestForInvalidHttpMethod() throws UnsupportedEncodingException, AmazonPayClientException, URISyntaxException {
+        Util.getHttpUriRequest(new URI(StringUtils.EMPTY), "Invalid", StringUtils.EMPTY);
+    }
+    
+    @Test
+    public void testGetCloseableHttpClientWithProxyMethod() {
+        final String proxyhost = "host";
+        final Integer proxyPort = 8080;
+        final String proxyUser = "user";
+        final char[] proxyPassword = new char[] {'p','a','s','s','w','o','r','d'};
+        final ProxySettings proxySettings = new ProxySettings()
+                .setProxyHost(proxyhost)
+                .setProxyPort(proxyPort)
+                .setProxyUser(proxyUser)
+                .setProxyPassword(proxyPassword);
+        final PayConfiguration payConfiguration = new PayConfiguration()
+                .setProxySettings(proxySettings);
+        final CloseableHttpClient httpClient = Util.getCloseableHttpClientWithProxy(proxySettings);
+        // Assertions
+        Assert.assertEquals(proxyhost, payConfiguration.getProxySettings().getProxyHost());
+        Assert.assertEquals(proxyPort, payConfiguration.getProxySettings().getProxyPort());
+        Assert.assertEquals(proxyUser, payConfiguration.getProxySettings().getProxyUser());
+        Assert.assertEquals(proxyPassword, payConfiguration.getProxySettings().getProxyPassword());
+        Assert.assertNotNull(httpClient);
     }
 }

@@ -14,17 +14,9 @@
  */
 package com.amazon.pay.api;
 
-import com.amazon.pay.api.exceptions.AmazonPayClientException;
-import net.sf.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.security.InvalidAlgorithmParameterException;
@@ -33,12 +25,20 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
+import com.amazon.pay.api.exceptions.AmazonPayClientException;
+
+import net.sf.json.JSONObject;
 
 public class AmazonPayClient {
     final protected PayConfiguration payConfiguration;
@@ -47,7 +47,6 @@ public class AmazonPayClient {
     public AmazonPayClient(final PayConfiguration payConfiguration) throws AmazonPayClientException {
         this.payConfiguration = payConfiguration;
         requestSigner = new RequestSigner(payConfiguration);
-        allowPatch();
     }
 
     /**
@@ -237,159 +236,38 @@ public class AmazonPayClient {
                                      final Map<String, String> headers,
                                      final String payload,
                                      final String httpMethodName) throws AmazonPayClientException {
-        List<String> result = new ArrayList<>();
-        HttpURLConnection conn = null;
-        StringBuffer response = new StringBuffer();
+        final List<String> result = new ArrayList<>();
+        final StringBuffer response = new StringBuffer();
         String requestId = null;
         int responseCode = 0;
-        try {
-            conn = (HttpURLConnection) uri.toURL().openConnection();
+        try (final CloseableHttpClient client = Optional.ofNullable(payConfiguration.getProxySettings()).isPresent()
+                ? Util.getCloseableHttpClientWithProxy(payConfiguration.getProxySettings())
+                    : HttpClients.createDefault()) {
+            final HttpUriRequest httpUriRequest = Util.getHttpUriRequest(uri, httpMethodName, payload);
             for (Map.Entry<String, String> entry : headers.entrySet()) {
-                conn.setRequestProperty(entry.getKey(), entry.getValue());
+                httpUriRequest.addHeader(entry.getKey(), entry.getValue());
             }
-            conn.setRequestMethod(httpMethodName);
-            conn.setDoInput(true);
-            if (payload == null || payload.isEmpty()) {
-                conn.setDoOutput(false);
-            } else {
-                conn.setDoOutput(true);
-                try (OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream())) {
-                    out.write(payload);
-                    out.flush();
-                } catch (IOException e) {
-                    throw new AmazonPayClientException(e.getMessage(), e);
-                }
-            }
-            responseCode = conn.getResponseCode();
-            requestId = conn.getHeaderField("X-Amz-Pay-Request-Id");
-            String inputLine;
+            final HttpResponse responses = client.execute(httpUriRequest);
+            responseCode = responses.getStatusLine().getStatusCode();
             if (responseCode < HttpURLConnection.HTTP_BAD_REQUEST) {
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), Util.DEFAULT_ENCODING))) {
+                requestId = responses.getFirstHeader(ServiceConstants.X_AMZ_PAY_REQUEST_ID).toString();
+                String inputLine;
+                try (final BufferedReader in = new BufferedReader(
+                        new InputStreamReader(responses.getEntity().getContent(), Util.DEFAULT_ENCODING))) {
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine).append(System.lineSeparator());
                     }
-                } catch (IOException e) {
-                    throw new AmazonPayClientException(e.getMessage(), e);
                 }
             } else {
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getErrorStream(), Util.DEFAULT_ENCODING))) {
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine).append(System.lineSeparator());
-                    }
-                } catch (IOException e) {
-                    throw new AmazonPayClientException(e.getMessage(), e);
-                }
+                response.append(EntityUtils.toString(responses.getEntity()));
             }
-        } catch (IOException e) {
-            throw new AmazonPayClientException(e.getMessage(), e);
+        } catch (IOException exception) {
+            throw new AmazonPayClientException(exception.getMessage(), exception);
         }
         result.add(String.valueOf(responseCode));
         result.add(response.toString());
         result.add(requestId);
         return result;
-    }
-
-    /**
-     * The allowPatch operation is used to call PATCH requests.
-     *
-     * @throws IllegalStateException
-     */
-    private static void allowPatch() throws AmazonPayClientException {
-        // First, try the code that works with Java 8 through 11
-        try {
-            final Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
-
-            final Field modifiersField = Field.class.getDeclaredField("modifiers");
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(methodsField, methodsField.getModifiers() & ~Modifier.FINAL);
-
-            methodsField.setAccessible(true);
-            final String[] oldMethods = (String[]) methodsField.get(null);
-            final Set<String> methodsSet = new LinkedHashSet<>(Arrays.asList(oldMethods));
-
-            methodsSet.add("PATCH");
-            final String[] newMethods = methodsSet.toArray(new String[0]);
-
-            methodsField.set(null, newMethods);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            // If that fails, try the code that works with Java 12 and higher
-            allowPatchJava12();
-        }
-    }
-
-    /**
-     * The allowPatch operation is used to allow PATCH requests.
-     *
-     * @throws IllegalStateException
-     */
-    private static void allowPatchJava12() throws AmazonPayClientException {
-        try {
-
-            /*
-
-            The more efficient version of this code for Java 9 and higher is in this comment block;
-            however, we are unable to use it because it can't be compiled with Java 8.  Because the
-            minimum requirements for this SDK is Java 8, we need to use Java 8 compatible reflection
-            code so that it doesn't break existing implementations.  If in the future, we move to
-            a minimum requirement for Java 9, we will be able to use the commented code instead:
-
-                import java.lang.invoke.MethodHandles;
-                import java.lang.invoke.VarHandle;
-                ...
-                final VarHandle modifiers;
-                final var lookup = MethodHandles.privateLookupIn(Field.class, MethodHandles.lookup());
-                modifiers = lookup.findVarHandle(Field.class, "modifiers", int.class);
-
-                final Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
-                final int mods = methodsField.getModifiers();
-                if (Modifier.isFinal(mods)) {
-                    modifiers.set(methodsField, mods & ~Modifier.FINAL);
-                }
-
-            */
-
-            Class classMethodHandles = Class.forName("java.lang.invoke.MethodHandles");
-            Class classMethodHandlesLookup = Class.forName("java.lang.invoke.MethodHandles$Lookup");
-            Class classVarHandleRW = Class.forName("java.lang.invoke.VarHandleInts$FieldInstanceReadWrite");
-
-            Class noparams[] = {};
-            Object nullparams[] = null;
-            Method methodLookup = classMethodHandles.getDeclaredMethod("lookup", noparams);
-            Object methodLookupReturn = methodLookup.invoke(null, nullparams);
-
-            Class lookupParams[] = {Class.class, classMethodHandlesLookup};
-            Method methodPrivateLookupIn = classMethodHandles.getDeclaredMethod("privateLookupIn", lookupParams);
-            Object lookup = methodPrivateLookupIn.invoke(null, Field.class, methodLookupReturn);
-
-            Class findVarHandleParams[] = {Class.class, String.class, Class.class};
-            Method methodFindVarHandle = lookup.getClass().getDeclaredMethod("findVarHandle", findVarHandleParams);
-            Object modifiers = methodFindVarHandle.invoke(lookup, Field.class, "modifiers", int.class);
-
-            final Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
-
-            final int mods = methodsField.getModifiers();
-            if (Modifier.isFinal(mods)) {
-                Class setParams[] = {classVarHandleRW, Object.class, int.class};
-                Method methodSet = modifiers.getClass().getDeclaredMethod("set", setParams);
-                methodSet.setAccessible(true);
-                methodSet.invoke(null, modifiers, methodsField, mods & ~Modifier.FINAL);
-            }
-
-            methodsField.setAccessible(true);
-            final String[] oldMethods = (String[]) methodsField.get(null);
-            final Set<String> methodsSet = new LinkedHashSet<>(Arrays.asList(oldMethods));
-
-            methodsSet.add("PATCH");
-            final String[] newMethods = methodsSet.toArray(new String[0]);
-
-            methodsField.set(null, newMethods);
-        } catch (NoSuchFieldException
-                | NoSuchMethodException
-                | ClassNotFoundException
-                | IllegalAccessException
-                | InvocationTargetException e ) {
-            throw new AmazonPayClientException(e.getMessage(), e);
-        }
     }
 
 }

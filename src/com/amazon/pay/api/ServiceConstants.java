@@ -26,7 +26,7 @@ public class ServiceConstants {
     public static final Map<Region, String> endpointMappings;
     public static final Map<String, Integer> serviceErrors;
 
-    public static final String APPLICATION_LIBRARY_VERSION = "2.2.2";
+    public static final String APPLICATION_LIBRARY_VERSION = "2.3.0";
     public static final String GITHUB_SDK_NAME = "amazon-pay-api-sdk-java";
     public static final String AMAZON_PAY_API_VERSION = "v2";
 
@@ -74,4 +74,5 @@ public class ServiceConstants {
         serviceErrorsMap.put("Too Many Requests", 429);
         serviceErrors = Collections.unmodifiableMap(serviceErrorsMap);
     }
+    public static final String X_AMZ_PAY_REQUEST_ID = "X-Amz-Pay-Request-Id";
 }

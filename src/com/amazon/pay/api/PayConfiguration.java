@@ -28,6 +28,7 @@ public class PayConfiguration {
     private int maxRetries = 3;
     private boolean userAgentRedaction = false;
     private String overrideServiceURL;
+    private ProxySettings proxySettings;
 
     /**
      * @return Returns region code from PayConfiguration
@@ -69,12 +70,23 @@ public class PayConfiguration {
     }
 
     /**
-     * @param privateKey The private key string
+     * @deprecated This method is deprecated, instead use setPrivateKey(char[] privateKey)
+     * @param privateKey The private key String
      * @return the PayConfiguration object
      * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
+    @Deprecated
     public PayConfiguration setPrivateKey(final String privateKey) throws AmazonPayClientException {
-        return setPrivateKey(Util.buildPrivateKeyFromString(privateKey));
+        return setPrivateKey(Util.buildPrivateKey(privateKey.toCharArray()));
+    }
+
+    /**
+     * @param privateKey The private key char array
+     * @return the PayConfiguration object
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public PayConfiguration setPrivateKey(final char[] privateKey) throws AmazonPayClientException {
+        return setPrivateKey(Util.buildPrivateKey(privateKey));
     }
 
     /**
@@ -158,6 +170,23 @@ public class PayConfiguration {
      */
     public PayConfiguration setOverrideServiceURL(String overrideServiceURL) {
         this.overrideServiceURL = overrideServiceURL;
+        return this;
+    }
+
+    /**
+     * @return proxySettings Returns Proxy Settings in PayConfiguration
+     */
+    public ProxySettings getProxySettings() {
+        return proxySettings;
+    }
+
+    /**
+     * @param proxySettings Sets the Proxy Settings in PayConfiguration
+     * This should only be used if you need to enable internet traffic flows through the proxy server
+     * @return the PayConfiguration object
+     */
+    public PayConfiguration setProxySettings(ProxySettings proxySettings) {
+        this.proxySettings = proxySettings;
         return this;
     }
 
