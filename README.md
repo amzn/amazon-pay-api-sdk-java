@@ -17,7 +17,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
     <dependency>
         <groupId>software.amazon.pay</groupId>
         <artifactId>amazon-pay-api-sdk-java</artifactId>
-        <version>2.3.0</version>
+        <version>2.3.1</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
 To use the SDK in a Gradle project, add the following line to your build.gradle file::
 
 ```
-implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.3.0'
+implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.3.1'
 ```
 
 For legacy projects, you can just grab the binary [jar file](https://github.com/amzn/amazon-pay-api-sdk-java/releases) from the GitHub Releases page.

@@ -303,21 +303,21 @@ public class Util {
                 return new HttpGet(uri);
             case "POST":
                 final HttpPost httpPost = new HttpPost(uri);
-                httpPost.setEntity(new StringEntity(payload));
+                httpPost.setEntity(new StringEntity(payload, DEFAULT_ENCODING));
                 return httpPost;
             case "PUT":
                 final HttpPut httpPut = new HttpPut(uri);
-                httpPut.setEntity(new StringEntity(payload));
+                httpPut.setEntity(new StringEntity(payload, DEFAULT_ENCODING));
                 return httpPut;
             case "PATCH":
                 final HttpPatch httpPatch = new HttpPatch(uri);
-                httpPatch.setEntity(new StringEntity(payload));
+                httpPatch.setEntity(new StringEntity(payload, DEFAULT_ENCODING));
                 return httpPatch;
             case "HEAD":
                 return new HttpHead(uri);
             case "DELETE":
                 final HttpDeleteWithBody httpDeleteWithBody = new HttpDeleteWithBody(uri);
-                httpDeleteWithBody.setEntity(new StringEntity(payload));
+                httpDeleteWithBody.setEntity(new StringEntity(payload, DEFAULT_ENCODING));
                 return httpDeleteWithBody;
             case "OPTIONS":
                 return new HttpOptions(uri);

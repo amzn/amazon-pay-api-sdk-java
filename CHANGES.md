@@ -1,3 +1,6 @@
+#### Version 2.3.1 - April 2021
+* Enabled character encoding UTF-8 when converting the body/payload to a string entity before sending HTTP/HTTPS request
+
 #### Version 2.3.0 - March 2021
 * Introduced Apache HTTPClient library for HTTPS/TCP communications which will allow SDK to work with latest versions of java
 * Fixed Security risk
