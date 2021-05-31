@@ -37,6 +37,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -225,7 +226,7 @@ public class Util {
             } else {
                 endpoint = ServiceConstants.endpointMappings.get(payConfiguration.getRegion());
             }
-            uri = new URI(endpoint + getServiceVersionName(payConfiguration.getEnvironment(), action));
+            uri = new URI(endpoint + getServiceVersionName(payConfiguration, action));
         } catch (URISyntaxException e) {
             throw new AmazonPayClientException(e.getMessage(), e);
         }
@@ -234,19 +235,27 @@ public class Util {
 
     /**
      * To get the service version name
-     * @param environment the environment (Sandbox/Live)
+     * @param payConfiguration the PayConfiguration object
      * @param action the action to be performed by the request
      * @return the service version name
      */
-    private static String getServiceVersionName(Environment environment, String action) {
-        String serviceVersionName;
-
-        if (environment == Environment.SANDBOX) {
-            serviceVersionName = "/" + "sandbox" + "/" + action;
+    private static String getServiceVersionName(PayConfiguration payConfiguration, String action) {
+        String serviceVersionName = StringUtils.EMPTY;
+        if(serviceSupportsEnvPublicKeyId(payConfiguration)) {
+            serviceVersionName = "/" + action;
         } else {
-            serviceVersionName = "/" + "live" + "/" + action;
+            if (payConfiguration.getEnvironment() == Environment.SANDBOX) {
+                serviceVersionName = "/" + "sandbox" + "/" + action;
+            } else {
+                serviceVersionName = "/" + "live" + "/" + action;
+            }
         }
         return serviceVersionName;
+    }
+
+    private static boolean serviceSupportsEnvPublicKeyId(PayConfiguration payConfiguration) {
+        return payConfiguration.getPublicKeyId().toUpperCase(Locale.ROOT).startsWith("LIVE") || 
+                payConfiguration.getPublicKeyId().toUpperCase(Locale.ROOT).startsWith("SANDBOX");
     }
 
     /**

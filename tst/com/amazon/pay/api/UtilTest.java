@@ -88,7 +88,9 @@ public class UtilTest {
 
     @Test
     public void getServiceURI() throws Exception {
-        PayConfiguration payConfiguration1 = new PayConfiguration()
+        // Environment is Sandbox
+        final PayConfiguration payConfiguration1 = new PayConfiguration()
+                .setPublicKeyId("XXXXXXXXXXXXXXXXXXXXXXXX")
                 .setRegion(Region.EU)
                 .setEnvironment(Environment.SANDBOX);
 
@@ -96,14 +98,46 @@ public class UtilTest {
         URI actualURL = Util.getServiceURI(payConfiguration1, ServiceConstants.INSTORE_MERCHANT_SCAN);
         Assert.assertEquals(expectedURL, actualURL);
 
-        PayConfiguration payConfiguration2 = new PayConfiguration()
-                .setRegion(Region.EU);
+        // Environment is Live
+        final PayConfiguration payConfiguration2 = new PayConfiguration()
+                .setPublicKeyId("XXXXXXXXXXXXXXXXXXXXXXXX")
+                .setRegion(Region.EU)
+                .setEnvironment(Environment.LIVE);
         expectedURL = new URI("https://pay-api.amazon.eu/live/v2/in-store/refund");
+        actualURL = Util.getServiceURI(payConfiguration2, ServiceConstants.INSTORE_REFUND);
+        Assert.assertEquals(expectedURL, actualURL);
+        
+        // Environment is Null (i.e Default value is live)
+        final PayConfiguration payConfiguration3 = new PayConfiguration()
+                .setPublicKeyId("XXXXXXXXXXXXXXXXXXXXXXXX")
+                .setRegion(Region.EU);
+        
+        expectedURL = new URI("https://pay-api.amazon.eu/live/v2/in-store/refund");
+        actualURL = Util.getServiceURI(payConfiguration3, ServiceConstants.INSTORE_REFUND);
+        Assert.assertEquals(expectedURL, actualURL);
+
+    }
+    
+    @Test
+    public void getServiceURIForEnvironmentSpecificKeys() throws Exception {
+        final PayConfiguration payConfiguration1 = new PayConfiguration()
+                .setPublicKeyId("LIVE-XXXXXXXXXXXXXXXXXXXXXXXX")
+                .setRegion(Region.EU);
+
+        URI expectedURL = new URI("https://pay-api.amazon.eu/v2/in-store/merchantScan");
+        URI actualURL = Util.getServiceURI(payConfiguration1, ServiceConstants.INSTORE_MERCHANT_SCAN);
+        Assert.assertEquals(expectedURL, actualURL);
+
+        final PayConfiguration payConfiguration2 = new PayConfiguration()
+                .setPublicKeyId("SANDBOX-XXXXXXXXXXXXXXXXXXXXXXXX")
+                .setRegion(Region.EU);
+        
+        expectedURL = new URI("https://pay-api.amazon.eu/v2/in-store/refund");
         actualURL = Util.getServiceURI(payConfiguration2, ServiceConstants.INSTORE_REFUND);
         Assert.assertEquals(expectedURL, actualURL);
 
     }
-
+    
     @Test
     public void updateHeader() throws Exception {
         PayConfiguration payConfiguration1 = new PayConfiguration()

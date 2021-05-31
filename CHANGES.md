@@ -1,3 +1,6 @@
+#### Version 2.3.2 - May 2021
+* Enabled support for environment specific keys (i.e Public key & Private key). The changes are fully backwards-compatible, where merchants can also use non environment specific keys 
+
 #### Version 2.3.1 - April 2021
 * Enabled character encoding UTF-8 when converting the body/payload to a string entity before sending HTTP/HTTPS request
 
