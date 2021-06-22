@@ -1,3 +1,7 @@
+#### Version 2.3.3 - June 2021
+* Added API Retry mechanism for error codes 502 & 504
+* Upgraded Bouncy Castle to avoid using Vulnerable version
+  		 
 #### Version 2.3.2 - May 2021
 * Enabled support for environment specific keys (i.e Public key & Private key). The changes are fully backwards-compatible, where merchants can also use non environment specific keys 
 
