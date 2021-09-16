@@ -1,3 +1,6 @@
+#### Version 2.3.4 - September 2021
+* Removed parameter named "overrideServiceURL" from PayConfiguration
+
 #### Version 2.3.3 - June 2021
 * Added API Retry mechanism for error codes 502 & 504
 * Upgraded Bouncy Castle to avoid using Vulnerable version

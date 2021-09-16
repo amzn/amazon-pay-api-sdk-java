@@ -220,12 +220,7 @@ public class Util {
     public static URI getServiceURI(PayConfiguration payConfiguration, String action) throws AmazonPayClientException {
         URI uri;
         try {
-            String endpoint;
-            if (payConfiguration.getOverrideServiceURL() != null) {
-                endpoint = "https://" + payConfiguration.getOverrideServiceURL();
-            } else {
-                endpoint = ServiceConstants.endpointMappings.get(payConfiguration.getRegion());
-            }
+            String endpoint = ServiceConstants.endpointMappings.get(payConfiguration.getRegion());
             uri = new URI(endpoint + getServiceVersionName(payConfiguration, action));
         } catch (URISyntaxException e) {
             throw new AmazonPayClientException(e.getMessage(), e);
