@@ -1,10 +1,5 @@
 [
-    /**
-     * This is a comprehensive list of test cases for how to generated a
-     * string to sign.
-     */
     {
-      // A vanilla GET
       "name" : "get-vanilla",
       "uri" : "/",
       "method" : "GET",
@@ -15,7 +10,6 @@
     },
 
     {
-      // A URI with redundant slashes
       "name" : "get-slashes",
       "uri" : "//foo//",
       "method" : "GET",
@@ -26,7 +20,6 @@
     },
 
     {
-      // A empty URI
       "name" : "get-empty",
       "uri" : "",
       "method" : "GET",
@@ -37,7 +30,6 @@
     },
 
     {
-      // URI with unreserved characters shouldn't be encoded
       "name" : "get-unreserved",
       "uri" : "/-._~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
       "method" : "GET",
@@ -48,7 +40,6 @@
     },
 
     {
-      // A vanilla GET with query parameters that aren't encoded
       "name" : "get-vanilla-query",
       "uri" : "/",
       "method" : "GET",
@@ -60,9 +51,6 @@
     },
 
     {
-      // There is no UTF-8 in HTTP. It only deals in 7-bit ASCII, so UTF-8
-      // elements mapped into
-      // a URI look like URI-encoded, UTF-8-encoded bytes
       "name" : "get-utf8",
       "uri" : "/\u1234",
       "method" : "GET",
@@ -86,7 +74,6 @@
     },
 
     {
-      // POSTing to a vanilla URI
       "name" : "post-vanilla",
       "uri" : "/",
       "method" : "POST",

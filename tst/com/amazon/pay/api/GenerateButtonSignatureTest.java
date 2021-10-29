@@ -17,7 +17,7 @@ package com.amazon.pay.api;
 import com.amazon.pay.api.types.Environment;
 import com.amazon.pay.api.types.Region;
 
-import net.sf.json.JSONObject;
+import org.json.JSONObject;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.io.pem.PemObject;

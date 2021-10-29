@@ -38,7 +38,8 @@ import org.apache.http.util.EntityUtils;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
 
-import net.sf.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class AmazonPayClient {
     final protected PayConfiguration payConfiguration;
@@ -206,14 +207,13 @@ public class AmazonPayClient {
             responseObject.setRetries(retry);
             responseObject.setStatus(statusCode);
             responseObject.setDuration(System.currentTimeMillis() - millisBefore);
-        } catch (InterruptedException e) {
+            if (response.get(ServiceConstants.RESPONSE_STRING) != null) {
+                // Converting the response string into a JSONObject
+                rawResponseObject = response.get(ServiceConstants.RESPONSE_STRING);
+                jsonResponse = new JSONObject(response.get(ServiceConstants.RESPONSE_STRING));
+            }
+        } catch (InterruptedException | JSONException e) {
             throw new AmazonPayClientException(e.getMessage(), e);
-        }
-
-        if (response.get(ServiceConstants.RESPONSE_STRING) != null) {
-            // Converting the response string into a JSONObject
-            rawResponseObject = response.get(ServiceConstants.RESPONSE_STRING);
-            jsonResponse = JSONObject.fromObject(response.get(ServiceConstants.RESPONSE_STRING));
         }
         responseObject.setResponse(jsonResponse);
         responseObject.setRawResponse(rawResponseObject);

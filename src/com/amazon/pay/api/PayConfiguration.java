@@ -28,6 +28,7 @@ public class PayConfiguration {
     private int maxRetries = 3;
     private boolean userAgentRedaction = false;
     private ProxySettings proxySettings;
+    protected String overrideServiceURL;
 
     /**
      * @return Returns region code from PayConfiguration
@@ -169,6 +170,13 @@ public class PayConfiguration {
     public PayConfiguration setProxySettings(ProxySettings proxySettings) {
         this.proxySettings = proxySettings;
         return this;
+    }
+    
+    /**
+     * @return overrideServiceURL Returns overridden MWS Service URL in PayConfiguration
+     */
+    public String getOverrideServiceURL() {
+        return overrideServiceURL;
     }
 
 }

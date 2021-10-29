@@ -14,7 +14,7 @@
  */
 package com.amazon.pay.api;
 
-import net.sf.json.JSONObject;
+import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
 import java.net.URI;

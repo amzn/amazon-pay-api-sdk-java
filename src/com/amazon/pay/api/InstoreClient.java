@@ -15,7 +15,7 @@
 package com.amazon.pay.api;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
-import net.sf.json.JSONObject;
+import org.json.JSONObject;
 
 import java.net.URI;
 import java.util.Map;

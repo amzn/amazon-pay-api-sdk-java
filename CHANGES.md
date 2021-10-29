@@ -1,3 +1,9 @@
+#### Version 2.4.0 - October 2021
+* Removed library "net.sf.json" & added library "org.json" as alternative for handling JSON in order to address security issues & to improve performance
+* Note: 
+* 1. Consumers of previous SDK versions must start using import as 'org.json' instead of 'net.sf.json' as of this SDK Version 2.4.0.
+* 2. In order to add data to JSONArray, you need to use 'put' method instead of 'add' method as of this SDK Version 2.4.0.
+
 #### Version 2.3.4 - September 2021
 * Removed parameter named "overrideServiceURL" from PayConfiguration
 
