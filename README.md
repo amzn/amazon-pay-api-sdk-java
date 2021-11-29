@@ -362,7 +362,7 @@ JSONObject chargeAmount = new JSONObject();
 chargeAmount.put("amount", "12.34");
 chargeAmount.put("currencyCode", "USD");
 paymentDetail.put("chargeAmount", chargeAmount);
-payload.put("paymentDetail", paymentDetail);
+payload.put("paymentDetails", paymentDetail);
 
 JSONObject merchantMetadata = new JSONObject();
 merchantMetadata.put("merchantReferenceId", "2019-0001");
@@ -391,7 +391,7 @@ JSONObject chargeAmount = new JSONObject();
 chargeAmount.put("amount", "12.34");
 chargeAmount.put("currencyCode", "USD");
 paymentDetail.put("chargeAmount", chargeAmount);
-payload.put("paymentDetail", paymentDetail);
+payload.put("paymentDetails", paymentDetail);
 
 try {
      response = webstoreClient.completeCheckoutSession(checkoutSessionId, payload);
