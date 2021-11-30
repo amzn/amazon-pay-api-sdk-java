@@ -386,12 +386,10 @@ try {
 AmazonPayResponse response = null;
 JSONObject payload = new JSONObject();
 
-JSONObject paymentDetail = new JSONObject();
 JSONObject chargeAmount = new JSONObject();
 chargeAmount.put("amount", "12.34");
 chargeAmount.put("currencyCode", "USD");
-paymentDetail.put("chargeAmount", chargeAmount);
-payload.put("paymentDetail", paymentDetail);
+payload.put("chargeAmount", chargeAmount);
 
 try {
      response = webstoreClient.completeCheckoutSession(checkoutSessionId, payload);
