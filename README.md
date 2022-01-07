@@ -17,7 +17,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
     <dependency>
         <groupId>software.amazon.pay</groupId>
         <artifactId>amazon-pay-api-sdk-java</artifactId>
-        <version>2.4.0</version>
+        <version>2.5.0</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
 To use the SDK in a Gradle project, add the following line to your build.gradle file::
 
 ```
-implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.4.0'
+implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.5.0'
 ```
 
 For legacy projects, you can just grab the binary [jar file](https://github.com/amzn/amazon-pay-api-sdk-java/releases) from the GitHub Releases page.
@@ -604,6 +604,17 @@ Or, if you want to use a JSONObject:
         payload.put("webCheckoutDetails", webCheckoutDetails);
 
         String signature = client.generateButtonSignature(payload);
+```
+Note : 
+As part of signature button integration, "algorithm" need to be provided as additional field in "createCheckoutSessionConfig" while rendering Amazon Pay button.
+  		  
+Example of "createCheckoutSessionConfig" :
+``` js
+  		createCheckoutSessionConfig: {           
+  		payloadJSON: '{"webCheckoutDetails":{"checkoutReviewReturnUrl":"https://localhost/test/checkoutReview.html"},"storeId": "amzn1.application-oa2-client.xxxxx","scopes": ["name", "email", "phoneNumber", "billingAddress"]}',
+  		signature: 'SIGNATURE', // Signature Obtained by calling "generateButtonSignature(payload)" method
+  		algorithm: 'AMZN-PAY-RSASSA-PSS-V2' // This Parameter is mandatory
+  	}
 ```
 
 ## In-Store API

@@ -80,14 +80,14 @@ public class RequestSignerTest {
                 "accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-region\n" +
                 "81dd99309152d21f2cef921656d3f57830fe9c36fe193af1b62de504e806aceb";
 
-        stringToSign = "AMZN-PAY-RSASSA-PSS\n" +
+        stringToSign = ServiceConstants.AMAZON_SIGNATURE_ALGORITHM + "\n" +
                 "227f8d4a6974e65a62ebe6648fab8666fe25f10dc2ec41fba9c439e633ba4b94";
 
         signature = "c062NjivoUW+TcHegKebFamCX8Cpmpmy6EiPmKwdpEuZZIpOHJYO";
 
         signedHeaderString = "accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-region";
 
-        authorizationHeader = "AMZN-PAY-RSASSA-PSS PublicKeyId=ADGUHQIH9988, SignedHeaders=accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-region, Signature=c062NjivoUW+TcHegKebFamCX8Cpmpmy6EiPmKwdpEuZZIpOHJYO";
+        authorizationHeader = ServiceConstants.AMAZON_SIGNATURE_ALGORITHM + " PublicKeyId=ADGUHQIH9988, SignedHeaders=accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-region, Signature=c062NjivoUW+TcHegKebFamCX8Cpmpmy6EiPmKwdpEuZZIpOHJYO";
 
         headers = new HashMap<>();
         List<String> acceptHeaderValue = new ArrayList<>();

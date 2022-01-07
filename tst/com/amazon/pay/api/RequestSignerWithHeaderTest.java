@@ -85,14 +85,14 @@ public class RequestSignerWithHeaderTest {
                 "accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-idempotency-key;x-amz-pay-region\n" +
                 "81dd99309152d21f2cef921656d3f57830fe9c36fe193af1b62de504e806aceb";
 
-        stringToSign = "AMZN-PAY-RSASSA-PSS\n" +
+        stringToSign = ServiceConstants.AMAZON_SIGNATURE_ALGORITHM + "\n" +
                 "15322736b7e5a9056411168d070b1f3dcc289c46890692c06f07c62d3ef0721d";
 
         signature = "BsnrBn7R4QvpWqPzElKnxK8KLm7BzglICqRsWDcj7okwVpHrpZnoOm4D3v2+naryg2vIzP2iIWvscNm3MbX7vR3nClgcB+vVUQZLEu9yg0IJA4QCiybh9etgLHSRv2jwR9ByFe9U5FMdhr7omDG3Q1lAjvvxiPHt9UtL3h1LJ7rirOuQUWp/zL5QDWsIvTty3zEKksdRJuPeCGwijwo0LPuIf2plZGv9TJ5CJBxssw3+phj5Nvo9HWuzFRkJsC1jgknO0+eSTSn5RM6R2Px0mkz3qbd5ZpSX3tIoK937vkmNZALNm/euqYnIKjviGVuSEDo1ite84foCvSqpTmiVrg==";
 
         signedHeaderString = "accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-idempotency-key;x-amz-pay-region";
 
-        authorizationHeader = "AMZN-PAY-RSASSA-PSS PublicKeyId=ADGUHQIH9988, SignedHeaders=accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-idempotency-key;x-amz-pay-region, Signature=BsnrBn7R4QvpWqPzElKnxK8KLm7BzglICqRsWDcj7okwVpHrpZnoOm4D3v2+naryg2vIzP2iIWvscNm3MbX7vR3nClgcB+vVUQZLEu9yg0IJA4QCiybh9etgLHSRv2jwR9ByFe9U5FMdhr7omDG3Q1lAjvvxiPHt9UtL3h1LJ7rirOuQUWp/zL5QDWsIvTty3zEKksdRJuPeCGwijwo0LPuIf2plZGv9TJ5CJBxssw3+phj5Nvo9HWuzFRkJsC1jgknO0+eSTSn5RM6R2Px0mkz3qbd5ZpSX3tIoK937vkmNZALNm/euqYnIKjviGVuSEDo1ite84foCvSqpTmiVrg==";
+        authorizationHeader = ServiceConstants.AMAZON_SIGNATURE_ALGORITHM + " PublicKeyId=ADGUHQIH9988, SignedHeaders=accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-idempotency-key;x-amz-pay-region, Signature=BsnrBn7R4QvpWqPzElKnxK8KLm7BzglICqRsWDcj7okwVpHrpZnoOm4D3v2+naryg2vIzP2iIWvscNm3MbX7vR3nClgcB+vVUQZLEu9yg0IJA4QCiybh9etgLHSRv2jwR9ByFe9U5FMdhr7omDG3Q1lAjvvxiPHt9UtL3h1LJ7rirOuQUWp/zL5QDWsIvTty3zEKksdRJuPeCGwijwo0LPuIf2plZGv9TJ5CJBxssw3+phj5Nvo9HWuzFRkJsC1jgknO0+eSTSn5RM6R2Px0mkz3qbd5ZpSX3tIoK937vkmNZALNm/euqYnIKjviGVuSEDo1ite84foCvSqpTmiVrg==";
 
         headers = new HashMap<>();
         List<String> acceptHeaderValue = new ArrayList<>();

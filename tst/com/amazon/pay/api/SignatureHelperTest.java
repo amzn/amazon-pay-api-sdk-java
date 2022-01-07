@@ -58,7 +58,7 @@ public class SignatureHelperTest {
         PowerMockito.when(spy, method(SignatureHelper.class, "hashThenHexEncode")).withArguments(canonicalRequest).thenReturn("95b0d65e9efb9f0b9e8c2f3b77");
 
         String stringToSign = spy.createStringToSign(canonicalRequest);
-        String expectedString = "AMZN-PAY-RSASSA-PSS" + "\n" + "95b0d65e9efb9f0b9e8c2f3b77";
+        String expectedString = ServiceConstants.AMAZON_SIGNATURE_ALGORITHM + "\n" + "95b0d65e9efb9f0b9e8c2f3b77";
 
         Assert.assertEquals(stringToSign, expectedString);
     }

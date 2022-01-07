@@ -42,7 +42,7 @@ import java.util.TreeMap;
 public class SignatureHelper {
     private final PayConfiguration payConfiguration;
     private final String LINE_SEPARATOR = "\n";
-    public final static int SALT_LENGTH = 20;
+    public final static int SALT_LENGTH = 32;
     public final static int TRAILER_FIELD = 1;
 
     public SignatureHelper(final PayConfiguration payConfiguration) {
