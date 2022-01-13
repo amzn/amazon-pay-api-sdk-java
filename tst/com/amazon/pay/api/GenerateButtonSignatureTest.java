@@ -42,7 +42,7 @@ public class GenerateButtonSignatureTest {
     private WebstoreClient client;
     private Signature signature;
 
-    private static final String PLAIN_TEXT = ServiceConstants.AMAZON_SIGNATURE_ALGORITHM + "\n8dec52d799607be40f82d5c8e7ecb6c171e6591c41b1111a576b16076c89381c";
+    private static final String PLAIN_TEXT = "AMZN-PAY-RSASSA-PSS\n8dec52d799607be40f82d5c8e7ecb6c171e6591c41b1111a576b16076c89381c";
 
     @Before
     public void setUp() throws Exception {

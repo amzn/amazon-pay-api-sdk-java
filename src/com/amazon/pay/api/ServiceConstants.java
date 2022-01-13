@@ -26,11 +26,11 @@ public class ServiceConstants {
     public static final Map<Region, String> endpointMappings;
     public static final Map<String, Integer> serviceErrors;
 
-    public static final String APPLICATION_LIBRARY_VERSION = "2.5.0";
+    public static final String APPLICATION_LIBRARY_VERSION = "2.5.1";
     public static final String GITHUB_SDK_NAME = "amazon-pay-api-sdk-java";
     public static final String AMAZON_PAY_API_VERSION = "v2";
 
-    public static final String AMAZON_SIGNATURE_ALGORITHM = "AMZN-PAY-RSASSA-PSS-V2";
+    public static final String AMAZON_SIGNATURE_ALGORITHM = "AMZN-PAY-RSASSA-PSS";
     public static final String HASH_ALGORITHM = "SHA-256";
     public static final String SIGNATURE_ALGORITHM = "SHA256WithRSA/PSS";
     public static final String MASK_GENERATION_FUNCTION = "MGF1";
