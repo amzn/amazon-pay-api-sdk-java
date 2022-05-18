@@ -355,14 +355,14 @@ JSONObject updateWebCheckoutDetails = new JSONObject();
 updateWebCheckoutDetails.put("checkoutResultReturnUrl", "https://localhost/store/checkout_return");
 payload.put("webCheckoutDetails", updateWebCheckoutDetails);
 
-JSONObject paymentDetail = new JSONObject();
-paymentDetail.put("paymentIntent" , "Authorize");
-paymentDetail.put("canHandlePendingAuthorization", false);
+JSONObject paymentDetails = new JSONObject();
+paymentDetails.put("paymentIntent" , "Authorize");
+paymentDetails.put("canHandlePendingAuthorization", false);
 JSONObject chargeAmount = new JSONObject();
 chargeAmount.put("amount", "12.34");
 chargeAmount.put("currencyCode", "USD");
-paymentDetail.put("chargeAmount", chargeAmount);
-payload.put("paymentDetail", paymentDetail);
+paymentDetails.put("chargeAmount", chargeAmount);
+payload.put("paymentDetails", paymentDetails);
 
 JSONObject merchantMetadata = new JSONObject();
 merchantMetadata.put("merchantReferenceId", "2019-0001");
@@ -386,12 +386,12 @@ try {
 AmazonPayResponse response = null;
 JSONObject payload = new JSONObject();
 
-JSONObject paymentDetail = new JSONObject();
+JSONObject paymentDetails = new JSONObject();
 JSONObject chargeAmount = new JSONObject();
 chargeAmount.put("amount", "12.34");
 chargeAmount.put("currencyCode", "USD");
-paymentDetail.put("chargeAmount", chargeAmount);
-payload.put("paymentDetail", paymentDetail);
+paymentDetails.put("chargeAmount", chargeAmount);
+payload.put("paymentDetails", paymentDetails);
 
 try {
      response = webstoreClient.completeCheckoutSession(checkoutSessionId, payload);
