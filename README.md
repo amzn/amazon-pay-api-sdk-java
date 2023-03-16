@@ -17,7 +17,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
     <dependency>
         <groupId>software.amazon.pay</groupId>
         <artifactId>amazon-pay-api-sdk-java</artifactId>
-        <version>2.5.1</version>
+        <version>2.6.0</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
 To use the SDK in a Gradle project, add the following line to your build.gradle file::
 
 ```
-implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.5.1'
+implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.0'
 ```
 
 For legacy projects, you can just grab the binary [jar file](https://github.com/amzn/amazon-pay-api-sdk-java/releases) from the GitHub Releases page.
@@ -106,7 +106,8 @@ try {
                 .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                 .setRegion(Region.YOUR_REGION_CODE)
                 .setPrivateKey("YOUR_PRIVATE_KEY_STRING".toCharArray())
-                .setEnvironment(Environment.SANDBOX);
+                .setEnvironment(Environment.SANDBOX)
+                .setAlgorithm("AMZN-PAY-RSASSA-PSS-V2"); // Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
 } catch (AmazonPayClientException e) {
     e.printStackTrace();
 }
@@ -117,7 +118,8 @@ try {
     payConfiguration = new PayConfiguration()
                 .setPublicKeyId("YOUR_PUBLIC_KEY_ID") // LIVE-XXXXX or SANDBOX-XXXXX
                 .setRegion(Region.YOUR_REGION_CODE)
-                .setPrivateKey("YOUR_PRIVATE_KEY_STRING".toCharArray());
+                .setPrivateKey("YOUR_PRIVATE_KEY_STRING".toCharArray())
+                .setAlgorithm('AMZN-PAY-RSASSA-PSS-V2'); // Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
 } catch (AmazonPayClientException e) {
     e.printStackTrace();
 }
@@ -129,7 +131,8 @@ try {
                    .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                    .setRegion(Region.YOUR_REGION_CODE)
                    .setPrivateKey(new String(Files.readAllBytes(Paths.get("private.pem"))).toCharArray())
-                   .setEnvironment(Environment.SANDBOX);
+                   .setEnvironment(Environment.SANDBOX)
+                   .setAlgorithm('AMZN-PAY-RSASSA-PSS-V2'); // Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
 } catch (AmazonPayClientException e) {
      e.printStackTrace();
 }
@@ -143,7 +146,8 @@ try {
                 .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
                 .setRegion(Region.YOUR_REGION_CODE)
                 .setPrivateKey(privateKey)
-                .setEnvironment(Environment.SANDBOX);
+                .setEnvironment(Environment.SANDBOX)
+                .setAlgorithm('AMZN-PAY-RSASSA-PSS-V2'); // Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
 } catch (AmazonPayClientException e) {
      e.printStackTrace();
 }
@@ -162,9 +166,24 @@ try {
                    .setRegion(Region.YOUR_REGION_CODE)
                    .setPrivateKey("YOUR_PRIVATE_KEY_STRING".toCharArray())
                    .setEnvironment(Environment.SANDBOX)
+                   .setAlgorithm('AMZN-PAY-RSASSA-PSS-V2'); // Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
                    .setProxySettings(proxySettings);
 } catch (AmazonPayClientException e) {
      e.printStackTrace();
+}
+
+// If you want to enable the Custom Connection Pool, you can set it in the payConfiguration in the following way:
+
+try {
+    int MAX_CLIENT_CONNECTIONS = 30; // This value should be decided according to your requirement
+    payConfiguration = new PayConfiguration()
+                    .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
+                    .setRegion(Region.YOUR_REGION_CODE) 
+                    .setPrivateKey("YOUR_PRIVATE_KEY_STRING".toCharArray())
+                    .setEnvironment(Environment.SANDBOX)
+                    .setClientConnections(MAX_CLIENT_CONNECTIONS); // Default is set to 20
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
 }
 ```
 
@@ -766,4 +785,121 @@ while ((inputLine = in.readLine()) != null) {
 }
 
 String chargePermissionId = JSONObject.fromObject(response.toString()).getString("chargePermissionId");
+```
+
+#  Reporting APIs code samples
+
+## Amazon Checkout v2 Reporting APIs - GetReports API
+```java
+AmazonPayResponse response = null;
+
+Map<String, List<String>> queryParameters = new HashMap<>();
+List<String> reportTypes = new ArrayList<>();
+reportTypes.add("_GET_FLAT_FILE_OFFAMAZONPAYMENTS_SETTLEMENT_DATA_");
+List<String> processingStatuses = new ArrayList<>();
+processingStatuses.add("COMPLETED");
+
+queryParameters.put("reportTypes", reportTypes);
+queryParameters.put("reportTypes", processingStatuses);
+
+try {
+     response = webstoreClient.getReports(queryParameters);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+```
+
+## Amazon Checkout v2 Reporting APIs - GetReportById API
+```java
+AmazonPayResponse response = null;
+String reportId = "1234567890";
+
+try {
+     response = webstoreClient.getReportById(reportId);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+```
+
+## Amazon Checkout v2 Reporting APIs - GetReportDocument API
+```java
+AmazonPayResponse response = null;
+String reportDocumentId = "1234567890";
+
+try {
+     response = webstoreClient.getReportDocument(reportDocumentId);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+```
+
+## Amazon Checkout v2 Reporting APIs - GetReportSchedules API
+```java
+AmazonPayResponse response = null;
+String reportTypes = "_GET_FLAT_FILE_OFFAMAZONPAYMENTS_ORDER_REFERENCE_DATA_,_GET_FLAT_FILE_OFFAMAZONPAYMENTS_BILLING_AGREEMENT_DATA_";
+
+try {
+     response = webstoreClient.getReportSchedules(reportTypes);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+```
+
+## Amazon Checkout v2 Reporting APIs - GetReportScheduleById API
+```java
+AmazonPayResponse response = null;
+String reportScheduleId = "1234567890";
+
+try {
+     response = webstoreClient.getReportScheduleById(reportScheduleId);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+```
+
+## Amazon Checkout v2 Reporting APIs - CreateReport API
+```java
+AmazonPayResponse response = null;
+JSONObject requestPayload = new JSONObject();
+requestPayload.put("reportType", "_GET_FLAT_FILE_OFFAMAZONPAYMENTS_ORDER_REFERENCE_DATA_");
+requestPayload.put("startTime", "20221114T074550Z");
+requestPayload.put("endTime", "20221202T150350Z");
+Map<String, String> header = new HashMap<String, String>();
+header.put("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
+
+try {
+     response = webstoreClient.createReport(requestPayload, header);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+```
+
+## Amazon Checkout v2 Reporting APIs - CreateReportSchedule API
+```java
+AmazonPayResponse response = null;
+JSONObject requestPayload = new JSONObject();
+requestPayload.put("reportType", "_GET_FLAT_FILE_OFFAMAZONPAYMENTS_ORDER_REFERENCE_DATA_");
+requestPayload.put("scheduleFrequency", "P14D");
+requestPayload.put("nextReportCreationTime", "20221202T150350Z");
+requestPayload.put("deleteExistingSchedule", "false");
+Map<String, String> header = new HashMap<String, String>();
+header.put("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
+
+try {
+     response = webstoreClient.createReportSchedule(requestPayload, header);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+```
+
+## Amazon Checkout v2 Reporting APIs - CancelReportSchedule API
+```java
+AmazonPayResponse response = null;
+String reportScheduleId = "1234567890";
+
+try {
+     response = webstoreClient.cancelReportSchedule(reportScheduleId);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
 ```

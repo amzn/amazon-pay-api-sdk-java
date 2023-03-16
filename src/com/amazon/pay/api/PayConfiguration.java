@@ -17,6 +17,7 @@ package com.amazon.pay.api;
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
 import com.amazon.pay.api.types.Environment;
 import com.amazon.pay.api.types.Region;
+import com.amazon.pay.api.types.AmazonSignatureAlgorithm;
 
 import java.security.PrivateKey;
 
@@ -25,10 +26,12 @@ public class PayConfiguration {
     private String publicKeyId;
     private PrivateKey privateKey;
     private Environment environment;
+    private AmazonSignatureAlgorithm algorithm;
     private int maxRetries = 3;
     private boolean userAgentRedaction = false;
     private ProxySettings proxySettings;
     protected String overrideServiceURL;
+    private Integer clientConnections;
 
     /**
      * @return Returns region code from PayConfiguration
@@ -95,6 +98,26 @@ public class PayConfiguration {
      */
     public PayConfiguration setPrivateKey(PrivateKey privateKey) {
         this.privateKey = privateKey;
+        return this;
+    }
+
+    /**
+     * @return returns Algorithm from PayConfiguration, default algorithm is AMZN-PAY-RSASSA-PSS if not set
+     */
+    public AmazonSignatureAlgorithm getAlgorithm() {
+        if(algorithm != null) {
+            return algorithm;
+        } else {
+            return AmazonSignatureAlgorithm.DEFAULT;
+        }
+    }
+
+    /**
+     * @param algorithm the Amazon Signature Algorithm
+     * @return the PayConfiguration object
+     */
+    public PayConfiguration setAlgorithm(final String algorithm) {
+        this.algorithm = AmazonSignatureAlgorithm.returnIfValidAlgorithm(algorithm);
         return this;
     }
 
@@ -177,6 +200,26 @@ public class PayConfiguration {
      */
     public String getOverrideServiceURL() {
         return overrideServiceURL;
+    }
+
+    /**
+     * @return Returns clientConnections from PayConfiguration
+     */
+    public Integer getClientConnections() {
+        if(clientConnections != null && clientConnections != 0) {
+            return clientConnections;
+        } else {
+            return ServiceConstants.MAX_CLIENT_CONNECTIONS;
+        }
+    }
+
+    /**
+     * @param clientConnections Sets the maximum number of Client Connections to be made
+     * @return the PayConfiguration object
+     */
+    public PayConfiguration setClientConnections(int clientConnections) {
+        this.clientConnections = clientConnections;
+        return this;
     }
 
 }

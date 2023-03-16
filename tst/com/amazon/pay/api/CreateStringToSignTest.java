@@ -43,12 +43,15 @@ public class CreateStringToSignTest {
             URI uri = new URI(testCase.optString("uri"));
             Map<String, List<String>> queryParams = getParameters((JSONObject) testCase.get("parameters"));
             String payload = testCase.optString("payload");
+            String stringToSign = testCase.optString("stringToSign");
             Map<String, List<String>> preSignedHeaders = mockedPreSignedHeaders(uri);
+            String algorithm = stringToSign.startsWith("AMZN-PAY-RSASSA-PSS-V2") ?
+                    stringToSign.substring(0,22) : stringToSign.substring(0,19);
 
             String actualCanonicalRequest = signatureHelper.createCanonicalRequest(uri, method, queryParams, payload, preSignedHeaders);
             String expectedCanonicalRequest = testCase.optString("canonicalRequest");
 
-            String actualStringToSign = signatureHelper.createStringToSign(actualCanonicalRequest);
+            String actualStringToSign = signatureHelper.createStringToSign(actualCanonicalRequest,algorithm);
             String expectedStringToSign = testCase.optString("stringToSign");
 
             Assert.assertEquals("Test Case Name : " + name, expectedCanonicalRequest, actualCanonicalRequest);
@@ -58,33 +61,48 @@ public class CreateStringToSignTest {
 
     }
 
-    private Map<String, List<String>> mockedPreSignedHeaders(URI uri) throws URISyntaxException {
+    private Map<String, List<String>> mockedPreSignedHeaders(final URI uri) throws URISyntaxException {
         Map<String, List<String>> headers = new HashMap<>();
 
-        List<String> acceptHeaderValue = new ArrayList<>();
-        acceptHeaderValue.add("application/json");
+        List<String> acceptHeaderValue = new ArrayList<String>(){
+            {
+                add("application/json");
+            }
+        };
         headers.put("accept", acceptHeaderValue);
 
-        List<String> contentHeaderValue = new ArrayList<>();
-        contentHeaderValue.add("application/json");
+        List<String> contentHeaderValue = new ArrayList<String>(){
+            {
+                add("application/json");
+            }
+        };
         headers.put("content-type", contentHeaderValue);
 
-        List<String> regionHeaderValue = new ArrayList<>();
-        regionHeaderValue.add(Region.EU.toString());
+        List<String> regionHeaderValue = new ArrayList<String>(){
+            {
+                add(Region.EU.toString());
+            }
+        };
         headers.put("x-amz-pay-region", regionHeaderValue);
 
-        List<String> dateHeaderValue = new ArrayList<>();
-        dateHeaderValue.add("20180524T223710Z");
+        List<String> dateHeaderValue = new ArrayList<String>(){
+            {
+                add("20180524T223710Z");
+            }
+        };
         headers.put("x-amz-pay-date", dateHeaderValue);
 
-        List<String> hostHeaderValue = new ArrayList<>();
-        hostHeaderValue.add("pay-api.amazon.eu");
+        List<String> hostHeaderValue = new ArrayList<String>(){
+            {
+                add("pay-api.amazon.eu");
+            }
+        };
         headers.put("x-amz-pay-host", hostHeaderValue);
 
         return headers;
     }
 
-    private HashMap<String, List<String>> getParameters(JSONObject jsonObject) throws JSONException {
+    private HashMap<String, List<String>> getParameters(final JSONObject jsonObject) throws JSONException {
         HashMap<String, List<String>> parameters = new HashMap<>();
         Iterator<String> keys = jsonObject.keys();
         while (keys.hasNext()) {

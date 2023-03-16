@@ -38,7 +38,9 @@ import static org.powermock.api.support.membermodification.MemberMatcher.method;
 @PrepareForTest(SignatureHelper.class)
 public class SignatureHelperTest {
     private SignatureHelper spy;
+    private SignatureHelper spyWithAlgorithm;
     private PayConfiguration payConfiguration = new PayConfiguration();
+    private PayConfiguration payConfigurationWithAlgorithm = new PayConfiguration();
     URI uri;
     private Map<String, List<String>> preSignedHeaders;
     private Map<String, String> header;
@@ -50,78 +52,78 @@ public class SignatureHelperTest {
         uri = new URI("https://pay-api.amazon.eu/live/v2/in-store/refund");
         header = new HashMap<String, String>();
         preSignedHeaders = mockedPreSignedHeaders(uri, header);
+
+        //With Algorithm set in payConfiguration
+        payConfigurationWithAlgorithm.setRegion(Region.EU).setPublicKeyId("").setAlgorithm("AMZN-PAY-RSASSA-PSS-V2");
+        spyWithAlgorithm = spy(new SignatureHelper(payConfigurationWithAlgorithm));
     }
 
     @Test
     public void createStringToSign() throws Exception {
-        String canonicalRequest = "POST\n/live/v2/in-store/refund\naccept:application/json\ncontent-type:application/json\naccept;content-type\n95b0d65e9efb9f0b9e8c2f3b7744628c765477";
-        PowerMockito.when(spy, method(SignatureHelper.class, "hashThenHexEncode")).withArguments(canonicalRequest).thenReturn("95b0d65e9efb9f0b9e8c2f3b77");
-
-        String stringToSign = spy.createStringToSign(canonicalRequest);
-        String expectedString = "AMZN-PAY-RSASSA-PSS" + "\n" + "95b0d65e9efb9f0b9e8c2f3b77";
-
-        Assert.assertEquals(stringToSign, expectedString);
+        createStringToSign(payConfiguration, spy);
+        createStringToSign(payConfigurationWithAlgorithm, spyWithAlgorithm);
     }
 
     @Test
     public void createPreSignedHeaders() throws Exception {
-        Map<String, List<String>> actualHeaders = spy.createPreSignedHeaders(uri, header);
-        Assert.assertEquals(preSignedHeaders, actualHeaders);
-
+        createPreSignedHeaders(spy);
+        createPreSignedHeaders(spyWithAlgorithm);
     }
 
     @Test
     public void getSignedHeadersString() throws Exception {
-        String expectedHeadersString = "accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-region";
-
-        String actualHeadersString = spy.getSignedHeadersString(preSignedHeaders);
-        Assert.assertEquals(expectedHeadersString, actualHeadersString);
+        getSignedHeadersString(spy);
+        getSignedHeadersString(spyWithAlgorithm);
     }
 
     @Test
     public void getCanonicalizedHeaderString() throws Exception {
-        String expectedCanonicalHeaderString = "accept:application/json\ncontent-type:application/json\nx-amz-pay-date:" + preSignedHeaders.get("x-amz-pay-date").get(0) + "\nx-amz-pay-host:pay-api.amazon.eu\nx-amz-pay-region:EU\n";
-        String actualCanonicalHeaderString = spy.getCanonicalizedHeaderString(preSignedHeaders);
-
-        Assert.assertEquals(expectedCanonicalHeaderString, actualCanonicalHeaderString);
+        getCanonicalizedHeaderString(spy);
+        getCanonicalizedHeaderString(spyWithAlgorithm);
     }
 
     @Test
     public void getCanonicalizedQueryString() throws Exception {
-        Map<String, List<String>> parametersMap = new HashMap<>();
-        List<String> amount = new ArrayList<>();
-        amount.add("100.50");
-        parametersMap.put("amount", amount);
-        List<String> info = new ArrayList<>();
-        info.add("Information about order");
-        parametersMap.put("customInformation", info);
-        String expectedCanonicalQueryString = "amount=100.50&customInformation=Information%20about%20order";
-        String actualCanonicalQueryString = spy.getCanonicalizedQueryString(parametersMap);
-
-        Assert.assertEquals(expectedCanonicalQueryString, actualCanonicalQueryString);
+        getCanonicalizedQueryString(spy);
+        getCanonicalizedQueryString(spyWithAlgorithm);
     }
 
-    private Map<String, List<String>> mockedPreSignedHeaders(URI uri, Map<String, String> header) throws URISyntaxException {
+    private Map<String, List<String>> mockedPreSignedHeaders(final URI uri, final Map<String, String> header) throws URISyntaxException {
         Map<String, List<String>> headers = new HashMap<>();
 
-        List<String> acceptHeaderValue = new ArrayList<>();
-        acceptHeaderValue.add("application/json");
+        List<String> acceptHeaderValue = new ArrayList<String>(){
+            {
+                add("application/json");
+            }
+        };
         headers.put("accept", acceptHeaderValue);
 
-        List<String> contentHeaderValue = new ArrayList<>();
-        contentHeaderValue.add("application/json");
+        List<String> contentHeaderValue = new ArrayList<String>(){
+            {
+                add("application/json");
+            }
+        };
         headers.put("content-type", contentHeaderValue);
 
-        List<String> regionHeaderValue = new ArrayList<>();
-        regionHeaderValue.add(payConfiguration.getRegion().toString());
+        List<String> regionHeaderValue = new ArrayList<String>(){
+            {
+                add(payConfiguration.getRegion().toString());
+            }
+        };
         headers.put("x-amz-pay-region", regionHeaderValue);
 
-        List<String> dateHeaderValue = new ArrayList<>();
-        dateHeaderValue.add(Util.getFormattedTimestamp());
+        List<String> dateHeaderValue = new ArrayList<String>(){
+            {
+                add(Util.getFormattedTimestamp());
+            }
+        };
         headers.put("x-amz-pay-date", dateHeaderValue);
 
-        List<String> hostHeaderValue = new ArrayList<>();
-        hostHeaderValue.add(uri.getHost());
+        List<String> hostHeaderValue = new ArrayList<String>(){
+            {
+                add(uri.getHost());
+            }
+        };
         headers.put("x-amz-pay-host", hostHeaderValue);
 
         if (header.isEmpty() || header == null)
@@ -133,6 +135,56 @@ public class SignatureHelperTest {
             headers.put(entry.getKey(), authHeaderValue);
         }
         return headers;
+    }
+
+    private void createStringToSign(final PayConfiguration payConfiguration, final SignatureHelper spy) throws Exception {
+        String canonicalRequest = "POST\n/live/v2/in-store/refund\naccept:application/json\ncontent-type:application/json\naccept;content-type\n95b0d65e9efb9f0b9e8c2f3b7744628c765477";
+        PowerMockito.when(spy, method(SignatureHelper.class, "hashThenHexEncode")).withArguments(canonicalRequest).thenReturn("95b0d65e9efb9f0b9e8c2f3b77");
+
+        String stringToSign = spy.createStringToSign(canonicalRequest, payConfiguration.getAlgorithm().getName());
+        String expectedString = payConfiguration.getAlgorithm().getName() + "\n" + "95b0d65e9efb9f0b9e8c2f3b77";
+
+        Assert.assertEquals(stringToSign, expectedString);
+    }
+    private void createPreSignedHeaders(final SignatureHelper spy) throws Exception {
+        Map<String, List<String>> actualHeaders = spy.createPreSignedHeaders(uri, header);
+        Assert.assertEquals(preSignedHeaders, actualHeaders);
+    }
+
+    private void getSignedHeadersString(final SignatureHelper spy) throws Exception {
+        String expectedHeadersString = "accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-region";
+
+        String actualHeadersString = spy.getSignedHeadersString(preSignedHeaders);
+        Assert.assertEquals(expectedHeadersString, actualHeadersString);
+
+    }
+
+    private void getCanonicalizedHeaderString(final SignatureHelper spy) throws Exception {
+        String expectedCanonicalHeaderString = "accept:application/json\ncontent-type:application/json\nx-amz-pay-date:" + preSignedHeaders.get("x-amz-pay-date").get(0) + "\nx-amz-pay-host:pay-api.amazon.eu\nx-amz-pay-region:EU\n";
+        String actualCanonicalHeaderString = spy.getCanonicalizedHeaderString(preSignedHeaders);
+
+        Assert.assertEquals(expectedCanonicalHeaderString, actualCanonicalHeaderString);
+    }
+
+
+    private void getCanonicalizedQueryString(final SignatureHelper spy) throws Exception {
+        Map<String, List<String>> parametersMap = new HashMap<>();
+        List<String> amount = new ArrayList<String>(){
+            {
+                add("100.50");
+            }
+        };
+        parametersMap.put("amount", amount);
+        List<String> info = new ArrayList<String>(){
+            {
+                add("Information about order");
+            }
+        };
+        parametersMap.put("customInformation", info);
+        String expectedCanonicalQueryString = "amount=100.50&customInformation=Information%20about%20order";
+        String actualCanonicalQueryString = spy.getCanonicalizedQueryString(parametersMap);
+
+        Assert.assertEquals(expectedCanonicalQueryString, actualCanonicalQueryString);
     }
 
 }

@@ -35,6 +35,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
+
 public class UtilTest {
     @Test
     public void urlEncode() throws Exception {
@@ -116,6 +120,14 @@ public class UtilTest {
         actualURL = Util.getServiceURI(payConfiguration3, ServiceConstants.INSTORE_REFUND);
         Assert.assertEquals(expectedURL, actualURL);
 
+        // With Algorithm set in payConfiguration
+        final PayConfiguration payConfigurationWithAlgorithm = new PayConfiguration()
+                .setPublicKeyId("XXXXXXXXXXXXXXXXXXXXXXXX")
+                .setRegion(Region.EU)
+                .setAlgorithm("AMZN-PAY-RSASSA-PSS-V2");
+
+        actualURL = Util.getServiceURI(payConfigurationWithAlgorithm, ServiceConstants.INSTORE_REFUND);
+        Assert.assertEquals(expectedURL, actualURL);
     }
     
     @Test
@@ -136,6 +148,14 @@ public class UtilTest {
         actualURL = Util.getServiceURI(payConfiguration2, ServiceConstants.INSTORE_REFUND);
         Assert.assertEquals(expectedURL, actualURL);
 
+        // With Algorithm set in payConfiguration
+        final PayConfiguration payConfigurationWithAlgorithm = new PayConfiguration()
+                .setPublicKeyId("SANDBOX-XXXXXXXXXXXXXXXXXXXXXXXX")
+                .setRegion(Region.EU)
+                .setAlgorithm("AMZN-PAY-RSASSA-PSS-V2");
+
+        actualURL = Util.getServiceURI(payConfigurationWithAlgorithm, ServiceConstants.INSTORE_REFUND);
+        Assert.assertEquals(expectedURL, actualURL);
     }
     
     @Test
@@ -191,13 +211,63 @@ public class UtilTest {
                 .setProxyUser(proxyUser)
                 .setProxyPassword(proxyPassword);
         final PayConfiguration payConfiguration = new PayConfiguration()
-                .setProxySettings(proxySettings);
-        final CloseableHttpClient httpClient = Util.getCloseableHttpClientWithProxy(proxySettings);
+                .setProxySettings(proxySettings)
+                .setClientConnections(ServiceConstants.MAX_CLIENT_CONNECTIONS);
+        final CloseableHttpClient httpClient = Util.getCloseableHttpClientWithProxy(proxySettings, payConfiguration);
         // Assertions
         Assert.assertEquals(proxyhost, payConfiguration.getProxySettings().getProxyHost());
         Assert.assertEquals(proxyPort, payConfiguration.getProxySettings().getProxyPort());
         Assert.assertEquals(proxyUser, payConfiguration.getProxySettings().getProxyUser());
         Assert.assertEquals(proxyPassword, payConfiguration.getProxySettings().getProxyPassword());
+        assertClientConnections(payConfiguration);
         Assert.assertNotNull(httpClient);
+    }
+
+    @Test
+    public void testEnhanceResponseWithShippingAddressList() throws AmazonPayClientException, JSONException {
+        JSONObject testShippingAddressListResponse = new JSONObject();
+        testShippingAddressListResponse.put("shippingAddressList", new JSONArray().put("{\"addressId\":\"amzn1.address.ABC\",\"name\":\"DEF\",\"addressLine1\":\"GHI\",\"addressLine2\":\"JKL\",\"addressLine3\":null,\"city\":null,\"county\":null,\"district\":null,\"stateOrRegion\":\"MNO\",\"postalCode\":\"123-4567\",\"countryCode\":\"JP\",\"phoneNumber\":\"8910111213\"}"));
+
+        final AmazonPayResponse testCheckoutSessionResponse = new AmazonPayResponse();
+        testCheckoutSessionResponse.setResponse(testShippingAddressListResponse);
+
+        final AmazonPayResponse actualCheckoutSessionResponseAfterEnhancing =  Util.enhanceResponseWithShippingAddressList(testCheckoutSessionResponse);
+        
+        final JSONObject expectedShippingAddress = new JSONObject();
+        expectedShippingAddress.put("stateOrRegion", "MNO");
+        expectedShippingAddress.put("phoneNumber", "8910111213");
+        expectedShippingAddress.put("city", JSONObject.NULL);
+        expectedShippingAddress.put("countryCode", "JP");
+        expectedShippingAddress.put("district", JSONObject.NULL);
+        expectedShippingAddress.put("postalCode", "123-4567");
+        expectedShippingAddress.put("name", "DEF");
+        expectedShippingAddress.put("county", JSONObject.NULL);
+        expectedShippingAddress.put("addressLine1", "GHI");
+        expectedShippingAddress.put("addressLine2", "JKL");
+        expectedShippingAddress.put("addressLine3", JSONObject.NULL);
+        expectedShippingAddress.put("addressId", "amzn1.address.ABC");
+        
+        JSONObject expectedShippingAddressListResponse = new JSONObject();
+        expectedShippingAddressListResponse.put("shippingAddressList", new JSONArray().put(expectedShippingAddress));
+
+        AmazonPayResponse expectedCheckoutSessionResponse = new AmazonPayResponse();
+        expectedCheckoutSessionResponse.setResponse(expectedShippingAddressListResponse);
+        expectedCheckoutSessionResponse.setRawResponse(expectedShippingAddressListResponse.toString());
+
+        Assert.assertEquals(expectedCheckoutSessionResponse.getRawResponse(), actualCheckoutSessionResponseAfterEnhancing.getRawResponse());
+    }
+
+    @Test
+    public void testGetHttpClientWithConnectionPool() {
+        final PayConfiguration payConfiguration = new PayConfiguration()
+                .setClientConnections(ServiceConstants.MAX_CLIENT_CONNECTIONS);
+        final CloseableHttpClient httpClient = Util.getHttpClientWithConnectionPool(payConfiguration);
+        // Assertions
+        assertClientConnections(payConfiguration);
+        Assert.assertNotNull(httpClient);
+    }
+
+    public void assertClientConnections(final PayConfiguration payConfiguration) {
+        Assert.assertEquals(ServiceConstants.MAX_CLIENT_CONNECTIONS, payConfiguration.getClientConnections());
     }
 }

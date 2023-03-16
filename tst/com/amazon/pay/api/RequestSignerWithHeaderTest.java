@@ -39,6 +39,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 public class RequestSignerWithHeaderTest {
     private static final SignatureHelper signatureHelper = Mockito.mock(SignatureHelper.class);
     private PayConfiguration payConfiguration = new PayConfiguration();
+    private PayConfiguration payConfigurationWithAlgorithm = new PayConfiguration();
     private URI uri;
     private String payload;
     private Map<String, List<String>> parameters = new HashMap<>();
@@ -47,9 +48,10 @@ public class RequestSignerWithHeaderTest {
     private String signature;
     private String signedHeaderString;
     private String authorizationHeader;
+    private String authorizationHeaderWithAlgorithm;
     private Map<String, List<String>> headers;
-    private Map<String, String> postSignedHeadersMap;
     private Map<String, String> postSignedWithHeadersMap;
+    private Map<String, String> postSignedWithHeadersMapWithAlgorithm;
     private String authToken;
     private Map<String, String> header;
 
@@ -61,14 +63,19 @@ public class RequestSignerWithHeaderTest {
         PrivateKey mockKey = Mockito.mock(PrivateKey.class);
         mockStatic(Util.class);
         Mockito.when(Util.buildPrivateKey(Mockito.any(char[].class))).thenReturn(mockKey);
-        payConfiguration.setRegion(Region.NA).setPublicKeyId("ADGUHQIH9988").setPrivateKey(new char[] {'p','r','i','v','a','t','e','K','e','y'});
+
+        payConfiguration.setRegion(Region.NA).setPublicKeyId("ADGUHQIH9988").setPrivateKey(ServiceConstants.privateKeyArray);
+        payConfigurationWithAlgorithm.setRegion(Region.NA).setPublicKeyId("ADGUHQIH9988").setPrivateKey(ServiceConstants.privateKeyArray).setAlgorithm("AMZN-PAY-RSASSA-PSS-V2");
         setUpMockValues();
     }
 
     private void setUpMockValues() throws Exception {
         authToken = "eyJhbGciOiJIbWFjU0hBMjU2IiwidHlwIjoiSldUIn0=";
-        header = new HashMap<String, String>();
-        header.put("x-amz-pay-idempotency-key", "23GGJHGB668344");
+        header = new HashMap<String, String>(){
+            {
+                put("x-amz-pay-idempotency-key", "23GGJHGB668344");
+            }
+        };
 
         uri = new URI("https://pay-api.amazon.com/sandbox/v2/refunds");
         payload = "payload";
@@ -94,25 +101,42 @@ public class RequestSignerWithHeaderTest {
 
         authorizationHeader = "AMZN-PAY-RSASSA-PSS PublicKeyId=ADGUHQIH9988, SignedHeaders=accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-idempotency-key;x-amz-pay-region, Signature=BsnrBn7R4QvpWqPzElKnxK8KLm7BzglICqRsWDcj7okwVpHrpZnoOm4D3v2+naryg2vIzP2iIWvscNm3MbX7vR3nClgcB+vVUQZLEu9yg0IJA4QCiybh9etgLHSRv2jwR9ByFe9U5FMdhr7omDG3Q1lAjvvxiPHt9UtL3h1LJ7rirOuQUWp/zL5QDWsIvTty3zEKksdRJuPeCGwijwo0LPuIf2plZGv9TJ5CJBxssw3+phj5Nvo9HWuzFRkJsC1jgknO0+eSTSn5RM6R2Px0mkz3qbd5ZpSX3tIoK937vkmNZALNm/euqYnIKjviGVuSEDo1ite84foCvSqpTmiVrg==";
 
+        authorizationHeaderWithAlgorithm = "AMZN-PAY-RSASSA-PSS-V2 PublicKeyId=ADGUHQIH9988, SignedHeaders=accept;content-type;x-amz-pay-date;x-amz-pay-host;x-amz-pay-idempotency-key;x-amz-pay-region, Signature=BsnrBn7R4QvpWqPzElKnxK8KLm7BzglICqRsWDcj7okwVpHrpZnoOm4D3v2+naryg2vIzP2iIWvscNm3MbX7vR3nClgcB+vVUQZLEu9yg0IJA4QCiybh9etgLHSRv2jwR9ByFe9U5FMdhr7omDG3Q1lAjvvxiPHt9UtL3h1LJ7rirOuQUWp/zL5QDWsIvTty3zEKksdRJuPeCGwijwo0LPuIf2plZGv9TJ5CJBxssw3+phj5Nvo9HWuzFRkJsC1jgknO0+eSTSn5RM6R2Px0mkz3qbd5ZpSX3tIoK937vkmNZALNm/euqYnIKjviGVuSEDo1ite84foCvSqpTmiVrg==";
+
         headers = new HashMap<>();
-        List<String> acceptHeaderValue = new ArrayList<>();
-        acceptHeaderValue.add("application/json");
+        List<String> acceptHeaderValue = new ArrayList<String>(){
+            {
+                add("application/json");
+            }
+        };
         headers.put("accept", acceptHeaderValue);
 
-        List<String> contentHeaderValue = new ArrayList<>();
-        contentHeaderValue.add("application/json");
+        List<String> contentHeaderValue = new ArrayList<String>(){
+            {
+                add("application/json");
+            }
+        };
         headers.put("content-type", contentHeaderValue);
 
-        List<String> regionHeaderValue = new ArrayList<>();
-        regionHeaderValue.add(payConfiguration.getRegion().toString());
+        List<String> regionHeaderValue = new ArrayList<String>(){
+            {
+                add(payConfiguration.getRegion().toString());
+            }
+        };
         headers.put("x-amz-pay-region", regionHeaderValue);
 
-        List<String> dateHeaderValue = new ArrayList<>();
-        dateHeaderValue.add(Util.getFormattedTimestamp());
+        List<String> dateHeaderValue = new ArrayList<String>(){
+            {
+                add(Util.getFormattedTimestamp());
+            }
+        };
         headers.put("x-amz-pay-date", dateHeaderValue);
 
-        List<String> hostHeaderValue = new ArrayList<>();
-        hostHeaderValue.add(uri.getHost());
+        List<String> hostHeaderValue = new ArrayList<String>(){
+            {
+                add(uri.getHost());
+            }
+        };
         headers.put("x-amz-pay-host", hostHeaderValue);
 
         for (Map.Entry<String, String> entry : header.entrySet()) {
@@ -123,24 +147,39 @@ public class RequestSignerWithHeaderTest {
 
         PowerMockito.whenNew(SignatureHelper.class).withAnyArguments().thenReturn(signatureHelper);
         Mockito.when(signatureHelper.createCanonicalRequest(Mockito.anyObject(), Mockito.anyString(), Mockito.anyMap(), Mockito.anyString(), Mockito.anyMap())).thenReturn(canonicalRequest);
-        Mockito.when(signatureHelper.createStringToSign(Mockito.anyString())).thenReturn(stringToSign);
-        Mockito.when(signatureHelper.generateSignature(Mockito.anyObject(), Mockito.anyObject())).thenReturn(signature);
+        Mockito.when(signatureHelper.createStringToSign(Mockito.anyString(),Mockito.anyString())).thenReturn(stringToSign);
+        Mockito.when(signatureHelper.generateSignature(Mockito.anyObject(), Mockito.anyObject(), Mockito.anyObject())).thenReturn(signature);
         Mockito.when(signatureHelper.getSignedHeadersString(Mockito.anyMap())).thenReturn(signedHeaderString);
         Mockito.when(signatureHelper.createPreSignedHeaders(Mockito.anyObject(), Mockito.anyMap())).thenReturn(headers);
 
-        postSignedWithHeadersMap = new HashMap<>();
-        postSignedWithHeadersMap.put("accept", "application/json");
-        postSignedWithHeadersMap.put("content-type", "application/json");
-        postSignedWithHeadersMap.put("x-amz-pay-host", "pay-api.amazon.com");
-        postSignedWithHeadersMap.put("x-amz-pay-date", dateHeaderValue.get(0));
-        postSignedWithHeadersMap.put("x-amz-pay-region", "NA");
-        postSignedWithHeadersMap.put("authorization", authorizationHeader);
-        postSignedWithHeadersMap.put("x-amz-pay-idempotency-key", "23GGJHGB668344");
-        postSignedWithHeadersMap.put("user-agent", "amazon-pay-api-sdk-java/" + ServiceConstants.APPLICATION_LIBRARY_VERSION + " (Java/1.8.0_172; Linux/4.9.93-0.1.ac.178.67.327.metal1.x86_64)");
+        postSignedWithHeadersMap = new HashMap<String, String>(){
+            {
+                put("accept", "application/json");
+                put("content-type", "application/json");
+                put("x-amz-pay-host", "pay-api.amazon.com");
+                put("x-amz-pay-date", dateHeaderValue.get(0));
+                put("x-amz-pay-region", "NA");
+                put("authorization", authorizationHeader);
+                put("x-amz-pay-idempotency-key", "23GGJHGB668344");
+                put("user-agent", "amazon-pay-api-sdk-java/" + ServiceConstants.APPLICATION_LIBRARY_VERSION + " (Java/1.8.0_172; Linux/4.9.93-0.1.ac.178.67.327.metal1.x86_64)");
+            }
+        };
+
+        postSignedWithHeadersMapWithAlgorithm = new HashMap<String, String>(){
+            {
+                putAll(postSignedWithHeadersMap);
+                put("authorization", authorizationHeaderWithAlgorithm);
+            }
+        };
     }
 
     @Test
     public void signRequestWithHeader() throws AmazonPayClientException {
+        signRequestWithHeader(payConfiguration, postSignedWithHeadersMap);
+        signRequestWithHeader(payConfigurationWithAlgorithm, postSignedWithHeadersMapWithAlgorithm);
+    }
+
+    private void signRequestWithHeader(final PayConfiguration payConfiguration, final Map<String, String> postSignedWithHeadersMap) throws AmazonPayClientException {
         RequestSigner requestSigner = new RequestSigner(payConfiguration);
 
         Map<String, String> actualHeaders = requestSigner.signRequest(uri, "POST", parameters, payload, header);

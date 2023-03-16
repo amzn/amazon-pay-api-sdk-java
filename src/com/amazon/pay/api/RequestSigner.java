@@ -15,6 +15,7 @@
 package com.amazon.pay.api;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
+import com.amazon.pay.api.types.AmazonSignatureAlgorithm;
 
 import java.net.URI;
 import java.security.InvalidAlgorithmParameterException;
@@ -56,14 +57,15 @@ public class RequestSigner {
                                            final String requestPayload,
                                            final Map<String, String> header) throws AmazonPayClientException {
         final String publicKeyId = payConfiguration.getPublicKeyId();
+        final AmazonSignatureAlgorithm algorithm = payConfiguration.getAlgorithm();
         final Map<String, List<String>> preSignedHeaders = signatureHelper.createPreSignedHeaders(uri, header);
         final String userAgent = buildUserAgentHeader();
 
         String signature = null;
         try {
             final String canonicalRequest = signatureHelper.createCanonicalRequest(uri, httpMethodName, queryParameters, requestPayload, preSignedHeaders);
-            final String stringToSign = signatureHelper.createStringToSign(canonicalRequest);
-            signature = signatureHelper.generateSignature(stringToSign, privateKey);
+            final String stringToSign = signatureHelper.createStringToSign(canonicalRequest, algorithm.getName());
+            signature = signatureHelper.generateSignature(stringToSign, privateKey, algorithm);
 
         } catch (NoSuchAlgorithmException
                 | NoSuchProviderException
@@ -73,7 +75,7 @@ public class RequestSigner {
             throw new AmazonPayClientException(e.getMessage(), e);
         }
 
-        final String authorizationHeader = buildAuthorizationHeader(publicKeyId, preSignedHeaders, signature);
+        final String authorizationHeader = buildAuthorizationHeader(publicKeyId, preSignedHeaders, signature, algorithm);
 
         Map<String, String> postSignedHeadersMap = new HashMap<>();
 
@@ -109,12 +111,13 @@ public class RequestSigner {
      * @param publicKeyId the public key id from the PayConfiguration
      * @param preSignedHeaders the set of pre signed headers
      * @param signature the generated signature
+     * @param algorithm the Amazon Signature Algorithm from payConfiguration
      * @return the authorization string
      * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     private String buildAuthorizationHeader(String publicKeyId,
                                             Map<String, List<String>> preSignedHeaders,
-                                            String signature) throws AmazonPayClientException {
+                                            String signature, AmazonSignatureAlgorithm algorithm) throws AmazonPayClientException {
 
         // The parameters being null should never happen at this point, because that
         // case should be caught by other exceptions upstream.
@@ -123,7 +126,7 @@ public class RequestSigner {
             throw new AmazonPayClientException("Invalid parameter while constructing authorization header");
         }
 
-        final StringBuilder authorizationBuilder = new StringBuilder(ServiceConstants.AMAZON_SIGNATURE_ALGORITHM)
+        final StringBuilder authorizationBuilder = new StringBuilder(algorithm.getName())
                 .append(" PublicKeyId=").append(publicKeyId).append(", ").append("SignedHeaders=")
                 .append(signatureHelper.getSignedHeadersString(preSignedHeaders))
                 .append(", Signature=").append(signature);

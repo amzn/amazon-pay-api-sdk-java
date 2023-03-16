@@ -1,3 +1,11 @@
+### Version 2.6.0 - March 2023
+* Introducing new v2 Reporting APIs. Reports allow you to retrieve consolidated data about Amazon Pay transactions and settlements. In addition to managing and downloading reports using Seller Central, Amazon Pay offers APIs to manage and retrieve your reports.
+* Introducing new signature generation algorithm AMZN-PAY-RSASSA-PSS-V2 & increasing salt length from 20 to 32.
+* Added support for handling new parameter 'shippingAddressList' in Checkout Session response. Change is fully backwards compatible.
+* Enabled Connection Pooling Support.
+* Adding Error code 408 to API retry logic
+* Note : To use new algorithm AMZN-PAY-RSASSA-PSS-V2, "algorithm" needs to be provided as an additional field in "payConfiguration" and also while rendering Amazon Pay button in "createCheckoutSessionConfig". The changes are backwards-compatible, SDK will use AMZN-PAY-RSASSA-PSS by default.
+
 #### Version 2.5.1 - January 2022
 * Applied patch to address issues occurred in Version 2.5.0.
 * **Please dont use Version 2.5.0**

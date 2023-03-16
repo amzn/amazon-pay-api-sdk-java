@@ -26,11 +26,12 @@ public class ServiceConstants {
     public static final Map<Region, String> endpointMappings;
     public static final Map<String, Integer> serviceErrors;
 
-    public static final String APPLICATION_LIBRARY_VERSION = "2.5.1";
+    public static final String APPLICATION_LIBRARY_VERSION = "2.6.0";
     public static final String GITHUB_SDK_NAME = "amazon-pay-api-sdk-java";
     public static final String AMAZON_PAY_API_VERSION = "v2";
 
-    public static final String AMAZON_SIGNATURE_ALGORITHM = "AMZN-PAY-RSASSA-PSS";
+    public static final String DEFAULT_AMAZON_SIGNATURE_ALGORITHM = "AMZN-PAY-RSASSA-PSS";
+    public static final String AMAZON_SIGNATURE_ALGORITHM_V2 = "AMZN-PAY-RSASSA-PSS-V2";
     public static final String HASH_ALGORITHM = "SHA-256";
     public static final String SIGNATURE_ALGORITHM = "SHA256WithRSA/PSS";
     public static final String MASK_GENERATION_FUNCTION = "MGF1";
@@ -58,6 +59,12 @@ public class ServiceConstants {
     public static final int RESPONSE_STATUS_CODE = 0;
     public static final int RESPONSE_STRING = 1;
     public static final int REQUEST_ID = 2;
+    public static final Integer MAX_CLIENT_CONNECTIONS = 20;
+
+    // CV2 Reporting APIs Constants
+    public static final String REPORTS = AMAZON_PAY_API_VERSION + "/reports";
+    public static final String REPORT_DOCUMENT = AMAZON_PAY_API_VERSION + "/report-documents";
+    public static final String REPORT_SCHEDULES = AMAZON_PAY_API_VERSION + "/report-schedules";
 
     static {
         Map<Region, String> endpointMappingsMap = new HashMap<>();
@@ -74,7 +81,10 @@ public class ServiceConstants {
         serviceErrorsMap.put("Too Many Requests", 429);
         serviceErrorsMap.put("HTTP Bad Gateway", HttpURLConnection.HTTP_BAD_GATEWAY);
         serviceErrorsMap.put("HTTP Gateway Timeout", HttpURLConnection.HTTP_GATEWAY_TIMEOUT);
+        serviceErrorsMap.put("Request Timeout", HttpURLConnection.HTTP_CLIENT_TIMEOUT);
         serviceErrors = Collections.unmodifiableMap(serviceErrorsMap);
     }
     public static final String X_AMZ_PAY_REQUEST_ID = "X-Amz-Pay-Request-Id";
+
+    public static final char[] privateKeyArray = {'p','r','i','v','a','t','e','K','e','y'};
 }

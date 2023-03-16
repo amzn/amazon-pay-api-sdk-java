@@ -15,6 +15,7 @@
 package com.amazon.pay.api;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
+import com.amazon.pay.api.types.AmazonSignatureAlgorithm;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
@@ -42,7 +43,6 @@ import java.util.TreeMap;
 public class SignatureHelper {
     private final PayConfiguration payConfiguration;
     private final String LINE_SEPARATOR = "\n";
-    public final static int SALT_LENGTH = 20;
     public final static int TRAILER_FIELD = 1;
 
     public SignatureHelper(final PayConfiguration payConfiguration) {
@@ -89,14 +89,15 @@ public class SignatureHelper {
     /**
      * Creates the string that is going to be signe
      * @param canonicalRequest The canonical request generated using the createCanonicalRequest() method
+     * @param algorithm The Amazon Signature Algorithm from payConfiguration
      * @return the string to be signed
      * @throws NoSuchAlgorithmException exception thrown when the cryptographic
      * algorithm requested is not available in the environment
      */
-    public String createStringToSign(final String canonicalRequest) throws NoSuchAlgorithmException {
+    public String createStringToSign(final String canonicalRequest, final String algorithm) throws NoSuchAlgorithmException {
         final String hashedCanonicalRequest = hashThenHexEncode(canonicalRequest);
 
-        final StringBuilder stringToSignBuilder = new StringBuilder(ServiceConstants.AMAZON_SIGNATURE_ALGORITHM);
+        final StringBuilder stringToSignBuilder = new StringBuilder(algorithm);
         stringToSignBuilder.append(LINE_SEPARATOR)
                 .append(hashedCanonicalRequest);
 
@@ -107,6 +108,7 @@ public class SignatureHelper {
      * Generates a signature for the string passed in
      * @param stringToSign the string to be signed
      * @param privateKey the private key to use for signing
+     * @param algorithm the Amazon Signature Algorithm from payConfiguration
      * @return the signature
      * @throws NoSuchAlgorithmException exception thrown when the cryptographic
      * algorithm requested is not available in the environment
@@ -116,13 +118,15 @@ public class SignatureHelper {
      * @throws InvalidKeyException exception for invalid keys
      * @throws SignatureException signature exception
      */
-    public String generateSignature(final String stringToSign, final PrivateKey privateKey) throws NoSuchAlgorithmException,
+    public String generateSignature(final String stringToSign, final PrivateKey privateKey, final AmazonSignatureAlgorithm
+            algorithm) throws NoSuchAlgorithmException,
             NoSuchProviderException, InvalidAlgorithmParameterException,
             InvalidKeyException, SignatureException {
+        final Integer saltLength = algorithm.getSaltLength();
         final Signature signature = Signature.getInstance(ServiceConstants.SIGNATURE_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
         final MGF1ParameterSpec mgf1ParameterSpec = new MGF1ParameterSpec(ServiceConstants.HASH_ALGORITHM);
         final PSSParameterSpec pssParameterSpec = new PSSParameterSpec(ServiceConstants.HASH_ALGORITHM,
-                ServiceConstants.MASK_GENERATION_FUNCTION, mgf1ParameterSpec, SALT_LENGTH, TRAILER_FIELD);
+                ServiceConstants.MASK_GENERATION_FUNCTION, mgf1ParameterSpec, saltLength, TRAILER_FIELD);
         signature.setParameter(pssParameterSpec);
         signature.initSign(privateKey);
         signature.update(stringToSign.getBytes());

@@ -52,6 +52,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -62,6 +63,10 @@ import org.bouncycastle.util.io.pem.PemReader;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
 import com.amazon.pay.api.types.Environment;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Util {
 
@@ -341,9 +346,10 @@ public class Util {
      * Returns the CloseableHttpClient object based on the given proxy settings.
      * 
      * @param proxySettings the ProxySettings
+     * @param payConfiguration the PayConfiguration
      * @return the CloseableHttpClient
      */
-    public static CloseableHttpClient getCloseableHttpClientWithProxy(final ProxySettings proxySettings) {
+    public static CloseableHttpClient getCloseableHttpClientWithProxy(final ProxySettings proxySettings, final PayConfiguration payConfiguration) {
         final HttpHost proxy = new HttpHost(proxySettings.getProxyHost(),
                 proxySettings.getProxyPort());
         final Credentials credentials = new UsernamePasswordCredentials(proxySettings.getProxyUser(),
@@ -353,7 +359,50 @@ public class Util {
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(authScope, credentials);
         final HttpClientBuilder httpClientBuilder = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider)
-                .setProxy(proxy);
+                .setProxy(proxy)
+                .setMaxConnTotal(payConfiguration.getClientConnections())
+                .setMaxConnPerRoute(payConfiguration.getClientConnections());
         return httpClientBuilder.build();
     }
+
+    /**
+     * Returns the CloseableHttpClient object with Connection Pool based on the Payconfiguration
+     *
+     * @param payConfiguration the PayConfiguration
+     * @return the CloseableHttpClient
+     */
+    public static CloseableHttpClient getHttpClientWithConnectionPool(final PayConfiguration payConfiguration) {
+        final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setMaxTotal(payConfiguration.getClientConnections());
+        connectionManager.setDefaultMaxPerRoute(payConfiguration.getClientConnections());
+        final HttpClientBuilder httpClientBuilder = HttpClients.custom()
+                .setConnectionManager(connectionManager);
+        return httpClientBuilder.build();
+    }
+
+    /**
+     * Enhances checkoutSession response by parsing shippingAddressList to JSONObject
+     *
+     * @param amazonPayResponse the response of the API request
+     * @return the enhanced amazonPayResponse
+     * @throws AmazonPayClientException
+     */
+    public static AmazonPayResponse enhanceResponseWithShippingAddressList(final AmazonPayResponse amazonPayResponse) throws AmazonPayClientException {
+        try {
+            JSONObject response = amazonPayResponse.getResponse();
+            JSONArray shippingAddressList = response.optJSONArray("shippingAddressList");
+
+            if (shippingAddressList != null) {
+                for (int i = 0; i < shippingAddressList.length(); ++i) {
+                    shippingAddressList.put(i, new JSONObject(shippingAddressList.getString(i)));
+                }
+                amazonPayResponse.setRawResponse(response.toString());
+            }
+        }
+        catch(JSONException e) {
+            throw new AmazonPayClientException(e.getMessage(), e);
+        }
+        return amazonPayResponse;
+    }
+
 }

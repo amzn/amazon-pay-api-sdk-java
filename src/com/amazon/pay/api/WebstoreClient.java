@@ -18,8 +18,10 @@ import com.amazon.pay.api.exceptions.AmazonPayClientException;
 import org.json.JSONObject;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Map;
-
+import java.util.List;
+import java.util.HashMap;
 
 public class WebstoreClient extends AmazonPayClient {
 
@@ -96,7 +98,8 @@ public class WebstoreClient extends AmazonPayClient {
     public AmazonPayResponse getCheckoutSession(final String checkoutSessionId, final Map<String, String> header) throws AmazonPayClientException {
         final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
         final URI getCheckoutSessionURI = checkoutSessionURI.resolve(checkoutSessionURI.getPath() + "/" + checkoutSessionId);
-        return callAPI(getCheckoutSessionURI, "GET", null, "", header);
+        final AmazonPayResponse response = callAPI(getCheckoutSessionURI, "GET", null, "", header);
+        return Util.enhanceResponseWithShippingAddressList(response);
     }
 
     /**
@@ -125,7 +128,8 @@ public class WebstoreClient extends AmazonPayClient {
     public AmazonPayResponse updateCheckoutSession(final String checkoutSessionId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
         final URI updateCheckoutSessionURI = checkoutSessionURI.resolve(checkoutSessionURI.getPath() + "/" + checkoutSessionId);
-        return callAPI(updateCheckoutSessionURI, "PATCH", null, payload.toString(), header);
+        final AmazonPayResponse response = callAPI(updateCheckoutSessionURI, "PATCH", null, payload.toString(), header);
+        return Util.enhanceResponseWithShippingAddressList(response);
     }
 
     /**
@@ -154,7 +158,8 @@ public class WebstoreClient extends AmazonPayClient {
     public AmazonPayResponse completeCheckoutSession(final String checkoutSessionId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
         final URI checkoutSessionURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHECKOUT_SESSIONS);
         final URI completeCheckoutSessionURI = checkoutSessionURI.resolve(checkoutSessionURI.getPath() + "/" + checkoutSessionId + "/" + "complete");
-        return callAPI(completeCheckoutSessionURI, "POST", null, payload.toString(), header);
+        final AmazonPayResponse response = callAPI(completeCheckoutSessionURI, "POST", null, payload.toString(), header);
+        return Util.enhanceResponseWithShippingAddressList(response);
     }
 
     /**
@@ -429,4 +434,180 @@ public class WebstoreClient extends AmazonPayClient {
     public AmazonPayResponse getRefund(final String refundId) throws AmazonPayClientException {
         return getRefund(refundId, null);
     }
+
+
+    // ----------------------------------- CV2 REPORTING APIS -----------------------------------
+
+    /**
+     * The getReports operation is used to get report details for the reports that match the filters that you specify.
+     *
+     * @param queryParameters Request Paramters as part of filters to be provided optionally while calling API (e.g., reportTypes, processingStatus etc.)
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
+     * @return The response from the getReports service API, as
+     * returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse getReports(final Map<String, List<String>> queryParameters, final Map<String, String> header) throws AmazonPayClientException {
+        final URI getReportsURI = Util.getServiceURI(payConfiguration, ServiceConstants.REPORTS);
+        final URI getReportsFinalURI = getReportsURI.resolve(getReportsURI.getPath() + "/?" + convertQueryParamters(queryParameters));
+        return callAPI(getReportsFinalURI, "GET", queryParameters, "", header);
+    }
+
+    public AmazonPayResponse getReports(final Map<String, List<String>> queryParameters) throws AmazonPayClientException {
+        return getReports(queryParameters, null);
+    }
+    
+    public AmazonPayResponse getReports() throws AmazonPayClientException {
+        return getReports(null, null);
+    }
+
+    /**
+     * The getReportById operation is used to get report details for the given reportId.
+     *
+     * @param reportId Report ID provided while calling the API
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
+     * @return The response from the getReports service API, as
+     * returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse getReportById(final String reportId, final Map<String, String> header) throws AmazonPayClientException {
+        final URI getReportByIdURI = Util.getServiceURI(payConfiguration, ServiceConstants.REPORTS);
+        final URI getReportByIdFinalURI = getReportByIdURI.resolve(getReportByIdURI.getPath() + "/" + reportId);
+        return callAPI(getReportByIdFinalURI, "GET", null, "", header);
+    }
+
+    public AmazonPayResponse getReportById(final String reportId) throws AmazonPayClientException {
+        return getReportById(reportId, null);
+    }
+
+    /**
+     * The getReportDocument operation is used to return the pre-signed S3 URL for the report. The report can be downloaded using this URL.
+     *
+     * @param reportDocumentId Report Document ID provided while calling the API
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
+     * @return The response from the getReports service API, as
+     * returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse getReportDocument(final String reportDocumentId, final Map<String, String> header) throws AmazonPayClientException {
+        final URI getReportDocumentURI = Util.getServiceURI(payConfiguration, ServiceConstants.REPORT_DOCUMENT);
+        final URI getReportDocumentFinalURI = getReportDocumentURI.resolve(getReportDocumentURI.getPath() + "/" + reportDocumentId);
+        return callAPI(getReportDocumentFinalURI, "GET", null, "", header);
+    }
+
+    public AmazonPayResponse getReportDocument(final String reportDocumentId) throws AmazonPayClientException {
+        return getReportDocument(reportDocumentId, null);
+    }
+
+    /**
+     * The getReportSchedules operation is used to return the pre-signed S3 URL for the report. The report can be downloaded using this URL.
+     *
+     * @param reportTypes Report Types provided while calling the API comma-seperated list of ReportType
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
+     * @return The response from the getReports service API, as
+     * returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse getReportSchedules(final String reportTypes, final Map<String, String> header) throws AmazonPayClientException {
+        final URI getReportScheduleURI = Util.getServiceURI(payConfiguration, ServiceConstants.REPORT_SCHEDULES);
+        final Map<String, List<String>> queryParameters = new HashMap<>();
+        if (!reportTypes.isEmpty()) {
+            queryParameters.put("reportTypes", Arrays.asList(reportTypes));
+        }
+
+        final URI getReportSchedulesFinalURI = getReportScheduleURI.resolve(getReportScheduleURI.getPath() + "/?" + convertQueryParamters(queryParameters));
+        return callAPI(getReportSchedulesFinalURI, "GET", queryParameters, "", header);
+    }
+
+    public AmazonPayResponse getReportSchedules(final String reportTypes) throws AmazonPayClientException {
+        return getReportSchedules(reportTypes, null);
+    }
+
+    public AmazonPayResponse getReportSchedules() throws AmazonPayClientException {
+        return getReportSchedules("", null);
+    }
+
+    /**
+     * The getReportScheduleById operation is used to get report schedule details that match the given ID.
+     *
+     * @param reportScheduleId Report Schedule ID provided while calling the API
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
+     * @return The response from the getReports service API, as
+     * returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse getReportScheduleById(final String reportScheduleId, final Map<String, String> header) throws AmazonPayClientException {
+        final URI getReportScheduleByIdURI = Util.getServiceURI(payConfiguration, ServiceConstants.REPORT_SCHEDULES);
+        final URI getReportScheduleByIdFinalURI = getReportScheduleByIdURI.resolve(getReportScheduleByIdURI.getPath() + "/" + reportScheduleId);
+        return callAPI(getReportScheduleByIdFinalURI, "GET", null, "", header);
+    }
+
+    public AmazonPayResponse getReportScheduleById(final String reportScheduleId) throws AmazonPayClientException {
+        return getReportScheduleById(reportScheduleId, null);
+    }
+
+    /**
+     * The createReport operation is used to submit a request to generate a report based on the reportType and date range specified.
+     *
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
+     * @return The response from the getReports service API, as
+     * returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse createReport(final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+        final URI createReportURI = Util.getServiceURI(payConfiguration, ServiceConstants.REPORTS);
+        return callAPI(createReportURI, "POST", null, payload.toString(), header);
+    }
+
+    /**
+     * The createReport operation is used to create a report schedule for the given reportType. Only one schedule per report type allowed.
+     *
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
+     * @return The response from the getReports service API, as
+     * returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse createReportSchedule(final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+        final URI createReportScheduleURI = Util.getServiceURI(payConfiguration, ServiceConstants.REPORT_SCHEDULES);
+        return callAPI(createReportScheduleURI, "POST", null, payload.toString(), header);
+    }
+
+    /**
+     * The cancelReportSchedule operation is used to cancel the report schedule with the given reportScheduleId.
+     *
+     * @param reportScheduleId Report Schedule ID provided while calling the API
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken)
+     * @return The response from the getReports service API, as
+     * returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse cancelReportSchedule(final String reportScheduleId, final Map<String, String> header) throws AmazonPayClientException {
+        final URI cancelReportScheduleURI = Util.getServiceURI(payConfiguration, ServiceConstants.REPORT_SCHEDULES);
+        final URI cancelReportScheduleFinalURI = cancelReportScheduleURI.resolve(cancelReportScheduleURI.getPath() + "/" + reportScheduleId);
+        return callAPI(cancelReportScheduleFinalURI, "DELETE", null, "", header);
+    }
+
+   public AmazonPayResponse cancelReportSchedule(final String reportScheduleId) throws AmazonPayClientException {
+       return cancelReportSchedule(reportScheduleId, null);
+   }
+
+   // Convenience function to convert List of Query parameters to String to be attached to URL
+   public String convertQueryParamters(final Map<String, List<String>> parameters) throws AmazonPayClientException {
+        if(parameters == null || parameters.isEmpty())
+            return "";
+        final StringBuilder result = new StringBuilder();
+        for (Map.Entry<String, List<String>> entry : parameters.entrySet()) {
+            for (String value : entry.getValue()) {
+                if (result.length() > 0) {
+                    result.append("&");
+                }
+                result.append(entry.getKey())
+                        .append("=")
+                        .append(value);
+            }
+        }
+        return result.toString();
+   }
 }

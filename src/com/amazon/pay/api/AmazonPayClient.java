@@ -35,8 +35,10 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
+import com.amazon.pay.api.types.AmazonSignatureAlgorithm;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -129,9 +131,10 @@ public class AmazonPayClient {
     public String generateButtonSignature(final String payload) throws AmazonPayClientException {
         String signature = null;
         final SignatureHelper signatureHelper = new SignatureHelper(payConfiguration);
+        final AmazonSignatureAlgorithm algorithm = payConfiguration.getAlgorithm();
         try {
-            final String stringToSign = signatureHelper.createStringToSign(payload);
-            signature =  signatureHelper.generateSignature(stringToSign, payConfiguration.getPrivateKey());
+            final String stringToSign = signatureHelper.createStringToSign(payload, algorithm.getName());
+            signature =  signatureHelper.generateSignature(stringToSign, payConfiguration.getPrivateKey(), algorithm);
         } catch (NoSuchAlgorithmException
                 | NoSuchProviderException
                 | InvalidAlgorithmParameterException
@@ -210,7 +213,9 @@ public class AmazonPayClient {
             if (response.get(ServiceConstants.RESPONSE_STRING) != null) {
                 // Converting the response string into a JSONObject
                 rawResponseObject = response.get(ServiceConstants.RESPONSE_STRING);
-                jsonResponse = new JSONObject(response.get(ServiceConstants.RESPONSE_STRING));
+                if(!StringUtils.isEmpty(response.get(ServiceConstants.RESPONSE_STRING))) {
+                    jsonResponse = new JSONObject(response.get(ServiceConstants.RESPONSE_STRING));
+                }
             }
         } catch (InterruptedException | JSONException e) {
             throw new AmazonPayClientException(e.getMessage(), e);
@@ -241,8 +246,8 @@ public class AmazonPayClient {
         String requestId = null;
         int responseCode = 0;
         try (final CloseableHttpClient client = Optional.ofNullable(payConfiguration.getProxySettings()).isPresent()
-                ? Util.getCloseableHttpClientWithProxy(payConfiguration.getProxySettings())
-                    : HttpClients.createDefault()) {
+                ? Util.getCloseableHttpClientWithProxy(payConfiguration.getProxySettings(), payConfiguration)
+                    : Util.getHttpClientWithConnectionPool(payConfiguration)) {
             final HttpUriRequest httpUriRequest = Util.getHttpUriRequest(uri, httpMethodName, payload);
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 httpUriRequest.addHeader(entry.getKey(), entry.getValue());
