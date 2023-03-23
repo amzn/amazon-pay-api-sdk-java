@@ -44,7 +44,7 @@ public class ProxySettings {
     }
 
     /**
-     * @param proxyHost The Proxy Port
+     * @param proxyPort The Proxy Port
      * @return the ProxySettings object
      */
     public ProxySettings setProxyPort(Integer proxyPort) {
@@ -60,7 +60,7 @@ public class ProxySettings {
     }
 
     /**
-     * @param proxyHost The Proxy User
+     * @param proxyUser The Proxy User
      * @return the ProxySettings object
      */
     public ProxySettings setProxyUser(String proxyUser) {
@@ -76,7 +76,7 @@ public class ProxySettings {
     }
 
     /**
-     * @param proxyHost The Proxy Password
+     * @param proxyPassword The Proxy Password
      * @return the ProxySettings object
      */
     public ProxySettings setProxyPassword(char[] proxyPassword) {

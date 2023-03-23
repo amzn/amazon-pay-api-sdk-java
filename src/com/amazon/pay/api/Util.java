@@ -168,7 +168,7 @@ public class Util {
 
     /**
      * Builds the PrivateKey object from the private key provided
-     * @param char[] privateKey the private key provided
+     * @param privateKey the private key provided
      * @return the PrivateKey object
      * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
@@ -197,7 +197,7 @@ public class Util {
 
     /**
      * To read the contents of the private key
-     * @param char[] privateKey the private key provided
+     * @param privateKey the private key provided
      * @return private key pem object
      * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
@@ -308,7 +308,7 @@ public class Util {
      * @param uri the URI
      * @return the Commons HttpMethodBase object
      * @throws UnsupportedEncodingException
-     * @throws AmazonPayClientException 
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public static HttpUriRequest getHttpUriRequest(final URI uri, final String httpMethodName, final String payload)
             throws AmazonPayClientException, UnsupportedEncodingException {
@@ -385,7 +385,7 @@ public class Util {
      *
      * @param amazonPayResponse the response of the API request
      * @return the enhanced amazonPayResponse
-     * @throws AmazonPayClientException
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
      */
     public static AmazonPayResponse enhanceResponseWithShippingAddressList(final AmazonPayResponse amazonPayResponse) throws AmazonPayClientException {
         try {
