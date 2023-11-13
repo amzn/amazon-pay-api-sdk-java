@@ -254,7 +254,9 @@ public class UtilTest {
         expectedCheckoutSessionResponse.setResponse(expectedShippingAddressListResponse);
         expectedCheckoutSessionResponse.setRawResponse(expectedShippingAddressListResponse.toString());
 
-        Assert.assertEquals(expectedCheckoutSessionResponse.getRawResponse(), actualCheckoutSessionResponseAfterEnhancing.getRawResponse());
+        JSONObject expected = new JSONObject(expectedCheckoutSessionResponse.getRawResponse());
+        JSONObject actual = new JSONObject(actualCheckoutSessionResponseAfterEnhancing.getRawResponse());
+        Assert.assertTrue(expected.similar(actual));
     }
 
     @Test
