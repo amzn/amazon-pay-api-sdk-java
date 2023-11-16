@@ -20,6 +20,7 @@ import com.amazon.pay.api.types.Region;
 import com.amazon.pay.api.types.AmazonSignatureAlgorithm;
 
 import java.security.PrivateKey;
+import java.util.Objects;
 
 public class PayConfiguration {
     private Region region;
@@ -27,12 +28,13 @@ public class PayConfiguration {
     private PrivateKey privateKey;
     private Environment environment;
     private AmazonSignatureAlgorithm algorithm;
-    private int maxRetries = 3;
     private boolean userAgentRedaction = false;
     private ProxySettings proxySettings;
     protected String overrideServiceURL;
-    private Integer clientConnections;
-
+    private int clientConnections;
+    private RetryStrategy retryStrategy = new DefaultRetryStrategy();
+    /** customize request config */
+    private RequestConfig requestConfig;
     /**
      * @return Returns region code from PayConfiguration
      */
@@ -141,7 +143,7 @@ public class PayConfiguration {
      * @return the maximum number of retries to be made
      */
     public int getMaxRetries() {
-        return maxRetries;
+        return retryStrategy.getMaxRetries();
     }
 
     /**
@@ -150,7 +152,7 @@ public class PayConfiguration {
      * @return the PayConfiguration object
      */
     public PayConfiguration setMaxRetries(final int maxRetries) {
-        this.maxRetries = maxRetries;
+        retryStrategy.setMaxRetries(maxRetries);
         return this;
     }
 
@@ -205,8 +207,8 @@ public class PayConfiguration {
     /**
      * @return Returns clientConnections from PayConfiguration
      */
-    public Integer getClientConnections() {
-        if(clientConnections != null && clientConnections != 0) {
+    public int getClientConnections() {
+        if( clientConnections != 0 ) {
             return clientConnections;
         } else {
             return ServiceConstants.MAX_CLIENT_CONNECTIONS;
@@ -222,4 +224,40 @@ public class PayConfiguration {
         return this;
     }
 
+    /**
+     * Get the retry strategy
+     * @return Retry strategy
+     */
+    public RetryStrategy getRetryStrategy() {
+        return retryStrategy;
+    }
+
+    /**
+     * Set the retry strategy
+     * @param retryStrategy The retry strategy to use
+     * @return the PayConfiguration object
+     */
+    public PayConfiguration setRetryStrategy(RetryStrategy retryStrategy) {
+        Objects.requireNonNull(retryStrategy, "retryStrategy must not be null");
+        this.retryStrategy = retryStrategy;
+        return this;
+    }
+
+    /**
+     * Set request config
+     * @param requestConfig
+     * @return the PayConfiguration object
+     */
+    public PayConfiguration setRequestConfig(RequestConfig requestConfig) {
+        this.requestConfig = requestConfig;
+        return this;
+    }
+
+    /**
+     * Get request config
+     * @return request config
+     */
+    public RequestConfig getRequestConfig() {
+        return this.requestConfig;
+    }
 }

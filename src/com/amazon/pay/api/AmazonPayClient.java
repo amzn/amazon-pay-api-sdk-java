@@ -33,7 +33,10 @@ import java.util.Optional;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.pool.PoolStats;
 import org.apache.http.util.EntityUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -46,10 +49,14 @@ import org.json.JSONObject;
 public class AmazonPayClient {
     final protected PayConfiguration payConfiguration;
     final protected RequestSigner requestSigner;
+    final protected PoolingHttpClientConnectionManager connectionManager;
 
     public AmazonPayClient(final PayConfiguration payConfiguration) throws AmazonPayClientException {
         this.payConfiguration = payConfiguration;
         requestSigner = new RequestSigner(payConfiguration);
+        this.connectionManager = new PoolingHttpClientConnectionManager();
+        this.connectionManager.setMaxTotal(payConfiguration.getClientConnections());
+        this.connectionManager.setDefaultMaxPerRoute(payConfiguration.getClientConnections());
     }
 
     /**
@@ -199,9 +206,9 @@ public class AmazonPayClient {
             // Check for service errors
             while (ServiceConstants.serviceErrors.containsValue(statusCode) &&
                     retry < payConfiguration.getMaxRetries()) {
-                retry++;
                 //retry request maxRetries number of times
-                long waitTime = Util.getExponentialWaitTime(retry);
+                long waitTime = payConfiguration.getRetryStrategy().getWaitTime(retry, statusCode);
+                retry++;
                 Thread.sleep(waitTime);
 
                 response = sendRequest(uri, postSignedHeaders, payload, httpMethodName);
@@ -246,8 +253,7 @@ public class AmazonPayClient {
         String requestId = null;
         int responseCode = 0;
         try (final CloseableHttpClient client = Optional.ofNullable(payConfiguration.getProxySettings()).isPresent()
-                ? Util.getCloseableHttpClientWithProxy(payConfiguration.getProxySettings(), payConfiguration)
-                    : Util.getHttpClientWithConnectionPool(payConfiguration)) {
+                ? getClosableHttpClientWithPoolAndProxy() : getClosableHttpClientWithConnectionPool()) {
             final HttpUriRequest httpUriRequest = Util.getHttpUriRequest(uri, httpMethodName, payload);
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 httpUriRequest.addHeader(entry.getKey(), entry.getValue());
@@ -257,11 +263,15 @@ public class AmazonPayClient {
             if (responseCode < HttpURLConnection.HTTP_BAD_REQUEST) {
                 requestId = responses.getFirstHeader(ServiceConstants.X_AMZ_PAY_REQUEST_ID).toString();
                 String inputLine;
-                try (final BufferedReader in = new BufferedReader(
-                        new InputStreamReader(responses.getEntity().getContent(), Util.DEFAULT_ENCODING))) {
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine).append(System.lineSeparator());
+                if(Optional.ofNullable(responses.getEntity()).isPresent()) {
+                    try (final BufferedReader in = new BufferedReader(
+                            new InputStreamReader(responses.getEntity().getContent(), Util.DEFAULT_ENCODING))) {
+                        while ((inputLine = in.readLine()) != null) {
+                            response.append(inputLine).append(System.lineSeparator());
+                        }
                     }
+                } else {
+                    response.append("{}").append(System.lineSeparator());
                 }
             } else {
                 response.append(EntityUtils.toString(responses.getEntity()));
@@ -275,4 +285,96 @@ public class AmazonPayClient {
         return result;
     }
 
+    /**
+     * Helper function to retrieve the Connection Pool Stats to the caller to monitor the Connection Pool Performance
+     *
+     * @return a ConnectionPoolStats of the Connection Pool
+     */
+    public ConnectionPoolStats getPoolStats() {
+        final PoolStats poolStats = this.connectionManager.getTotalStats();
+        final ConnectionPoolStats connectionPoolStats = new ConnectionPoolStats(poolStats.getMax(),
+                poolStats.getAvailable(), poolStats.getPending(), poolStats.getLeased());
+        return connectionPoolStats;
+    }
+
+    /**
+     * Returns the CloseableHttpClient object with Connection Pool based on the Payconfiguration
+     *
+     * @return the CloseableHttpClient
+     */
+    protected CloseableHttpClient getClosableHttpClientWithConnectionPool() {
+        final HttpClientBuilder httpClientBuilder = HttpClients.custom()
+                .setConnectionManager(connectionManager)
+                .setConnectionManagerShared(true);
+        Util.applyRequestConfig(httpClientBuilder, this.payConfiguration);
+        return httpClientBuilder.build();
+    }
+
+    /**
+     * Returns the CloseableHttpClient object with Connection Pool based on the given proxy settings.
+     *
+     * @return the CloseableHttpClient
+     */
+    protected CloseableHttpClient getClosableHttpClientWithPoolAndProxy() {
+        return Util.getHttpClientBuilderWithProxy(this.payConfiguration.getProxySettings(), this.payConfiguration)
+                .setConnectionManager(connectionManager)
+                .setConnectionManagerShared(true)
+                .build();
+    }
+
+    // ----------------------------------- Merchant Onboarding & Account Management APIs --------------------
+
+   /**
+    * Creates a non-logginable account for your merchant partners. These would be special accounts through which Merchants would not be able to login to Amazon or access Seller Central.
+    *
+    * @param payload JSONObject request body
+    * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken).
+    * @return The response from registerAmazonPayAccount API, as returned by Amazon Pay.
+    * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue.
+    */
+    public AmazonPayResponse registerAmazonPayAccount(final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+        final URI registerAmazonPayAccountURI = Util.getServiceURI(payConfiguration, ServiceConstants.ACCOUNT_MANAGEMENT);
+        return callAPI(registerAmazonPayAccountURI, "POST", null, payload.toString(), header);
+    }
+
+    public AmazonPayResponse registerAmazonPayAccount(final JSONObject payload) throws AmazonPayClientException {
+        return registerAmazonPayAccount(payload, null);
+    }
+
+    /**
+    * Updates a merchant account for the given Merchant Account ID. We would be allowing our partners to update only a certain set of fields which won’t change the legal business entity itself.
+    *
+    * @param merchantAccountId Internal Merchant Account ID provided while calling the API.
+    * @param payload JSONObject request body
+    * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken).
+    * @return The response from updateAmazonPayAccount API, as returned by Amazon Pay.
+    * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue.
+    */
+    public AmazonPayResponse updateAmazonPayAccount(final String merchantAccountId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+        final URI updateAmazonPayAccountURI = Util.getServiceURI(payConfiguration, ServiceConstants.ACCOUNT_MANAGEMENT);
+        final URI updateAmazonPayAccountFinalURI = updateAmazonPayAccountURI.resolve(updateAmazonPayAccountURI.getPath() + "/" + merchantAccountId);
+        return callAPI(updateAmazonPayAccountFinalURI, "PATCH", null, payload.toString(), header);
+    }
+
+    public AmazonPayResponse updateAmazonPayAccount(final String merchantAccountId, final JSONObject payload) throws AmazonPayClientException {
+        return updateAmazonPayAccount(merchantAccountId, payload, null);
+    }
+
+    /**
+    * Deletes the Merchant account for the given Merchant Account ID. Partners can close the merchant accounts created for their merchant partners.
+    *
+    * @param merchantAccountId Internal Merchant Account ID provided while calling the API.
+    * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken).
+    * @return The response from deleteAmazonPayAccount API, as returned by Amazon Pay.
+    * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue.
+    */
+    public AmazonPayResponse deleteAmazonPayAccount(final String merchantAccountId, final Map<String, String> header) throws AmazonPayClientException {
+        final URI deleteAmazonPayAccountURI = Util.getServiceURI(payConfiguration, ServiceConstants.ACCOUNT_MANAGEMENT);
+        final URI deleteAmazonPayAccountFinalURI = deleteAmazonPayAccountURI.resolve(deleteAmazonPayAccountURI.getPath() + "/" + merchantAccountId);
+        return callAPI(deleteAmazonPayAccountFinalURI, "DELETE", null, "", header);
+    }
+
+    public AmazonPayResponse deleteAmazonPayAccount(final String merchantAccountId) throws AmazonPayClientException {
+        return deleteAmazonPayAccount(merchantAccountId, null);
+    }
 }

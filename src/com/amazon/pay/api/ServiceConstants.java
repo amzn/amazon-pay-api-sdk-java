@@ -26,7 +26,7 @@ public class ServiceConstants {
     public static final Map<Region, String> endpointMappings;
     public static final Map<String, Integer> serviceErrors;
 
-    public static final String APPLICATION_LIBRARY_VERSION = "2.6.0";
+    public static final String APPLICATION_LIBRARY_VERSION = "2.6.1";
     public static final String GITHUB_SDK_NAME = "amazon-pay-api-sdk-java";
     public static final String AMAZON_PAY_API_VERSION = "v2";
 
@@ -59,12 +59,15 @@ public class ServiceConstants {
     public static final int RESPONSE_STATUS_CODE = 0;
     public static final int RESPONSE_STRING = 1;
     public static final int REQUEST_ID = 2;
-    public static final Integer MAX_CLIENT_CONNECTIONS = 20;
+    public static final int MAX_CLIENT_CONNECTIONS = 20;
 
     // CV2 Reporting APIs Constants
     public static final String REPORTS = AMAZON_PAY_API_VERSION + "/reports";
     public static final String REPORT_DOCUMENT = AMAZON_PAY_API_VERSION + "/report-documents";
     public static final String REPORT_SCHEDULES = AMAZON_PAY_API_VERSION + "/report-schedules";
+
+    // Merchant Onboarding & Account Management APIs Constants
+    public static final String ACCOUNT_MANAGEMENT = AMAZON_PAY_API_VERSION + "/merchantAccounts";
 
     static {
         Map<Region, String> endpointMappingsMap = new HashMap<>();

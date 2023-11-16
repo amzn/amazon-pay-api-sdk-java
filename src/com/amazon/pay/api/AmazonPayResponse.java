@@ -176,7 +176,7 @@ public class AmazonPayResponse {
      * @return Returns boolean response
      */
     public boolean isSuccess() {
-        return status == HttpURLConnection.HTTP_OK || status == HttpURLConnection.HTTP_CREATED || status == HttpURLConnection.HTTP_ACCEPTED;
+        return status == HttpURLConnection.HTTP_OK || status == HttpURLConnection.HTTP_CREATED || status == HttpURLConnection.HTTP_ACCEPTED || status == HttpURLConnection.HTTP_NO_CONTENT;
     }
 
     /**

@@ -23,7 +23,7 @@ import com.amazon.pay.api.types.Region;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -200,7 +200,7 @@ public class UtilTest {
     }
     
     @Test
-    public void testGetCloseableHttpClientWithProxyMethod() {
+    public void testGetHttpClientBuilderWithProxyMethod() {
         final String proxyhost = "host";
         final Integer proxyPort = 8080;
         final String proxyUser = "user";
@@ -211,15 +211,13 @@ public class UtilTest {
                 .setProxyUser(proxyUser)
                 .setProxyPassword(proxyPassword);
         final PayConfiguration payConfiguration = new PayConfiguration()
-                .setProxySettings(proxySettings)
-                .setClientConnections(ServiceConstants.MAX_CLIENT_CONNECTIONS);
-        final CloseableHttpClient httpClient = Util.getCloseableHttpClientWithProxy(proxySettings, payConfiguration);
+                .setProxySettings(proxySettings);
+        final HttpClientBuilder httpClient = Util.getHttpClientBuilderWithProxy(proxySettings, payConfiguration);
         // Assertions
         Assert.assertEquals(proxyhost, payConfiguration.getProxySettings().getProxyHost());
         Assert.assertEquals(proxyPort, payConfiguration.getProxySettings().getProxyPort());
         Assert.assertEquals(proxyUser, payConfiguration.getProxySettings().getProxyUser());
         Assert.assertEquals(proxyPassword, payConfiguration.getProxySettings().getProxyPassword());
-        assertClientConnections(payConfiguration);
         Assert.assertNotNull(httpClient);
     }
 
@@ -232,7 +230,7 @@ public class UtilTest {
         testCheckoutSessionResponse.setResponse(testShippingAddressListResponse);
 
         final AmazonPayResponse actualCheckoutSessionResponseAfterEnhancing =  Util.enhanceResponseWithShippingAddressList(testCheckoutSessionResponse);
-        
+
         final JSONObject expectedShippingAddress = new JSONObject();
         expectedShippingAddress.put("stateOrRegion", "MNO");
         expectedShippingAddress.put("phoneNumber", "8910111213");
@@ -246,7 +244,7 @@ public class UtilTest {
         expectedShippingAddress.put("addressLine2", "JKL");
         expectedShippingAddress.put("addressLine3", JSONObject.NULL);
         expectedShippingAddress.put("addressId", "amzn1.address.ABC");
-        
+
         JSONObject expectedShippingAddressListResponse = new JSONObject();
         expectedShippingAddressListResponse.put("shippingAddressList", new JSONArray().put(expectedShippingAddress));
 
@@ -255,19 +253,5 @@ public class UtilTest {
         expectedCheckoutSessionResponse.setRawResponse(expectedShippingAddressListResponse.toString());
 
         Assert.assertEquals(expectedCheckoutSessionResponse.getRawResponse(), actualCheckoutSessionResponseAfterEnhancing.getRawResponse());
-    }
-
-    @Test
-    public void testGetHttpClientWithConnectionPool() {
-        final PayConfiguration payConfiguration = new PayConfiguration()
-                .setClientConnections(ServiceConstants.MAX_CLIENT_CONNECTIONS);
-        final CloseableHttpClient httpClient = Util.getHttpClientWithConnectionPool(payConfiguration);
-        // Assertions
-        assertClientConnections(payConfiguration);
-        Assert.assertNotNull(httpClient);
-    }
-
-    public void assertClientConnections(final PayConfiguration payConfiguration) {
-        Assert.assertEquals(ServiceConstants.MAX_CLIENT_CONNECTIONS, payConfiguration.getClientConnections());
     }
 }

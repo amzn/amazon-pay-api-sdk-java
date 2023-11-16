@@ -16,7 +16,6 @@ package com.amazon.pay.api;
 
 import java.io.CharArrayReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SimpleTimeZone;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -43,6 +43,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpOptions;
@@ -52,9 +53,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -264,16 +263,6 @@ public class Util {
     }
 
     /**
-     * Returns the next wait interval, in milliseconds, using an exponential
-     * backoff algorithm.
-     * @param retryCount The current retry count
-     * @return the wait time
-     */
-    public static long getExponentialWaitTime(int retryCount) {
-        return ((long) Math.pow(2, retryCount) * 1000L);
-    }
-
-    /**
      * Returns the header with idempotency key, if not provided by the Merchant.
      * Used for Webstore POST requests.
      * @param header Header sent by the merchant
@@ -343,13 +332,13 @@ public class Util {
     }
     
     /**
-     * Returns the CloseableHttpClient object based on the given proxy settings.
+     * Returns the HttpClientBuilder object based on the given proxy settings.
      * 
      * @param proxySettings the ProxySettings
      * @param payConfiguration the PayConfiguration
-     * @return the CloseableHttpClient
+     * @return the HttpClientBuilder
      */
-    public static CloseableHttpClient getCloseableHttpClientWithProxy(final ProxySettings proxySettings, final PayConfiguration payConfiguration) {
+    public static HttpClientBuilder getHttpClientBuilderWithProxy(final ProxySettings proxySettings, final PayConfiguration payConfiguration) {
         final HttpHost proxy = new HttpHost(proxySettings.getProxyHost(),
                 proxySettings.getProxyPort());
         final Credentials credentials = new UsernamePasswordCredentials(proxySettings.getProxyUser(),
@@ -359,25 +348,9 @@ public class Util {
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(authScope, credentials);
         final HttpClientBuilder httpClientBuilder = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider)
-                .setProxy(proxy)
-                .setMaxConnTotal(payConfiguration.getClientConnections())
-                .setMaxConnPerRoute(payConfiguration.getClientConnections());
-        return httpClientBuilder.build();
-    }
-
-    /**
-     * Returns the CloseableHttpClient object with Connection Pool based on the Payconfiguration
-     *
-     * @param payConfiguration the PayConfiguration
-     * @return the CloseableHttpClient
-     */
-    public static CloseableHttpClient getHttpClientWithConnectionPool(final PayConfiguration payConfiguration) {
-        final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-        connectionManager.setMaxTotal(payConfiguration.getClientConnections());
-        connectionManager.setDefaultMaxPerRoute(payConfiguration.getClientConnections());
-        final HttpClientBuilder httpClientBuilder = HttpClients.custom()
-                .setConnectionManager(connectionManager);
-        return httpClientBuilder.build();
+                .setProxy(proxy);
+        applyRequestConfig(httpClientBuilder, payConfiguration);
+        return httpClientBuilder;
     }
 
     /**
@@ -405,4 +378,18 @@ public class Util {
         return amazonPayResponse;
     }
 
+    /**
+     * Apply request config to http client request config
+     */
+    protected static void applyRequestConfig(final HttpClientBuilder httpClientBuilder, final PayConfiguration payConfiguration) {
+        if (Objects.nonNull(payConfiguration.getRequestConfig())) {
+            com.amazon.pay.api.RequestConfig apayRequestConfig = payConfiguration.getRequestConfig();
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectTimeout(apayRequestConfig.getConnectTimeoutMillis())
+                    .setConnectionRequestTimeout(apayRequestConfig.getConnectionTimeoutMillis())
+                    .setSocketTimeout(apayRequestConfig.getSocketTimeoutMillis())
+                    .build();
+            httpClientBuilder.setDefaultRequestConfig(requestConfig);
+        }
+    }
 }

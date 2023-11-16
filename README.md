@@ -17,7 +17,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
     <dependency>
         <groupId>software.amazon.pay</groupId>
         <artifactId>amazon-pay-api-sdk-java</artifactId>
-        <version>2.6.0</version>
+        <version>2.6.1</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
 To use the SDK in a Gradle project, add the following line to your build.gradle file::
 
 ```
-implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.0'
+implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.1'
 ```
 
 For legacy projects, you can just grab the binary [jar file](https://github.com/amzn/amazon-pay-api-sdk-java/releases) from the GitHub Releases page.
@@ -185,6 +185,19 @@ try {
 } catch (AmazonPayClientException e) {
     e.printStackTrace();
 }
+
+// If you want to set client request configuration, connection, connect and socket timeout, the payConfiguration looks like below:
+
+try {
+    payConfiguration = new PayConfiguration()
+                    .setPublicKeyId("YOUR_PUBLIC_KEY_ID")
+                    .setRegion(Region.YOUR_REGION_CODE)
+                    .setPrivateKey("YOUR_PRIVATE_KEY_STRING".toCharArray())
+                    .setEnvironment(Environment.SANDBOX)
+                    .setRequestConfig(new RequestConfig(1000, 2000, 4000);//connection timeout = 1s, connect timeout = 2s, socket timeout = 4s
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
 ```
 
 # Convenience Functions (Overview)
@@ -237,6 +250,11 @@ Please contact your Amazon Pay Account Manager before using the In-Store API cal
 Please note that your solution provider account must have a pre-existing relationship (valid and active MWS authorization token) with the merchant account in order to use this function.
 
 * AmazonPayClient: **getAuthorizationToken**(String mwsAuthToken, String merchantId[, Map<String, String> header]) &#8594; GET to "$version/authorizationTokens/$mwsAuthToken?merchantId=$merchantId"
+
+ ### Amazon Checkout v2 Merchant Onboarding & Account Management object
+* WebstoreClient: **registerAmazonPayAccount**(JSONObject payload[, Map<String, String> header]) &#8594; POST to "$version/merchantAccounts"
+* WebstoreClient: **updateAmazonPayAccount**(String merchantAccountId, JSONObject payload[, Map<String, String> header]) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId"
+* WebstoreClient: **deleteAmazonPayAccount**(String merchantAccountId[, Map<String, String> header]) &#8594; DELETE to "$version/merchantAccounts/$merchantAccountId"
 
 # Using Convenience Functions
 
@@ -336,7 +354,7 @@ JSONObject payload = new JSONObject();
 JSONObject webCheckoutDetails = new JSONObject();
 webCheckoutDetails.put("checkoutReviewReturnUrl", "https://localhost/store/checkout_review");
 payload.put("webCheckoutDetails", webCheckoutDetails);
-payload.put("storeId", "amzn1.application-oa2-client.4c46698afa4d4b23b645d05762fc78fa");
+payload.put("storeId", "amzn1.application-oa2-client.000000000000000000000000000000000");
 AmazonPayResponse response = null;
 String checkoutSessionId = null;
 
@@ -355,6 +373,7 @@ try {
 ```java
 
 AmazonPayResponse response = null;
+String checkoutSessionId = "00000000-0000-0000-0000-000000000000";
 
 try {
      response = webstoreClient.getCheckoutSession(checkoutSessionId);
@@ -369,6 +388,8 @@ try {
 ```java
 
 AmazonPayResponse response = null;
+String checkoutSessionId = "00000000-0000-0000-0000-000000000000";
+
 JSONObject payload = new JSONObject();
 JSONObject updateWebCheckoutDetails = new JSONObject();
 updateWebCheckoutDetails.put("checkoutResultReturnUrl", "https://localhost/store/checkout_return");
@@ -403,14 +424,13 @@ try {
 ```java
 
 AmazonPayResponse response = null;
-JSONObject payload = new JSONObject();
+String checkoutSessionId = "00000000-0000-0000-0000-000000000000";
 
-JSONObject paymentDetails = new JSONObject();
+JSONObject payload = new JSONObject();
 JSONObject chargeAmount = new JSONObject();
-chargeAmount.put("amount", "12.34");
+chargeAmount.put("amount", "14.00");
 chargeAmount.put("currencyCode", "USD");
-paymentDetails.put("chargeAmount", chargeAmount);
-payload.put("paymentDetails", paymentDetails);
+payload.put("chargeAmount", chargeAmount);
 
 try {
      response = webstoreClient.completeCheckoutSession(checkoutSessionId, payload);
@@ -425,6 +445,7 @@ try {
 ```java
 
 AmazonPayResponse response = null;
+String chargePermissionId = "S01-0000000-0000000";
 
 try {
      response = webstoreClient.getChargePermissions(chargePermissionId);
@@ -439,6 +460,8 @@ try {
 ```java
 
 AmazonPayResponse response = null;
+String chargePermissionId = "S01-0000000-0000000";
+
 JSONObject payload = new JSONObject();
 JSONObject merchantMetadata = new JSONObject();
 merchantMetadata.put("merchantReferenceId", "32-41-323141");
@@ -460,6 +483,8 @@ try {
 ```java
 
 AmazonPayResponse response = null;
+String chargePermissionId = "S01-0000000-0000000";
+
 JSONObject payload = new JSONObject();
 payload.put("closureReason", "Specify the reason here");
 payload.put("cancelPendingCharges", "false");
@@ -477,9 +502,10 @@ try {
 ```java
 
 AmazonPayResponse response = null;
+String chargeId = "S01-0000000-0000000-C000000";
 
 try {
-     response = webstoreClient.getCharge(chargesId);
+     response = webstoreClient.getCharge(chargeId);
 } catch (AmazonPayClientException e) {
     e.printStackTrace();
 }
@@ -497,7 +523,7 @@ JSONObject chargeAmount = new JSONObject();
 chargeAmount.put("amount", "1.23");
 chargeAmount.put("currencyCode", "USD");
 
-payload.put("chargePermissionId", "S01-3152594-4330637");
+payload.put("chargePermissionId", "S01-0000000-0000000");
 payload.put("chargeAmount", chargeAmount);
 payload.put("captureNow", false);
 // if payload.put("captureNow", true);
@@ -524,6 +550,7 @@ chargeId = response.getResponse().getString("chargeId");
 ```java
 
 AmazonPayResponse response = null;
+String chargeId = "S01-0000000-0000000-C000000";
 
 JSONObject payload = new JSONObject();
 JSONObject captureAmount = new JSONObject();
@@ -536,7 +563,7 @@ Map<String, String> header = new HashMap<String, String>();
 header.put("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
 
 try {
-     response = webstoreClient.captureCharge(chargesId, payload, header);
+     response = webstoreClient.captureCharge(chargeId, payload, header);
 } catch (AmazonPayClientException e) {
     e.printStackTrace();
 }
@@ -548,6 +575,7 @@ try {
 ```java
 
 AmazonPayResponse response = null;
+String chargeId = "S01-0000000-0000000-C000000";
 
 JSONObject payload = new JSONObject();
 payload.put("cancellationReason", "Buyer changed their mind");
@@ -565,6 +593,7 @@ try {
 ```java
 
 AmazonPayResponse response = null;
+String chargeId = "S01-0000000-0000000-C000000";
 
 JSONObject payload = new JSONObject();
 JSONObject refundAmount = new JSONObject();
@@ -592,6 +621,7 @@ refundId = response.getResponse().getString("refundId");
 ```java
 
 AmazonPayResponse response = null;
+String refundId = "S01-0000000-0000000-R000000";
 
 try {
      response = webstoreClient.getRefund(refundId);
@@ -800,7 +830,7 @@ List<String> processingStatuses = new ArrayList<>();
 processingStatuses.add("COMPLETED");
 
 queryParameters.put("reportTypes", reportTypes);
-queryParameters.put("reportTypes", processingStatuses);
+queryParameters.put("processingStatuses", processingStatuses);
 
 try {
      response = webstoreClient.getReports(queryParameters);
@@ -824,7 +854,7 @@ try {
 ## Amazon Checkout v2 Reporting APIs - GetReportDocument API
 ```java
 AmazonPayResponse response = null;
-String reportDocumentId = "1234567890";
+String reportDocumentId = "amzn1.tortuga.0.000000000-0000-0000-0000-000000000000.00000000000000";
 
 try {
      response = webstoreClient.getReportDocument(reportDocumentId);

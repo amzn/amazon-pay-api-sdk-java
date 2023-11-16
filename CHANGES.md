@@ -1,3 +1,10 @@
+### Version 2.6.1 - November 2023
+* Introducing new Merchant Onboarding & Account Management APIs, which allows our partners to onboard merchants programatically and as part of account management offer them creation, updation and deletion/dissociation capability.
+* Fixed connection pooling issue to enhance stability and performance.
+* Corrected README.md file.
+* Enable client request to configure connection, connect and read timeout.
+* Fixed Security risk
+
 ### Version 2.6.0 - March 2023
 * Introducing new v2 Reporting APIs. Reports allow you to retrieve consolidated data about Amazon Pay transactions and settlements. In addition to managing and downloading reports using Seller Central, Amazon Pay offers APIs to manage and retrieve your reports.
 * Introducing new signature generation algorithm AMZN-PAY-RSASSA-PSS-V2 & increasing salt length from 20 to 32.
