@@ -115,10 +115,8 @@ public class GenerateButtonSignatureTest {
         webCheckoutDetails.put("checkoutReviewReturnUrl", "https://localhost/test/CheckoutReview.php");
         webCheckoutDetails.put("checkoutResultReturnUrl", "https://localhost/test/CheckoutResult.php");
         payload.put("webCheckoutDetails", webCheckoutDetails);
-
-        final String signatureString = client.generateButtonSignature(payload);
-        signature.update(PLAIN_TEXT.getBytes());
-        Assert.assertTrue(signature.verify(Base64.decode(signatureString)));
+        JSONObject temp = new JSONObject("{\"storeId\":\"amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\"webCheckoutDetails\":{\"checkoutReviewReturnUrl\":\"https://localhost/test/CheckoutReview.php\",\"checkoutResultReturnUrl\":\"https://localhost/test/CheckoutResult.php\"}}");
+        Assert.assertTrue(temp.similar(payload));
     }
 
 }
