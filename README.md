@@ -17,7 +17,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
     <dependency>
         <groupId>software.amazon.pay</groupId>
         <artifactId>amazon-pay-api-sdk-java</artifactId>
-        <version>2.6.1</version>
+        <version>2.6.2</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
 To use the SDK in a Gradle project, add the following line to your build.gradle file::
 
 ```
-implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.1'
+implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.2'
 ```
 
 For legacy projects, you can just grab the binary [jar file](https://github.com/amzn/amazon-pay-api-sdk-java/releases) from the GitHub Releases page.
@@ -256,6 +256,9 @@ Please note that your solution provider account must have a pre-existing relatio
 * WebstoreClient: **updateAmazonPayAccount**(String merchantAccountId, JSONObject payload[, Map<String, String> header]) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId"
 * WebstoreClient: **deleteAmazonPayAccount**(String merchantAccountId[, Map<String, String> header]) &#8594; DELETE to "$version/merchantAccounts/$merchantAccountId"
 
+## Single Page Checkout API
+* WebstoreClient: **finalizeCheckoutSession**(String checkoutSessionId, JSONObject payload[, Map<String, String> header]) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/finalize"
+
 # Using Convenience Functions
 
 Four quick steps are needed to make an API call:
@@ -291,7 +294,7 @@ AmazonPayResponse response = instoreClient.merchantScan(payload);
    response will be an object with the following getters:
 
    * '**getStatus()**' - int HTTP status code (200, 201, etc.)
-   * '**getResponse()*' - the response serialized into a JSONObject
+   * '**getResponse()**' - the response serialized into a JSONObject
    * '**getRawResponse()**' - the raw JSON String response body received from Amazon Pay
    * '**getRequestId()**' - the Request ID from Amazon API gateway
    * '**getUrl()**' - the URL for the REST call the SDK calls, for troubleshooting purposes
@@ -929,6 +932,47 @@ String reportScheduleId = "1234567890";
 
 try {
      response = webstoreClient.cancelReportSchedule(reportScheduleId);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+```
+
+## AmazonPay Single Page Checkout APIs
+
+### Making a finalizeCheckoutSession request
+
+```java
+
+AmazonPayResponse response = null;
+JSONObject payload = new JSONObject();
+
+
+JSONObject shippingAddressDetails = new JSONObject();
+shippingAddressDetails.put("name", "Susie Smith");
+shippingAddressDetails.put("addressLine1","10 Ditka Ave");
+shippingAddressDetails.put("addressLine2","Suite 2500");
+shippingAddressDetails.put("city","Chicago");
+shippingAddressDetails.put("county",JSONObject.NULL);
+shippingAddressDetails.put("district",JSONObject.NULL);
+shippingAddressDetails.put("stateOrRegion","IL");
+shippingAddressDetails.put("postalCode","60602");
+shippingAddressDetails.put("countryCode","US");
+shippingAddressDetails.put("phoneNumber","800-000-0000");
+payload.put("shippingAddress", shippingAddressDetails);
+
+JSONObject chargeAmountDetails = new JSONObject();
+chargeAmountDetails.put("amount", "1");
+chargeAmountDetails.put("currencyCode", "USD");
+payload.put("chargeAmount", chargeAmountDetails);
+
+payload.put("paymentIntent", "Confirm");
+payload.put("canHandlePendingAuthorization","false");
+
+Map<String, String> header = new HashMap<String, String>();
+header.put("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
+
+try {
+     response = webstoreClient.finalizeCheckoutSession(checkoutSessionId, payload, header);
 } catch (AmazonPayClientException e) {
     e.printStackTrace();
 }

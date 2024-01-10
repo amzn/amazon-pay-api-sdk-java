@@ -1,3 +1,8 @@
+### Version 2.6.2 - January 2024
+* Setting UTF-8 as default encoding format during Signature generation.
+* Introducing new API called finalizeCheckoutSession which validates critical attributes in merchantMetadata then processes payment. Use this API to process payments for JavaScript-based integrations.
+* Corrected README.md file related to finalizeCheckoutSession API and Reporting APIs.
+
 ### Version 2.6.1 - November 2023
 * Introducing new Merchant Onboarding & Account Management APIs, which allows our partners to onboard merchants programatically and as part of account management offer them creation, updation and deletion/dissociation capability.
 * Fixed connection pooling issue to enhance stability and performance.

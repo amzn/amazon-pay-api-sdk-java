@@ -21,6 +21,7 @@ import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -129,7 +130,7 @@ public class SignatureHelper {
                 ServiceConstants.MASK_GENERATION_FUNCTION, mgf1ParameterSpec, saltLength, TRAILER_FIELD);
         signature.setParameter(pssParameterSpec);
         signature.initSign(privateKey);
-        signature.update(stringToSign.getBytes());
+        signature.update(stringToSign.getBytes(StandardCharsets.UTF_8));
 
         return new String(Base64.encode(signature.sign()));
     }
@@ -325,7 +326,7 @@ public class SignatureHelper {
      */
     private String hashThenHexEncode(final String requestPayload) throws NoSuchAlgorithmException {
         final MessageDigest md = MessageDigest.getInstance(ServiceConstants.HASH_ALGORITHM);
-        md.update(requestPayload.getBytes());
+        md.update(requestPayload.getBytes(StandardCharsets.UTF_8));
         final byte[] digest = md.digest();
 
         final String contentSha256 = new String((Hex.encode(digest)));
