@@ -1,3 +1,7 @@
+### Version 2.6.3 - August 2024
+* Introducing the getDisbursements API.
+* The `getDisbursements` API enables you to retrieve disbursement details based on a specified date range for settlement dates.
+
 ### Version 2.6.2 - January 2024
 * Setting UTF-8 as default encoding format during Signature generation.
 * Introducing new API called finalizeCheckoutSession which validates critical attributes in merchantMetadata then processes payment. Use this API to process payments for JavaScript-based integrations.

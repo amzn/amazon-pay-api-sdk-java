@@ -594,6 +594,20 @@ public class WebstoreClient extends AmazonPayClient {
     }
 
     /**
+     * The getDisbursements operation is used to receive disbursement details based on a date range of the settlement date specified in the request.
+     *
+     * @param queryParameters Query Parameters to be provided while calling API (e.g., startTime, endTime, pageSize, etc.)
+     * @param header Map&lt;String, String&gt; containing key-value pair of headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-date)
+     * @return The response from the getDisbursements API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue.
+     */
+    public AmazonPayResponse getDisbursements(final Map<String, List<String>> queryParameters, final Map<String, String> header) throws AmazonPayClientException {
+        final URI getDisbursementsURI = Util.getServiceURI(payConfiguration, ServiceConstants.DISBURSEMENTS);
+        final URI getDisbursementsFinalURI = getDisbursementsURI.resolve(getDisbursementsURI.getPath() + "/?" + convertQueryParamters(queryParameters));
+        return callAPI(getDisbursementsFinalURI, "GET", queryParameters, "", header);
+    }
+
+    /**
      * The finalizeCheckoutSession operation enables Pay to validate payment critical attributes and also update book-keeping attributes present in merchantMetadata
      *
      * @param checkoutSessionId Checkout Session ID provided by Checkout v2 service
