@@ -319,6 +319,34 @@ public class WebstoreClient extends AmazonPayClient {
     }
 
     /**
+     * The updateCharge operation is used to update the charge status of any PSP (Payment Service Provider) processed payment method (PPM) transactions.
+     *
+     * @param chargeId Charge ID provided by Checkout v2 service.
+     * @param payload JSONObject request body.
+     * @param header Map&lt;String, String&gt; containining key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken).
+     * @return The response from the updateCharge service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue.
+     */
+    public AmazonPayResponse updateCharge(final String chargeId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+        final URI chargesURI = Util.getServiceURI(payConfiguration, ServiceConstants.CHARGES);
+        final URI updateChargeURI = chargesURI.resolve(chargesURI.getPath() + "/" + chargeId);
+        final Map<String, String> headerMap = Util.updateHeader(header);
+        return callAPI(updateChargeURI, "PATCH", null, payload.toString(), headerMap);
+    }
+
+    /**
+     * The updateCharge operation is used to update the charge status of any PSP (Payment Service Provider) processed payment method (PPM) transactions.
+     *
+     * @param chargeId Charge ID provided by Checkout v2 service.
+     * @param payload JSONObject request body.
+     * @return The response from the updateCharge service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue.
+     */
+    public AmazonPayResponse updateCharge(final String chargeId, final JSONObject payload) throws AmazonPayClientException {
+        return updateCharge(chargeId, payload, null);
+    }
+
+    /**
      * The CaptureCharge operation is used to create a charges for a buyer
      * and pass the Id as part of button click.
      *

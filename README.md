@@ -17,7 +17,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
     <dependency>
         <groupId>software.amazon.pay</groupId>
         <artifactId>amazon-pay-api-sdk-java</artifactId>
-        <version>2.6.3</version>
+        <version>2.6.4</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
 To use the SDK in a Gradle project, add the following line to your build.gradle file::
 
 ```
-implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.3'
+implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.4'
 ```
 
 For legacy projects, you can just grab the binary [jar file](https://github.com/amzn/amazon-pay-api-sdk-java/releases) from the GitHub Releases page.
@@ -210,54 +210,55 @@ In the event of request throttling, the HTTPS call will be attempted up to three
 ## Alexa Delivery Trackers API
 [Amazon Pay Delivery Notifications Integration Guide](https://developer.amazon.com/docs/amazon-pay-onetime/delivery-order-notifications.html).
 
-* AmazonPayClient: **deliveryTracker**(JSONObject payload[, Map<String, String> header]) &#8594; POST to "$version/deliveryTrackers"
+* AmazonPayClient: **deliveryTracker**(JSONObject payload, Map<String, String> header) &#8594; POST to "$version/deliveryTrackers"
 
 ## Amazon Checkout v2 API
 [Amazon Pay Checkout v2 Integration Guide](https://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-api-v2/introduction.html)
 
 ### Amazon Checkout v2 Buyer object
-* WebstoreClient: **getBuyer**(String buyerToken[, Map<String, String> header]) &#8594; GET to "$version/buyers/$buyerToken"
+* WebstoreClient: **getBuyer**(String buyerToken, Map<String, String> header) &#8594; GET to "$version/buyers/$buyerToken"
 
 ### Amazon Checkout v2 CheckoutSession object
 * WebstoreClient: **createCheckoutSession**(JSONObject payload, Map<String, String> header) &#8594; POST to "$version/checkoutSessions"
-* WebstoreClient: **getCheckoutSession**(String checkoutSessionId[, Map<String, String> header]) &#8594; GET to "$version/checkoutSessions/$checkoutSessionId"
-* WebstoreClient: **updateCheckoutSession**(String checkoutSessionId, JSONObject payload[, Map<String, String> header]) &#8594; PATCH to "$version/checkoutSessions/$checkoutSessionId"
-* WebstoreClient: **completeCheckoutSession**(String checkoutSessionId, JSONObject payload[, Map<String, String> header]) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/complete"
+* WebstoreClient: **getCheckoutSession**(String checkoutSessionId, Map<String, String> header) &#8594; GET to "$version/checkoutSessions/$checkoutSessionId"
+* WebstoreClient: **updateCheckoutSession**(String checkoutSessionId, JSONObject payload, Map<String, String> header) &#8594; PATCH to "$version/checkoutSessions/$checkoutSessionId"
+* WebstoreClient: **completeCheckoutSession**(String checkoutSessionId, JSONObject payload, Map<String, String> header) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/complete"
 
 ### Amazon Checkout v2 ChargePermission object
-* WebstoreClient: **getChargePermission**(String chargePermissionId[, Map<String, String> header]) &#8594; GET to "$version/chargePermissions/$chargePermissionId"
-* WebstoreClient: **updateChargePermission**(String chargePermissionId, JSONObject payload[, Map<String, String> header]) &#8594; PATCH to "$version/chargePermissions/$chargePermissionId"
-* WebstoreClient: **closeChargePermission**(String chargePermissionId, JSONObject payload[, Map<String, String> header]) &#8594; DELETE to "$version/chargePermissions/$chargePermissionId/close"
+* WebstoreClient: **getChargePermission**(String chargePermissionId, Map<String, String> header) &#8594; GET to "$version/chargePermissions/$chargePermissionId"
+* WebstoreClient: **updateChargePermission**(String chargePermissionId, JSONObject payload, Map<String, String> header) &#8594; PATCH to "$version/chargePermissions/$chargePermissionId"
+* WebstoreClient: **closeChargePermission**(String chargePermissionId, JSONObject payload, Map<String, String> header) &#8594; DELETE to "$version/chargePermissions/$chargePermissionId/close"
 
 ### Amazon Checkout v2 Charge object
 * WebstoreClient: **createCharge**(payload, Map<String, String> header) &#8594; POST to "$version/charges"
-* WebstoreClient: **getCharge**(String chargeId[, Map<String, String> header]) &#8594; GET to "$version/charges/$chargeId"
-* WebstoreClient: **captureCharge**(String chargeId, JSONObject payload[, Map<String, String> header]) &#8594; POST to "$version/charges/$chargeId/capture"
-* WebstoreClient: **cancelCharge**(String chargeId, JSONObject payload[, Map<String, String> header]) &#8594; DELETE to "$version/charges/$chargeId/cancel"
+* WebstoreClient: **getCharge**(String chargeId, Map<String, String> header) &#8594; GET to "$version/charges/$chargeId"
+* WebstoreClient: **updateCharge**(String chargeId, JSONObject payload, Map<String, String> header) &#8594; PATCH to "$version/charges/$chargeId"
+* WebstoreClient: **captureCharge**(String chargeId, JSONObject payload, Map<String, String> header) &#8594; POST to "$version/charges/$chargeId/capture"
+* WebstoreClient: **cancelCharge**(String chargeId, JSONObject payload, Map<String, String> header) &#8594; DELETE to "$version/charges/$chargeId/cancel"
 
 ### Amazon Checkout v2 Refund object
 * WebstoreClient: **createRefund**(payload, Map<String, String> header) &#8594; POST to "$version/refunds"
-* WebstoreClient: **getRefund**(String refundId[, Map<String, String> header]) &#8594; GET to "$version/refunds/$refundId"
+* WebstoreClient: **getRefund**(String refundId, Map<String, String> header) &#8594; GET to "$version/refunds/$refundId"
 
 ## In-Store API
 Please contact your Amazon Pay Account Manager before using the In-Store API calls in a Production environment to obtain a copy of the In-Store Integration Guide.
 
-* InstoreClient: **merchantScan**(JSONObject scanRequest[, Map<String, String> header]) &#8594; POST to "$version/in-store/merchantScan"
-* InstoreClient: **charge**(JSONObject chargeRequest[, Map<String, String> header]) &#8594; POST to "$version/in-store/charge"
-* InstoreClient: **refund**(JSONObject refundRequest[, Map<String, String> header]) &#8594; POST to "$version/in-store/refund"
+* InstoreClient: **merchantScan**(JSONObject scanRequest, Map<String, String> header) &#8594; POST to "$version/in-store/merchantScan"
+* InstoreClient: **charge**(JSONObject chargeRequest, Map<String, String> header) &#8594; POST to "$version/in-store/charge"
+* InstoreClient: **refund**(JSONObject refundRequest, Map<String, String> header) &#8594; POST to "$version/in-store/refund"
 
 ## Authorization Tokens API
 Please note that your solution provider account must have a pre-existing relationship (valid and active MWS authorization token) with the merchant account in order to use this function.
 
-* AmazonPayClient: **getAuthorizationToken**(String mwsAuthToken, String merchantId[, Map<String, String> header]) &#8594; GET to "$version/authorizationTokens/$mwsAuthToken?merchantId=$merchantId"
+* AmazonPayClient: **getAuthorizationToken**(String mwsAuthToken, String merchantId, Map<String, String> header) &#8594; GET to "$version/authorizationTokens/$mwsAuthToken?merchantId=$merchantId"
 
  ### Amazon Checkout v2 Merchant Onboarding & Account Management object
-* WebstoreClient: **registerAmazonPayAccount**(JSONObject payload[, Map<String, String> header]) &#8594; POST to "$version/merchantAccounts"
-* WebstoreClient: **updateAmazonPayAccount**(String merchantAccountId, JSONObject payload[, Map<String, String> header]) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId"
-* WebstoreClient: **deleteAmazonPayAccount**(String merchantAccountId[, Map<String, String> header]) &#8594; DELETE to "$version/merchantAccounts/$merchantAccountId"
+* WebstoreClient: **registerAmazonPayAccount**(JSONObject payload, Map<String, String> header) &#8594; POST to "$version/merchantAccounts"
+* WebstoreClient: **updateAmazonPayAccount**(String merchantAccountId, JSONObject payload, Map<String, String> header) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId"
+* WebstoreClient: **deleteAmazonPayAccount**(String merchantAccountId, Map<String, String> header) &#8594; DELETE to "$version/merchantAccounts/$merchantAccountId"
 
 ## Single Page Checkout API
-* WebstoreClient: **finalizeCheckoutSession**(String checkoutSessionId, JSONObject payload[, Map<String, String> header]) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/finalize"
+* WebstoreClient: **finalizeCheckoutSession**(String checkoutSessionId, JSONObject payload, Map<String, String> header) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/finalize"
 
 # Using Convenience Functions
 
@@ -545,6 +546,30 @@ try {
     e.printStackTrace();
 }
 chargeId = response.getResponse().getString("chargeId");
+
+```
+
+### Making a updateCharge request
+
+```java
+
+final String chargeId = "S03-0000000-0000000-C000000";
+
+final Map<String, String> header = Collections.singletonMap("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
+
+JSONObject payload = new JSONObject();
+
+JSONObject statusDetails = new JSONObject();
+statusDetails.put("state", "Canceled");
+statusDetails.put("reasonCode", "ExpiredUnused");
+
+payload.put("statusDetails", statusDetails);
+
+try {
+    final AmazonPayResponse response =  webstoreClient.updateCharge(chargeId, payload, header);
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
 
 ```
 

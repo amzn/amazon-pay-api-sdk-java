@@ -1,3 +1,7 @@
+### Version 2.6.4 - November 2024
+* Introducing the updateCharge API.
+* The `updateCharge` API enables you to update the charge status of any PSP (Payment Service Provider) processed payment method (PPM) transactions.
+
 ### Version 2.6.3 - August 2024
 * Introducing the getDisbursements API.
 * The `getDisbursements` API enables you to retrieve disbursement details based on a specified date range for settlement dates.
