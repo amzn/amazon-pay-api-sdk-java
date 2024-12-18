@@ -53,7 +53,7 @@ openssl rsa -in private.txt -pubout > public.pub
 The first command above generates a private key and the second line uses the private key to generate a public key.
 
 To associate the key with your account, follow the instructions here to
-[Get your Public Key ID](http://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-checkout/get-set-up-for-integration.html#4-get-your-public-key-id).
+[Get your Public Key ID](https://developer.amazon.com/docs/amazon-pay-checkout/get-set-up-for-integration.html#5-get-your-public-key-id).
 
 ## Namespace
 
@@ -213,7 +213,7 @@ In the event of request throttling, the HTTPS call will be attempted up to three
 * AmazonPayClient: **deliveryTracker**(JSONObject payload, Map<String, String> header) &#8594; POST to "$version/deliveryTrackers"
 
 ## Amazon Checkout v2 API
-[Amazon Pay Checkout v2 Integration Guide](https://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-api-v2/introduction.html)
+[Amazon Pay Checkout v2 Integration Guide](https://developer.amazon.com/docs/amazon-pay-api-v2/introduction.html)
 
 ### Amazon Checkout v2 Buyer object
 * WebstoreClient: **getBuyer**(String buyerToken, Map<String, String> header) &#8594; GET to "$version/buyers/$buyerToken"
@@ -341,7 +341,7 @@ try {
 
 ```
 ## Amazon Pay Checkout v2 API
-[Checkout v2 Integration Guide](https://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-api-v2/introduction.html)
+[Checkout v2 Integration Guide](https://developer.amazon.com/docs/amazon-pay-api-v2/introduction.html)
 
 These methods are available in Webstore Client.
 
