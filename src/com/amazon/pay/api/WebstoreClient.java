@@ -681,4 +681,114 @@ public class WebstoreClient extends AmazonPayClient {
         }
         return result.toString();
     }
+
+    // ----------------------------------- CV2 DISPUTE APIS -----------------------------------
+
+    /**
+     * The createDispute operation is used to notify Amazon of a newly created chargeback dispute by a buyer on a
+     * transaction processed by the PSP (Payment Service Provider), ensuring the dispute is properly accounted for in
+     * the Amazon Pay systems.
+     *
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken, x-amz-pay-date)
+     * @return The response from the createDispute service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse createDispute(final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+        final URI createDisputeURI = Util.getServiceURI(payConfiguration, ServiceConstants.DISPUTES);
+        return callAPI(createDisputeURI, "POST", null, payload.toString(), header);
+    }
+
+    /**
+     * The updateDispute operation is used to notify Amazon of the closure status of a chargeback dispute initiated by a
+     * buyer for orders processed by a partner PSP (Payment Service Provider), ensuring proper accounting within
+     * the Amazon systems.
+     *
+     * @param disputeId Dispute ID provided while calling the API
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-authtoken, x-amz-pay-date)
+     * @return The response from the updateDispute service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse updateDispute(final String disputeId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+        final URI updateDisputeURI = Util.getServiceURI(payConfiguration, ServiceConstants.DISPUTES);
+        final URI updateDisputeFinalURI = updateDisputeURI.resolve(updateDisputeURI.getPath() + "/" + disputeId);
+        return callAPI(updateDisputeFinalURI, "PATCH", null, payload.toString(), header);
+    }
+
+    /**
+     * The updateDispute operation is used to notify Amazon of the closure status of a chargeback dispute initiated by a
+     * buyer for orders processed by a partner PSP (Payment Service Provider), ensuring proper accounting within
+     * the Amazon systems.
+     *
+     * @param disputeId Dispute ID provided while calling the API
+     * @param payload JSONObject request body
+     * @return The response from the updateDispute service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse updateDispute(final String disputeId, final JSONObject payload) throws AmazonPayClientException {
+        return updateDispute(disputeId, payload, null);
+    }
+
+    /**
+     * The contestDispute operation is used by the partner, on behalf of the merchant, to formally contest a dispute
+     * managed by Amazon, requiring the submission of necessary evidence files within the specified
+     * Dispute Window (11 days for Chargeback, 7 days for A-Z Claims).
+     *
+     * @param disputeId Dispute ID provided while calling the API
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-authtoken, x-amz-pay-date)
+     * @return The response from the contestDispute service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse contestDispute(final String disputeId, final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+        final URI contestDisputeURI = Util.getServiceURI(payConfiguration, ServiceConstants.DISPUTES);
+        final URI contestDisputeFinalURI = contestDisputeURI.resolve(contestDisputeURI.getPath() + "/" + disputeId + "/contest");
+        return callAPI(contestDisputeFinalURI, "POST", null, payload.toString(), header);
+    }
+
+    /**
+     * The contestDispute operation is used by the partner, on behalf of the merchant, to formally contest a dispute
+     * managed by Amazon, requiring the submission of necessary evidence files within the specified
+     * Dispute Window (11 days for Chargeback, 7 days for A-Z Claims).
+     *
+     * @param disputeId Dispute ID provided while calling the API
+     * @param payload JSONObject request body
+     * @return The response from the contestDispute service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse contestDispute(final String disputeId, final JSONObject payload) throws AmazonPayClientException {
+        return contestDispute(disputeId, payload, null);
+    }
+
+    // ----------------------------------- CV2 FILE APIS -----------------------------------
+
+    /**
+     * The uploadFile operation is utilised by PSPs (Payment Service Provider) to upload file-based evidence when a
+     * merchant contests a dispute, providing the necessary reference ID to the evidence file as part of
+     * the Update Dispute API process.
+     *
+     * @param payload JSONObject request body
+     * @param header Map&lt;String, String&gt; containing key-value pair of required headers (e.g., keys such as x-amz-pay-idempotency-key, x-amz-pay-authtoken, x-amz-pay-date)
+     * @return The response from the uploadFile service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse uploadFile(final JSONObject payload, final Map<String, String> header) throws AmazonPayClientException {
+        final URI uploadFileURI = Util.getServiceURI(payConfiguration, ServiceConstants.FILES);
+        return callAPI(uploadFileURI, "POST", null, payload.toString(), header);
+    }
+
+    /**
+     * The uploadFile operation is utilised by PSPs (Payment Service Provider) to upload file-based evidence when a
+     * merchant contests a dispute, providing the necessary reference ID to the evidence file as part of
+     * the Update Dispute API process.
+     *
+     * @param payload JSONObject request body
+     * @return The response from the uploadFile service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to bad request or other issue
+     */
+    public AmazonPayResponse uploadFile(final JSONObject payload) throws AmazonPayClientException {
+        return uploadFile(payload, null);
+    }
+
 }

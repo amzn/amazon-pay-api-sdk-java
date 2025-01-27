@@ -26,7 +26,7 @@ public class ServiceConstants {
     public static final Map<Region, String> endpointMappings;
     public static final Map<String, Integer> serviceErrors;
 
-    public static final String APPLICATION_LIBRARY_VERSION = "2.6.4";
+    public static final String APPLICATION_LIBRARY_VERSION = "2.6.5";
     public static final String GITHUB_SDK_NAME = "amazon-pay-api-sdk-java";
     public static final String AMAZON_PAY_API_VERSION = "v2";
 
@@ -69,6 +69,12 @@ public class ServiceConstants {
 
     // Merchant Onboarding & Account Management APIs Constants
     public static final String ACCOUNT_MANAGEMENT = AMAZON_PAY_API_VERSION + "/merchantAccounts";
+
+    // CV2 Dispute APIs Constants
+    public static final String DISPUTES = AMAZON_PAY_API_VERSION + "/disputes";
+
+    // CV2 File APIs Constants
+    public static final String FILES = AMAZON_PAY_API_VERSION + "/files";
 
     static {
         Map<Region, String> endpointMappingsMap = new HashMap<>();

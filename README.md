@@ -17,7 +17,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
     <dependency>
         <groupId>software.amazon.pay</groupId>
         <artifactId>amazon-pay-api-sdk-java</artifactId>
-        <version>2.6.4</version>
+        <version>2.6.5</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
 To use the SDK in a Gradle project, add the following line to your build.gradle file::
 
 ```
-implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.4'
+implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.5'
 ```
 
 For legacy projects, you can just grab the binary [jar file](https://github.com/amzn/amazon-pay-api-sdk-java/releases) from the GitHub Releases page.
@@ -239,6 +239,12 @@ In the event of request throttling, the HTTPS call will be attempted up to three
 ### Amazon Checkout v2 Refund object
 * WebstoreClient: **createRefund**(payload, Map<String, String> header) &#8594; POST to "$version/refunds"
 * WebstoreClient: **getRefund**(String refundId, Map<String, String> header) &#8594; GET to "$version/refunds/$refundId"
+
+### Amazon Checkout v2 Dispute object
+* WebstoreClient: **createDispute**(JSONObject payload, Map<String, String> header) &#8594; POST to "$version/disputes"
+* WebstoreClient: **updateDispute**(String disputeId, JSONObject payload, Map<String, String> header) &#8594; PATCH to "$version/disputes/$disputeId"
+* WebstoreClient: **contestDispute**(String disputeId, JSONObject payload, Map<String, String> header) &#8594; POST to "$version/disputes/$disputeId/contest"
+* WebstoreClient: **uploadFile**(JSONObject payload, Map<String, String> header) &#8594; POST to "$version/files"
 
 ## In-Store API
 Please contact your Amazon Pay Account Manager before using the In-Store API calls in a Production environment to obtain a copy of the In-Store Integration Guide.
@@ -1024,5 +1030,188 @@ try {
      response = webstoreClient.finalizeCheckoutSession(checkoutSessionId, payload, header);
 } catch (AmazonPayClientException e) {
     e.printStackTrace();
+}
+```
+
+## AmazonPay Dispute APIs for PSPs.
+
+### CreateDispute API request
+```java
+final Map<String, String> header = Collections.singletonMap("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
+
+final JSONObject payload = createDisputePayload();
+
+try {
+    final AmazonPayResponse response =  webstoreClient.createDispute(payload, header);
+    System.out.println("Response : " + response.toString());
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+
+// Create Dispute API Payload
+private JSONObject createDisputePayload() throws JSONException {
+    final String chargeId = "P03-0000000-0000000-C0000000";
+    final String providerDisputeId = "psp_dispute_1234";
+    final String amount = "1";
+    final String currencyCode = "JPY";
+    final DisputeFilingReason filingReason = DisputeFilingReason.PRODUCT_NOT_RECEIVED;
+    final DisputeState state = DisputeState.ACTION_REQUIRED;
+    final DisputeReasonCode reasonCode = DisputeReasonCode.MERCHANT_RESPONSE_REQUIRED;
+    final String reasonDescription = "Merchant needs to provide a response";
+
+    // Time the dispute was filed
+    final long filingTimestamp = System.currentTimeMillis() / 1000L;
+    // Time window by which merchant should respond to a dispute request, otherwise dispute will be resolved in buyer's favour.
+    final long merchantResponseDeadline = filingTimestamp + (07 * 24 * 60 * 60);  // For 07 Days Time Period.
+
+    return new JSONObject()
+                .put("chargeId", chargeId)
+                .put("providerMetadata", createProviderMetadata(providerDisputeId))
+                .put("disputeAmount", createDisputeAmount(amount, currencyCode))
+                .put("filingReason", filingReason.getDisputeFilingReason())
+                .put("statusDetails", createStatusDetails(null, state, reasonCode, reasonDescription))
+                .put("filingTimestamp", filingTimestamp)
+                .put("merchantResponseDeadline", merchantResponseDeadline);
+}
+
+private JSONObject createProviderMetadata(String providerDisputeId) throws JSONException {
+    final JSONObject providerMetadata = new JSONObject();
+    providerMetadata.put("providerDisputeId", providerDisputeId);
+    return providerMetadata;
+}
+
+private JSONObject createDisputeAmount(String amount, String currencyCode) throws JSONException {
+    final JSONObject disputeAmount = new JSONObject();
+    disputeAmount.put("amount", amount);
+    disputeAmount.put("currencyCode", currencyCode);
+    return disputeAmount;
+}
+
+private JSONObject createStatusDetails(DisputeResolution resolution, DisputeState state, DisputeReasonCode reasonCode, String reasonDescription) throws JSONException {
+    final JSONObject statusDetails = new JSONObject();
+
+    if (resolution != null) {
+        statusDetails.put("resolution", resolution.getDisputeResolution());
+    }
+    if (state != null) {
+        statusDetails.put("state", state.getDisputeState());
+    }
+    if (reasonCode != null) {
+        statusDetails.put("reasonCode", reasonCode.getDisputeReasonCode());
+    }
+    if (reasonDescription != null && !reasonDescription.isEmpty()) {
+        statusDetails.put("reasonDescription", reasonDescription);
+    }
+
+    return statusDetails;
+}
+```
+
+### UpdateDispute API request
+```java
+final String disputeId = "P03-0000000-0000000-B0000000";
+final JSONObject payload = updateDisputePayload();
+
+try {
+    final AmazonPayResponse response = webstoreClient.updateDispute(disputeId, payload);
+    System.out.println("Response : " + response.toString());
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+
+// Update Dispute API Payload
+private JSONObject updateDisputePayload() throws JSONException {
+    final DisputeState state = DisputeState.CLOSED;
+    final DisputeResolution resolution = DisputeResolution.MERCHANT_WON;
+    final DisputeReasonCode reasonCode = DisputeReasonCode.CHARGEBACK_FILED;
+    final String reasonDescription = "Buyer has filed chargeback besides Claim dispute";
+
+    // Current Unix timestamp (seconds since epoch)
+    final long closureTimestamp = System.currentTimeMillis() / 1000L;
+
+    return new JSONObject()
+            .put("statusDetails", createStatusDetails(resolution, state, reasonCode, reasonDescription))
+            .put("closureTimestamp", closureTimestamp);
+}
+
+private JSONObject createStatusDetails(DisputeResolution resolution, DisputeState state, DisputeReasonCode reasonCode, String reasonDescription) throws JSONException {
+    final JSONObject statusDetails = new JSONObject();
+
+    if (resolution != null) {
+        statusDetails.put("resolution", resolution.getDisputeResolution());
+    }
+    if (state != null) {
+        statusDetails.put("state", state.getDisputeState());
+    }
+    if (reasonCode != null) {
+        statusDetails.put("reasonCode", reasonCode.getDisputeReasonCode());
+    }
+    if (reasonDescription != null && !reasonDescription.isEmpty()) {
+        statusDetails.put("reasonDescription", reasonDescription);
+    }
+
+    return statusDetails;
+}
+```
+
+### ContestDispute API request
+```java
+final Map<String, String> header = Collections.singletonMap("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
+final String disputeId = "P03-0000000-0000000-B0000000";
+final JSONObject payload = contestDisputePayload();
+
+try {
+    final AmazonPayResponse response = webstoreClient.contestDispute(disputeId, payload, header);
+    System.out.println("Response : " + response.toString());
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+
+// Contest Dispute API Payload
+private JSONObject contestDisputePayload() throws JSONException {
+    // Evidence 1
+    final EvidenceType evidenceType1 = EvidenceType.TRACKING_NUMBER;
+    final String fileId1 = null;
+    final String evidenceText1 = "raw text supporting merchant evidence";
+    // Evidence 2
+    final EvidenceType evidenceType2 = EvidenceType.CUSTOMER_SIGNATURE;
+    final String fileId2 = "customer_signature_file_id";
+    final String evidenceText2 = null;
+
+    return new JSONObject()
+            .append("merchantEvidences", createMerchantEvidence(evidenceType1, fileId1, evidenceText1))
+            .append("merchantEvidences", createMerchantEvidence(evidenceType2, fileId2, evidenceText2));
+}
+
+private JSONObject createMerchantEvidence(EvidenceType evidenceType, String fileId, String evidenceText) throws JSONException {
+    final JSONObject evidence = new JSONObject();
+    evidence.put("evidenceType", evidenceType.getEvidenceType());
+    evidence.put("fileId", fileId);
+    evidence.put("evidenceText", evidenceText);
+    return evidence;
+}
+```
+
+### UploadFile API request
+```java
+final Map<String, String> header = Collections.singletonMap("x-amz-pay-idempotency-key", UUID.randomUUID().toString().replace("-", ""));
+
+final JSONObject payload = uploadFilePayload();
+
+try {
+    final AmazonPayResponse response =  webstoreClient.uploadFile(payload, header);
+    System.out.println("Response : " + response.toString());
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
+}
+
+// Upload File API Payload
+private JSONObject uploadFilePayload() throws JSONException {
+    final EvidenceDocumentFileType documentFileType = EvidenceDocumentFileType.JPG;
+    final DisputeFilePurpose disputeFilePurpose = DisputeFilePurpose.DISPUTE_EVIDENCE;
+
+    return new JSONObject()
+            .put("type", documentFileType.getEvidenceDocumentFileType())
+            .put("purpose", disputeFilePurpose.getDisputeFilePurpose());
 }
 ```
