@@ -17,7 +17,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
     <dependency>
         <groupId>software.amazon.pay</groupId>
         <artifactId>amazon-pay-api-sdk-java</artifactId>
-        <version>2.6.5</version>
+        <version>2.6.6</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
 To use the SDK in a Gradle project, add the following line to your build.gradle file::
 
 ```
-implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.5'
+implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.6'
 ```
 
 For legacy projects, you can just grab the binary [jar file](https://github.com/amzn/amazon-pay-api-sdk-java/releases) from the GitHub Releases page.
@@ -265,6 +265,11 @@ Please note that your solution provider account must have a pre-existing relatio
 
 ## Single Page Checkout API
 * WebstoreClient: **finalizeCheckoutSession**(String checkoutSessionId, JSONObject payload, Map<String, String> header) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/finalize"
+
+### Amazon Checkout v2 Account Management APIs
+* **createMerchantAccount**(payload, headers) &#8594; POST to "version/merchantAccounts"
+* **updateMerchantAccount**(merchantAccountId, payload, headers) &#8594; PATCH to "version/merchantAccounts/merchantAccountId"
+* **merchantAccountClaim**(merchantAccountId, payload, headers) &#8594; POST to "version/merchantAccounts/merchantAccountId/claim"
 
 # Using Convenience Functions
 
@@ -1065,13 +1070,13 @@ private JSONObject createDisputePayload() throws JSONException {
     final long merchantResponseDeadline = filingTimestamp + (07 * 24 * 60 * 60);  // For 07 Days Time Period.
 
     return new JSONObject()
-                .put("chargeId", chargeId)
-                .put("providerMetadata", createProviderMetadata(providerDisputeId))
-                .put("disputeAmount", createDisputeAmount(amount, currencyCode))
-                .put("filingReason", filingReason.getDisputeFilingReason())
-                .put("statusDetails", createStatusDetails(null, state, reasonCode, reasonDescription))
-                .put("filingTimestamp", filingTimestamp)
-                .put("merchantResponseDeadline", merchantResponseDeadline);
+            .put("chargeId", chargeId)
+            .put("providerMetadata", createProviderMetadata(providerDisputeId))
+            .put("disputeAmount", createDisputeAmount(amount, currencyCode))
+            .put("filingReason", filingReason.getDisputeFilingReason())
+            .put("statusDetails", createStatusDetails(null, state, reasonCode, reasonDescription))
+            .put("filingTimestamp", filingTimestamp)
+            .put("merchantResponseDeadline", merchantResponseDeadline);
 }
 
 private JSONObject createProviderMetadata(String providerDisputeId) throws JSONException {
@@ -1213,5 +1218,190 @@ private JSONObject uploadFilePayload() throws JSONException {
     return new JSONObject()
             .put("type", documentFileType.getEvidenceDocumentFileType())
             .put("purpose", disputeFilePurpose.getDisputeFilePurpose());
+}
+```
+
+### CreateMerchantAccount API Request
+
+```java
+final AccountManagementClient client = new AccountManagementClient(payConfiguration);
+final JSONObject createMerchantAccountPayload = getCreateMerchantAccountAPI();
+try {
+    final AmazonPayResponse response = client.createMerchantAccount(createMerchantAccountPayload, new HashMap<>());
+    System.out.println(response.getRawResponse());
+} catch (AmazonPayClientException e){
+    e.printStackTrace();
+}
+
+private static JSONObject getCreateMerchantAccountAPI() throws JSONException {
+    JSONObject createMerchantAccountPayload = new JSONObject();
+
+    createMerchantAccountPayload.put("uniqueReferenceId", "Hanabi" + UUID.randomUUID());
+    createMerchantAccountPayload.put("ledgerCurrency", "JPY");
+
+    // Business Info
+    JSONObject businessInfo = new JSONObject();
+    businessInfo.put("email", "rufus" + UUID.randomUUID() + "@abc.com");
+    businessInfo.put("businessType", "CORPORATE");
+    businessInfo.put("businessLegalName", "密林コーヒー");
+    businessInfo.put("businessCategory", "Beauty");
+
+    // Business Address
+    JSONObject businessAddress = new JSONObject();
+    businessAddress.put("addressLine1", "扇町４丁目５－");
+    businessAddress.put("addressLine2", "フルフィルメントセンタービル");
+    businessAddress.put("city", "小田原市");
+    businessAddress.put("stateOrRegion", "神奈川県");
+    businessAddress.put("postalCode", "250-0001");
+    businessAddress.put("countryCode", "JP");
+
+    // Phone Number
+    JSONObject phoneNumber = new JSONObject();
+    phoneNumber.put("countryCode", "81");
+    phoneNumber.put("number", "2062062061");
+
+    businessAddress.put("phoneNumber", phoneNumber);
+    businessInfo.put("businessAddress", businessAddress);
+
+    // Business Display Name & Annual Sales Volume
+    businessInfo.put("businessDisplayName", "Rufus's Cafe");
+
+    JSONObject annualSalesVolume = new JSONObject();
+    annualSalesVolume.put("amount", "100000");
+    annualSalesVolume.put("currencyCode", "JPY");
+    businessInfo.put("annualSalesVolume", annualSalesVolume);
+
+    businessInfo.put("countryOfEstablishment", "JP");
+
+    // Customer Support Info
+    JSONObject customerSupportInformation = new JSONObject();
+    customerSupportInformation.put("customerSupportEmail", "test.merchant" + UUID.randomUUID() + "@abc.com");
+
+    JSONObject customerSupportPhoneNumber = new JSONObject();
+    customerSupportPhoneNumber.put("countryCode", "1");
+    customerSupportPhoneNumber.put("number", "1234567");
+    customerSupportPhoneNumber.put("extension", "123");
+
+    customerSupportInformation.put("customerSupportPhoneNumber", customerSupportPhoneNumber);
+    businessInfo.put("customerSupportInformation", customerSupportInformation);
+
+    createMerchantAccountPayload.put("businessInfo", businessInfo);
+
+    // Beneficiary Owners
+    JSONArray beneficiaryOwners = new JSONArray();
+
+    JSONObject owner1 = new JSONObject();
+    owner1.put("personId", "BO1");
+    owner1.put("personFullName", "Rufus Rufus");
+    owner1.put("residentialAddress", businessAddress); // Reuse the same address
+
+    beneficiaryOwners.put(owner1);
+
+    createMerchantAccountPayload.put("beneficiaryOwners", beneficiaryOwners);
+
+    // Primary Contact Person
+    JSONObject primaryContactPerson = new JSONObject();
+    primaryContactPerson.put("personFullName", "Rufus Rufus");
+    createMerchantAccountPayload.put("primaryContactPerson", primaryContactPerson);
+
+    // Integration Info
+    JSONObject integrationInfo = new JSONObject();
+    JSONArray ipnEndpointUrls = new JSONArray();
+    ipnEndpointUrls.put("https://cloudfront.net/ipnendpoint");
+    ipnEndpointUrls.put("https://cloudfront.net/ipnendpoint");
+    integrationInfo.put("ipnEndpointUrls", ipnEndpointUrls);
+    createMerchantAccountPayload.put("integrationInfo", integrationInfo);
+
+    JSONArray stores = new JSONArray();
+
+    // Create a store object
+    JSONObject store = new JSONObject();
+
+    // Mandatory: Domain URLs
+    JSONArray domainUrls = new JSONArray();
+    domainUrls.put("https://www.rufus.com");
+    store.put("domainUrls", domainUrls);
+
+    // Optional: Store Name & Privacy Policy URL
+    store.put("storeName", "Rufus's Cafe");
+    store.put("privacyPolicyUrl", "http://www.rufus.com/privacy");
+
+    // Optional: Store Status
+    JSONObject storeStatus = new JSONObject();
+    storeStatus.put("state", "Active"); // ENUM type
+
+    // Remove reasonCode if not required
+    // storeStatus.put("reasonCode", JSONObject.NULL);
+
+    store.put("storeStatus", storeStatus);
+
+    // Add the store object to the stores array
+    stores.put(store);
+
+    // Add the stores array to the payload
+    createMerchantAccountPayload.put("stores", stores);
+
+    // Merchant Status
+    JSONObject merchantStatus = new JSONObject();
+    merchantStatus.put("statusProvider", "Ayden");
+    merchantStatus.put("state", "ACTIVE");
+    merchantStatus.put("reasonCode", JSONObject.NULL);
+    createMerchantAccountPayload.put("merchantStatus", merchantStatus);
+
+    // Print the final JSON
+    System.out.println(createMerchantAccountPayload.toString(4)); // Pretty print JSON
+
+    return createMerchantAccountPayload;
+}
+```
+
+### UpdateMerchantAccount API Request
+
+```java
+final JSONObject updateMerchantAccountPayload = getUpdateMerchantAccountAPI();
+final Map<String, String> header = new HashMap<>();
+header.put("x-amz-pay-authToken", "AUTH_TOKEN");
+try {
+    final AmazonPayResponse response = client.updateMerchantAccount("AXXXXXXX", updateMerchantAccountPayload, header);
+    System.out.println(response.getRawResponse());
+} catch (AmazonPayClientException e){
+    e.printStackTrace();
+}
+
+private static JSONObject getUpdateMerchantAccountAPI() throws JSONException {
+    JSONObject businessInfo = new JSONObject();
+    JSONObject businessAddress = new JSONObject();
+    JSONObject phoneNumber = new JSONObject();
+
+    phoneNumber.put("countryCode", "81");
+    phoneNumber.put("number", "2062062061");
+
+    businessAddress.put("addressLine1", "扇町４丁目５－");
+    businessAddress.put("addressLine2", "フルフィルメントセンタービル");
+    businessAddress.put("city", "小田原市");
+    businessAddress.put("stateOrRegion", "神奈川県");
+    businessAddress.put("postalCode", "250-0001");
+    businessAddress.put("countryCode", "JP");
+    businessAddress.put("phoneNumber", phoneNumber);
+
+    businessInfo.put("businessAddress", businessAddress);
+
+    JSONObject payload = new JSONObject();
+    payload.put("businessInfo", businessInfo);
+
+    return payload;
+}
+```
+
+### MerchantAccountClaim API Request
+
+```java
+final JSONObject payload = new JSONObject();
+payload.put("uniqueReferenceId", "xxxxxxx-xxxx-xxxx-xxxx-xxxxxx");
+try {
+    final AmazonPayResponse response = client.merchantAccountClaim("AXXXXXXX", payload, new HashMap<>());
+    System.out.println(response.getRawResponse());
+} catch (AmazonPayClientException e){
+    e.printStackTrace();
 }
 ```

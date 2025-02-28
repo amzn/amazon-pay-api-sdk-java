@@ -38,7 +38,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
 import org.apache.http.util.EntityUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
 import com.amazon.pay.api.types.AmazonSignatureAlgorithm;
@@ -304,6 +304,7 @@ public class AmazonPayClient {
      */
     protected CloseableHttpClient getClosableHttpClientWithConnectionPool() {
         final HttpClientBuilder httpClientBuilder = HttpClients.custom()
+                .disableRedirectHandling()
                 .setConnectionManager(connectionManager)
                 .setConnectionManagerShared(true);
         Util.applyRequestConfig(httpClientBuilder, this.payConfiguration);

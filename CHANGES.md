@@ -1,3 +1,9 @@
+### Version 2.6.6 - February 2025
+* Introducing new Account Management APIs that allow partners to programmatically onboard merchants onto the Amazon Pay.
+* The `createMerchantAccount` - Provide merchant info through this API to create loginable account for your merchant partners. Client should expect either a success message or a detailed error message based on data validation and fulfillment.
+* The `updateMerchantAccount` - Updates a merchant account and store for the given Amazon merchantAccountId. Partners are only able to update fields which do not change the legal business entity itself.
+* The `merchantAccountClaim` - Initiates the merchant account claim process. Clients should expect a redirection response or a detailed error message based on data validation and fulfillment.
+
 ### Version 2.6.5 - January 2025
 * Introducing new v2 Dispute APIs for PSPs. Buyers can create a dispute by filing an Amazon Pay A-to-z Guarantee claim or by filing a chargeback with their bank.
 * The `createDispute` API is used to notify Amazon of a newly created chargeback dispute by a buyer on a transaction processed by the PSP (Payment Service Provider), ensuring the dispute is properly accounted for in the Amazon Pay systems.
