@@ -17,7 +17,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
     <dependency>
         <groupId>software.amazon.pay</groupId>
         <artifactId>amazon-pay-api-sdk-java</artifactId>
-        <version>2.6.6</version>
+        <version>2.6.7</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ To use the SDK in a Maven project, add a <dependency> reference in your pom.xml 
 To use the SDK in a Gradle project, add the following line to your build.gradle file::
 
 ```
-implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.6'
+implementation 'software.amazon.pay:amazon-pay-api-sdk-java:2.6.7'
 ```
 
 For legacy projects, you can just grab the binary [jar file](https://github.com/amzn/amazon-pay-api-sdk-java/releases) from the GitHub Releases page.
@@ -243,6 +243,7 @@ In the event of request throttling, the HTTPS call will be attempted up to three
 ### Amazon Checkout v2 Dispute object
 * WebstoreClient: **createDispute**(JSONObject payload, Map<String, String> header) &#8594; POST to "$version/disputes"
 * WebstoreClient: **updateDispute**(String disputeId, JSONObject payload, Map<String, String> header) &#8594; PATCH to "$version/disputes/$disputeId"
+* WebstoreClient: **getDispute**(String disputeId, Map<String, String> header) &#8594; GET to "$version/disputes/$disputeId"
 * WebstoreClient: **contestDispute**(String disputeId, JSONObject payload, Map<String, String> header) &#8594; POST to "$version/disputes/$disputeId/contest"
 * WebstoreClient: **uploadFile**(JSONObject payload, Map<String, String> header) &#8594; POST to "$version/files"
 
@@ -1156,6 +1157,18 @@ private JSONObject createStatusDetails(DisputeResolution resolution, DisputeStat
     }
 
     return statusDetails;
+}
+```
+
+#### GetDispute API request 
+
+```java
+try {
+    final AmazonPayResponse response = webstoreClient.getDispute("P03-0000000-0000000-B0000000");
+    System.out.println(response.getRawResponse());
+    System.out.println(response.getStatus());
+} catch (AmazonPayClientException e) {
+    e.printStackTrace();
 }
 ```
 

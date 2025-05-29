@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Collections;
 
 public class WebstoreClient extends AmazonPayClient {
 
@@ -759,6 +760,31 @@ public class WebstoreClient extends AmazonPayClient {
      */
     public AmazonPayResponse contestDispute(final String disputeId, final JSONObject payload) throws AmazonPayClientException {
         return contestDispute(disputeId, payload, null);
+    }
+
+    /**
+     * The getDispute operation is used to retrieve details of a chargeback dispute associated with a specific order.
+     *
+     * @param disputeId The unique Dispute ID provided by Amazon Pay for the chargeback case.
+     * @param header Map<String, String> containing key-value pairs of optional headers (e.g., x-amz-pay-authtoken).
+     * @return The response from the getDispute service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to a bad request or other issues.
+     */
+    public AmazonPayResponse getDispute(final String disputeId, final Map<String, String> header) throws AmazonPayClientException {
+        final URI baseUri = Util.getServiceURI(payConfiguration, ServiceConstants.DISPUTES);
+        final URI finalUri = baseUri.resolve(baseUri.getPath() + "/" + disputeId);
+        return callAPI(finalUri, "GET", null, "", header);
+    }
+
+    /**
+     * The getDispute operation is used to retrieve details of a chargeback dispute associated with a specific order.
+     *
+     * @param disputeId The unique Dispute ID provided by Amazon Pay for the chargeback case.
+     * @return The response from the getDispute service API, as returned by Amazon Pay.
+     * @throws AmazonPayClientException When an error response is returned by Amazon Pay due to a bad request or other issues.
+     */
+    public AmazonPayResponse getDispute(final String disputeId) throws AmazonPayClientException {
+        return getDispute(disputeId, Collections.emptyMap());
     }
 
     // ----------------------------------- CV2 FILE APIS -----------------------------------

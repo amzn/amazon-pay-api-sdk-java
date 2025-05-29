@@ -1,3 +1,7 @@
+### Version 2.6.7 - May 2025
+* Introducing GetDispute API which is used to retrieve details of a chargeback dispute associated with a specific order
+* Added error code `425` to API retry logic
+
 ### Version 2.6.6 - February 2025
 * Introducing new Account Management APIs that allow partners to programmatically onboard merchants onto the Amazon Pay.
 * The `createMerchantAccount` - Provide merchant info through this API to create loginable account for your merchant partners. Client should expect either a success message or a detailed error message based on data validation and fulfillment.

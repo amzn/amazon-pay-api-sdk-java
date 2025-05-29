@@ -33,6 +33,10 @@ public enum EvidenceType {
     CANCELLATION_POLICY("CancellationPolicy"),
     CUSTOMER_SIGNATURE("CustomerSignature"),
     TRACKING_NUMBER("TrackingNumber"),
+    CARRIER_NAME("CarrierName"),
+    DEVICE_ID("DeviceId"),
+    DEVICE_NAME("DeviceName"),
+    DOWNLOAD_DATE_TIME("DownloadDateTime"),
     OTHER("Other");
 
     private final String evidenceType;
