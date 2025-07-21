@@ -20,22 +20,18 @@ import com.amazon.pay.api.types.Region;
 import org.json.JSONObject;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Base64;
-import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemReader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.Signature;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
-import java.security.spec.X509EncodedKeySpec;
 
 public class GenerateButtonSignatureTest {
     private WebstoreClient client;
@@ -47,10 +43,17 @@ public class GenerateButtonSignatureTest {
 
     @Before
     public void setUp() throws Exception {
-        // Load private key and configure client
+        // Generate a temporary key pair for testing
+        Security.addProvider(new BouncyCastleProvider());
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Configure client with generated private key
         final PayConfiguration config = new PayConfiguration()
-                .setPrivateKey(new String(Files.readAllBytes(
-                Paths.get("tst/com/amazon/pay/api/unit_test_private_key.txt"))).toCharArray())
+                .setPrivateKey(privateKey)
                 .setRegion(Region.NA)
                 .setPublicKeyId("ABCDEF0000000000000")
                 .setEnvironment(Environment.SANDBOX);
@@ -58,23 +61,14 @@ public class GenerateButtonSignatureTest {
 
         // With Algorithm set in payConfiguration
         final PayConfiguration configWithAlgorithm = new PayConfiguration()
-                .setPrivateKey(new String(Files.readAllBytes(
-                Paths.get("tst/com/amazon/pay/api/unit_test_private_key.txt"))).toCharArray())
+                .setPrivateKey(privateKey)
                 .setRegion(Region.NA)
                 .setPublicKeyId("ABCDEF0000000000000")
                 .setEnvironment(Environment.SANDBOX)
                 .setAlgorithm("AMZN-PAY-RSASSA-PSS-V2");
         clientWithAlgorithm = new WebstoreClient(configWithAlgorithm);
 
-        // Load public key and prepare verifier
-        Security.addProvider(new BouncyCastleProvider());
-        final PemReader pemReader = new PemReader(new StringReader(new String(Files.readAllBytes(
-            Paths.get("tst/com/amazon/pay/api/unit_test_public_key.txt")))));
-        final PemObject pemObject = pemReader.readPemObject();
-        pemReader.close();
-        final X509EncodedKeySpec spec = new X509EncodedKeySpec(pemObject.getContent());
-        final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        final PublicKey publicKey = keyFactory.generatePublic(spec);
+        // Set up signature verification with the generated public key
         final MGF1ParameterSpec mgf1ParameterSpec = new MGF1ParameterSpec(ServiceConstants.HASH_ALGORITHM);
         final PSSParameterSpec pssParameterSpec = new PSSParameterSpec(ServiceConstants.HASH_ALGORITHM,
                 ServiceConstants.MASK_GENERATION_FUNCTION, mgf1ParameterSpec, 20, SignatureHelper.TRAILER_FIELD);
@@ -120,5 +114,4 @@ public class GenerateButtonSignatureTest {
         signature.update(PLAIN_TEXT.getBytes());
         Assert.assertTrue(signature.verify(Base64.decode(signatureString)));
     }
-
 }

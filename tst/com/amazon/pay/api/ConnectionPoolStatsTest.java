@@ -9,8 +9,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.Security;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,14 +35,20 @@ public class ConnectionPoolStatsTest {
     @Before
     public void setUp() throws Exception {
 
+        // Generate a temporary key pair for testing
+        Security.addProvider(new BouncyCastleProvider());
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        
         proxySettings = new ProxySettings()
                 .setProxyHost(proxyhost)
                 .setProxyPort(proxyPort)
                 .setProxyUser(proxyUser)
                 .setProxyPassword(proxyPassword);
         payConfiguration = new PayConfiguration()
-                .setPrivateKey(new String(Files.readAllBytes(
-                        Paths.get("tst/com/amazon/pay/api/unit_test_private_key.txt"))).toCharArray())
+                .setPrivateKey(privateKey)
                 .setRegion(Region.NA)
                 .setPublicKeyId("ABCDEF0000000000000")
                 .setEnvironment(Environment.SANDBOX)
